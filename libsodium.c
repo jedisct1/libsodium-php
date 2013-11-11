@@ -18,28 +18,28 @@ ZEND_BEGIN_ARG_INFO(FirstArgByReference, 0)
 ZEND_END_ARG_INFO()
 
 const zend_function_entry libsodium_functions[] = {
-	PHP_FE(sodium_version_string, NULL)
+        PHP_FE(sodium_version_string, NULL)
     PHP_FE(sodium_library_version_major, NULL)
     PHP_FE(sodium_library_version_minor, NULL)
     PHP_FE(sodium_memzero, FirstArgByReference)
-	PHP_FE_END	/* Must be the last line in libsodium_functions[] */
+        PHP_FE_END      /* Must be the last line in libsodium_functions[] */
 };
 
 zend_module_entry libsodium_module_entry = {
 #if ZEND_MODULE_API_NO >= 20010901
-	STANDARD_MODULE_HEADER,
+        STANDARD_MODULE_HEADER,
 #endif
-	"libsodium",
-	libsodium_functions,
-	PHP_MINIT(libsodium),
-	PHP_MSHUTDOWN(libsodium),
-	NULL,
-	NULL,
-	PHP_MINFO(libsodium),
+        "libsodium",
+        libsodium_functions,
+        PHP_MINIT(libsodium),
+        PHP_MSHUTDOWN(libsodium),
+        NULL,
+        NULL,
+        PHP_MINFO(libsodium),
 #if ZEND_MODULE_API_NO >= 20010901
-	PHP_LIBSODIUM_VERSION,
+        PHP_LIBSODIUM_VERSION,
 #endif
-	STANDARD_MODULE_PROPERTIES
+        STANDARD_MODULE_PROPERTIES
 };
 /* }}} */
 
@@ -52,34 +52,34 @@ PHP_MINIT_FUNCTION(libsodium)
     if (sodium_init() != 0) {
         zend_error(E_ERROR, "sodium_init()");
     }
-	return SUCCESS;
+        return SUCCESS;
 }
 
 PHP_MSHUTDOWN_FUNCTION(libsodium)
 {
-	return SUCCESS;
+        return SUCCESS;
 }
 
 PHP_MINFO_FUNCTION(libsodium)
 {
-	php_info_print_table_start();
-	php_info_print_table_header(2, "libsodium support", "enabled");
-	php_info_print_table_end();
+        php_info_print_table_start();
+        php_info_print_table_header(2, "libsodium support", "enabled");
+        php_info_print_table_end();
 }
 
 PHP_FUNCTION(sodium_version_string)
 {
-	RETURN_STRING(sodium_version_string(), 1);
+        RETURN_STRING(sodium_version_string(), 1);
 }
 
 PHP_FUNCTION(sodium_library_version_major)
 {
-	RETURN_LONG(sodium_library_version_major());
+        RETURN_LONG(sodium_library_version_major());
 }
 
 PHP_FUNCTION(sodium_library_version_minor)
 {
-	RETURN_LONG(sodium_library_version_minor());
+        RETURN_LONG(sodium_library_version_minor());
 }
 
 PHP_FUNCTION(sodium_memzero)
@@ -87,7 +87,7 @@ PHP_FUNCTION(sodium_memzero)
     zval *zv;
     char *str;
     int   len;
-    
+
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
                               "z", &zv) == FAILURE ||
         Z_TYPE_P(zv) != IS_STRING) {

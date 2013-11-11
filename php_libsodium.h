@@ -27,11 +27,11 @@ extern zend_module_entry libsodium_module_entry;
 #define PHP_LIBSODIUM_VERSION "0.1.0" /* Replace with version number for your extension */
 
 #ifdef PHP_WIN32
-#	define PHP_LIBSODIUM_API __declspec(dllexport)
+#       define PHP_LIBSODIUM_API __declspec(dllexport)
 #elif defined(__GNUC__) && __GNUC__ >= 4
-#	define PHP_LIBSODIUM_API __attribute__ ((visibility("default")))
+#       define PHP_LIBSODIUM_API __attribute__ ((visibility("default")))
 #else
-#	define PHP_LIBSODIUM_API
+#       define PHP_LIBSODIUM_API
 #endif
 
 #ifdef ZTS
@@ -55,7 +55,7 @@ PHP_FUNCTION(sodium_memzero);
 #define LIBSODIUM_G(v) (libsodium_globals.v)
 #endif
 
-#endif	/* PHP_LIBSODIUM_H */
+#endif  /* PHP_LIBSODIUM_H */
 
 /*
  * Local variables:
