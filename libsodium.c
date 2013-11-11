@@ -10,10 +10,18 @@
 
 #include <sodium.h>
 
+const int pass_rest_by_reference = 1;
+const int pass_arg_by_reference = 0;
+
+ZEND_BEGIN_ARG_INFO(FirstArgByReference, 0)
+   ZEND_ARG_PASS_INFO(1)
+ZEND_END_ARG_INFO()
+
 const zend_function_entry libsodium_functions[] = {
 	PHP_FE(sodium_version_string, NULL)
     PHP_FE(sodium_library_version_major, NULL)
     PHP_FE(sodium_library_version_minor, NULL)
+    PHP_FE(sodium_memzero, FirstArgByReference)
 	PHP_FE_END	/* Must be the last line in libsodium_functions[] */
 };
 
@@ -72,4 +80,24 @@ PHP_FUNCTION(sodium_library_version_major)
 PHP_FUNCTION(sodium_library_version_minor)
 {
 	RETURN_LONG(sodium_library_version_minor());
+}
+
+PHP_FUNCTION(sodium_memzero)
+{
+    zval *zv;
+    char *str;
+    int   len;
+    
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+                              "z", &zv) == FAILURE ||
+        Z_TYPE_P(zv) != IS_STRING) {
+        zend_error(E_ERROR, "sodium_parse");
+        return;
+    }
+    str = Z_STRVAL(*zv);
+    len = Z_STRLEN(*zv);
+    if (len > 0) {
+        sodium_memzero(str, (size_t) len);
+    }
+    convert_to_null(zv);
 }
