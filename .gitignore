@@ -1,3 +1,4 @@
+*~
 *.a
 *.app
 *.dll
@@ -31,5 +32,5 @@ missing
 mkinstalldirs
 tests/*.diff
 tests/*.log
-tests/*.phpt
+tests/*.php
 tests/*.sh

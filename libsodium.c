@@ -11,7 +11,9 @@
 #include <sodium.h>
 
 const zend_function_entry libsodium_functions[] = {
-	PHP_FE(sodium_version_string,	NULL)
+	PHP_FE(sodium_version_string, NULL)
+    PHP_FE(sodium_library_version_major, NULL)
+    PHP_FE(sodium_library_version_minor, NULL)
 	PHP_FE_END	/* Must be the last line in libsodium_functions[] */
 };
 
@@ -60,4 +62,14 @@ PHP_MINFO_FUNCTION(libsodium)
 PHP_FUNCTION(sodium_version_string)
 {
 	RETURN_STRING(sodium_version_string(), 1);
+}
+
+PHP_FUNCTION(sodium_library_version_major)
+{
+	RETURN_LONG(sodium_library_version_major());
+}
+
+PHP_FUNCTION(sodium_library_version_minor)
+{
+	RETURN_LONG(sodium_library_version_minor());
 }
