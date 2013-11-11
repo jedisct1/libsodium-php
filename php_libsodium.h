@@ -44,27 +44,7 @@ PHP_RINIT_FUNCTION(libsodium);
 PHP_RSHUTDOWN_FUNCTION(libsodium);
 PHP_MINFO_FUNCTION(libsodium);
 
-PHP_FUNCTION(confirm_libsodium_compiled);	/* For testing, remove later. */
-
-/* 
-  	Declare any global variables you may need between the BEGIN
-	and END macros here:     
-
-ZEND_BEGIN_MODULE_GLOBALS(libsodium)
-	long  global_value;
-	char *global_string;
-ZEND_END_MODULE_GLOBALS(libsodium)
-*/
-
-/* In every utility function you add that needs to use variables 
-   in php_libsodium_globals, call TSRMLS_FETCH(); after declaring other 
-   variables used by that function, or better yet, pass in TSRMLS_CC
-   after the last function argument and declare your utility function
-   with TSRMLS_DC after the last declared argument.  Always refer to
-   the globals in your function as LIBSODIUM_G(variable).  You are 
-   encouraged to rename these macros something shorter, see
-   examples in any other php module directory.
-*/
+PHP_FUNCTION(sodium_version_string);
 
 #ifdef ZTS
 #define LIBSODIUM_G(v) TSRMG(libsodium_globals_id, zend_libsodium_globals *, v)
@@ -73,7 +53,6 @@ ZEND_END_MODULE_GLOBALS(libsodium)
 #endif
 
 #endif	/* PHP_LIBSODIUM_H */
-
 
 /*
  * Local variables:
