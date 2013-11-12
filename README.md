@@ -81,8 +81,8 @@ $a = randombytes_uniform($n);
 Utilities
 =========
 
-Securely wiping sensitive information from memory
--------------------------------------------------
+Wiping sensitive information from memory
+----------------------------------------
 
 ```php
 $a = 'secret key';
