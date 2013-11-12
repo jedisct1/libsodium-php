@@ -327,10 +327,10 @@ PHP_FUNCTION(crypto_generichash)
     unsigned char *msg;
     unsigned char *out;
     size_t         out_len = crypto_generichash_BYTES;
-    int            key_len;
+    int            key_len = 0;
     int            msg_len;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|l",
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sl",
                               &msg, &msg_len,
                               &key, &key_len,
                               &out_len) == FAILURE) {
@@ -340,8 +340,9 @@ PHP_FUNCTION(crypto_generichash)
         out_len > crypto_generichash_BYTES_MAX) {
         zend_error(E_ERROR, "crypto_generichash(): unsupported output length");
     }
-    if (key_len < crypto_generichash_KEYBYTES_MIN ||
-        key_len > crypto_generichash_KEYBYTES_MAX) {
+    if (key_len != 0 &&
+        (key_len < crypto_generichash_KEYBYTES_MIN ||
+         key_len > crypto_generichash_KEYBYTES_MAX)) {
         zend_error(E_ERROR, "crypto_generichash(): unsupported key length");
     }
     out = safe_emalloc((size_t) out_len, 1U, 0U);
