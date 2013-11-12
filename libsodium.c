@@ -26,6 +26,7 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(randombytes_buf, NULL)
     PHP_FE(randombytes_random, NULL)
     PHP_FE(randombytes_uniform, NULL)
+    PHP_FE(crypto_shorthash, NULL)
     PHP_FE_END      /* Must be the last line in libsodium_functions[] */
 };
 
@@ -56,6 +57,12 @@ PHP_MINIT_FUNCTION(libsodium)
     if (sodium_init() != 0) {
         zend_error(E_ERROR, "sodium_init()");
     }
+    REGISTER_LONG_CONSTANT("CRYPTO_SHORTHASH_BYTES",
+                           crypto_shorthash_BYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SHORTHASH_KEYBYTES",
+                           crypto_shorthash_KEYBYTES,
+                           CONST_PERSISTENT | CONST_CS);
     return SUCCESS;
 }
 
@@ -158,4 +165,28 @@ PHP_FUNCTION(randombytes_uniform)
         return;
     }
     RETURN_LONG((int) randombytes_uniform((uint32_t) upper_bound));
+}
+
+PHP_FUNCTION(crypto_shorthash)
+{
+    unsigned char *key;
+    unsigned char *msg;
+    unsigned char *out;
+    int            key_len;
+    int            msg_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &msg, &msg_len,
+                              &key, &key_len) == FAILURE) {
+        return;
+    }
+    if (key_len != crypto_shorthash_KEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_shorthash(): key size should be CRYPTO_SHORTHASH_KEYBYTES long");
+    }
+    out = safe_emalloc(crypto_shorthash_BYTES, 1U, 0U);
+    if (crypto_shorthash(out, msg, (unsigned long long) msg_len, key) != 0) {
+        zend_error(E_ERROR, "crypto_shorthash()");
+    }
+    RETURN_STRINGL((const char *) out, crypto_shorthash_BYTES, 0);
 }

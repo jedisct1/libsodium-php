@@ -52,6 +52,7 @@ PHP_FUNCTION(sodium_memcmp);
 PHP_FUNCTION(randombytes_buf);
 PHP_FUNCTION(randombytes_random);
 PHP_FUNCTION(randombytes_uniform);
+PHP_FUNCTION(crypto_shorthash);
 
 #ifdef ZTS
 #define LIBSODIUM_G(v) TSRMG(libsodium_globals_id, zend_libsodium_globals *, v)
