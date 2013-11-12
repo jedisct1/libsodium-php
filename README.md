@@ -52,8 +52,10 @@ $h = crypto_shorthash('message', $key);
 
 This function has been optimized for short messages.
 
-Secure random numbers generators
-================================
+Pseudorandom numbers generators
+===============================
+
+These number generators are cryptographically secure.
 
 $n pseudorandom bytes
 ---------------------
