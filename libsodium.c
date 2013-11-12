@@ -35,6 +35,7 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(crypto_secretbox_open, NULL)
     PHP_FE(crypto_generichash, NULL)
     PHP_FE(crypto_box_keypair, NULL)
+    PHP_FE(crypto_box_keypair_from_secretkey_and_publickey, NULL)
     PHP_FE(crypto_box_secretkey, NULL)
     PHP_FE(crypto_box_publickey, NULL)
     PHP_FE(crypto_box_publickey_from_secretkey, NULL)
@@ -377,6 +378,36 @@ PHP_FUNCTION(crypto_box_keypair)
         zend_error(E_ERROR, "crypto_box_keypair()");
     }
     RETURN_STRINGL((char *) keypair, keypair_len, 0);
+}
+
+PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey)
+{
+    char   *keypair;
+    char   *publickey;
+    char   *secretkey;
+    size_t  keypair_len;
+    int     publickey_len;
+    int     secretkey_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &secretkey, &secretkey_len,
+                              &publickey, &publickey_len) == FAILURE) {
+        return;
+    }
+    if (secretkey_len != crypto_box_SECRETKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_keypair_from_secretkey_and_publickey(): secretkey should be CRYPTO_BOX_SECRETKEYBYTES long");
+    }
+    if (publickey_len != crypto_box_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_keypair_from_secretkey_and_publickey(): publickey should be CRYPTO_BOX_PUBLICKEYBYTES long");
+    }
+    keypair_len = crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES;
+    keypair = safe_emalloc(keypair_len, 1U, 0U);
+    memcpy(keypair, secretkey, crypto_box_SECRETKEYBYTES);
+    memcpy(keypair + crypto_box_SECRETKEYBYTES, publickey,
+           crypto_box_PUBLICKEYBYTES);
+    RETURN_STRINGL(keypair, keypair_len, 0);
 }
 
 PHP_FUNCTION(crypto_box_secretkey)

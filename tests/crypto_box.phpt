@@ -13,6 +13,8 @@ var_dump(strlen($pk) === CRYPTO_BOX_PUBLICKEYBYTES);
 var_dump($pk !== $sk);
 $pk2 = crypto_box_publickey_from_secretkey($sk);
 var_dump($pk === $pk2);
+$keypair2 = crypto_box_keypair_from_secretkey_and_publickey($sk, $pk);
+var_dump($keypair === $keypair2);
 ?>
 --EXPECT--
 bool(true)
@@ -20,3 +22,5 @@ bool(true)
 bool(true)
 bool(true)
 bool(true)
+bool(true)
+

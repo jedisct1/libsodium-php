@@ -57,6 +57,7 @@ PHP_FUNCTION(crypto_secretbox);
 PHP_FUNCTION(crypto_secretbox_open);
 PHP_FUNCTION(crypto_generichash);
 PHP_FUNCTION(crypto_box_keypair);
+PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey);
 PHP_FUNCTION(crypto_box_secretkey);
 PHP_FUNCTION(crypto_box_publickey);
 PHP_FUNCTION(crypto_box_publickey_from_secretkey);
