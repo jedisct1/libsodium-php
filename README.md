@@ -12,7 +12,7 @@ Secret-key authenticated encryption
 
 ```php
 $nonce = randombytes_buf(CRYPTO_SECRETBOX_NONCEBYTES);
-$key = [a string that should be CRYPTO_SECRETBOX_KEYBYTES long];
+$key = [a binary string that should be CRYPTO_SECRETBOX_KEYBYTES long];
 $ciphertext = crypto_secretbox('test', $nonce, $key);
 $plaintext = crypto_secretbox_open($ciphertext, $nonce, $key);
 ```
