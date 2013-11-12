@@ -16,7 +16,11 @@ $ciphertext = crypto_secretbox('test', $nonce, $key);
 $plaintext = crypto_secretbox_open($ciphertext, $nonce, $key);
 ```
 
-Never ever reuse the same ($nonce, $key) pair.
+The same message encrypted with the same key, but with two different
+nonces, will produce two totally different ciphertexts.
+Which is usually what you want. Do not use the same `(key, nonce)`
+pair twice.
+The nonce can be public as long as the key isn't.
 
 Hash functions
 ==============
@@ -50,12 +54,19 @@ Very Fast, short (64 bits), keyed hash function
 $h = crypto_shorthash('message', $key);
 ```
 
-This function has been optimized for short messages.
+This function has been optimized for short messages. Its short output
+length doesn't make it collision resistant.
+
+Typical uses are:
+- Building data structures such as hash tables and bloom filters.
+- Adding authentication tags to network traffic.
+
+When in doubt, use `crypto_generichash()` instead.
 
 Pseudorandom numbers generators
 ===============================
 
-These number generators are cryptographically secure.
+These random number generators are cryptographically secure.
 
 $n pseudorandom bytes
 ---------------------
@@ -78,6 +89,8 @@ A pseudorandom value between 0 and $n
 $a = randombytes_uniform($n);
 ```
 
+Unlike `rand() % $n`, the distribution of the output values is uniform.
+
 Utilities
 =========
 
@@ -93,7 +106,7 @@ Constant-time comparison
 ------------------------
 
 ```php
-if (sodium_memcmp($a, $b) == 0) {
+if (sodium_memcmp($a, $b) === 0) {
   ...
 }
 ```
