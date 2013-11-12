@@ -21,6 +21,10 @@ ZEND_BEGIN_ARG_INFO(FirstArgByReference, 0)
 ZEND_ARG_PASS_INFO(1)
 ZEND_END_ARG_INFO()
 
+#ifndef PHP_FE_END
+# define PHP_FE_END { NULL, NULL, NULL }
+#endif
+
 const zend_function_entry libsodium_functions[] = {
     PHP_FE(sodium_version_string, NULL)
     PHP_FE(sodium_library_version_major, NULL)
