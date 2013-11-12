@@ -19,8 +19,10 @@ $plaintext = crypto_secretbox_open($ciphertext, $nonce, $key);
 
 The same message encrypted with the same key, but with two different
 nonces, will produce two totally different ciphertexts.
-Which is usually what you want. Do not use the same `(key, nonce)`
-pair twice.
+Which is probably what you want.
+
+Do not use the same `(key, nonce)` pair twice.
+
 The nonce can be public as long as the key isn't.
 
 Hash functions
