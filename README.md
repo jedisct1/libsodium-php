@@ -55,22 +55,22 @@ This function has been optimized for short messages.
 Secure random numbers generators
 ================================
 
-Building a binary string of $n pseudorandom bytes
--------------------------------------------------
+$n pseudorandom bytes
+---------------------
 
 ```php
 $a = randombytes_buf($n);
 ```
 
-Generating a pseudorandom 32-bit value
---------------------------------------
+A pseudorandom 32-bit value
+---------------------------
 
 ```php
 $a = randombyes_random();
 ```
 
-Generating a pseudorandom value between 0 and $n
-------------------------------------------------
+A pseudorandom value between 0 and $n
+-------------------------------------
 
 ```php
 $a = randombytes_uniform($n);
