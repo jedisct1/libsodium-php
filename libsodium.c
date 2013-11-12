@@ -33,6 +33,7 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(crypto_shorthash, NULL)
     PHP_FE(crypto_secretbox, NULL)
     PHP_FE(crypto_secretbox_open, NULL)
+    PHP_FE(crypto_generichash, NULL)
     PHP_FE_END      /* Must be the last line in libsodium_functions[] */
 };
 
@@ -74,6 +75,27 @@ PHP_MINIT_FUNCTION(libsodium)
                            CONST_PERSISTENT | CONST_CS);
     REGISTER_LONG_CONSTANT("CRYPTO_SECRETBOX_NONCEBYTES",
                            crypto_secretbox_NONCEBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_BYTES",
+                           crypto_generichash_BYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_BYTES_MIN",
+                           crypto_generichash_BYTES_MIN,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_BYTES_MAX",
+                           crypto_generichash_BYTES_MAX,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_KEYBYTES",
+                           crypto_generichash_KEYBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_KEYBYTES_MIN",
+                           crypto_generichash_KEYBYTES_MIN,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_KEYBYTES_MAX",
+                           crypto_generichash_KEYBYTES_MAX,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_BLOCKBYTES",
+                           crypto_generichash_BLOCKBYTES,
                            CONST_PERSISTENT | CONST_CS);
     return SUCCESS;
 }
@@ -297,4 +319,34 @@ PHP_FUNCTION(crypto_secretbox_open)
         RETURN_STRINGL((char *) out + crypto_secretbox_ZEROBYTES,
                        ciphertext_len - crypto_secretbox_MACBYTES, 0);
     }
+}
+
+PHP_FUNCTION(crypto_generichash)
+{
+    unsigned char *key = NULL;
+    unsigned char *msg;
+    unsigned char *out;
+    size_t         out_len = crypto_generichash_BYTES;
+    int            key_len;
+    int            msg_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|l",
+                              &msg, &msg_len,
+                              &key, &key_len,
+                              &out_len) == FAILURE) {
+        return;
+    }
+    if (out_len < crypto_generichash_BYTES_MIN ||
+        out_len > crypto_generichash_BYTES_MAX) {
+        zend_error(E_ERROR, "crypto_generichash(): unsupported output length");
+    }
+    if (key_len < crypto_generichash_KEYBYTES_MIN ||
+        key_len > crypto_generichash_KEYBYTES_MAX) {
+        zend_error(E_ERROR, "crypto_generichash(): unsupported key length");
+    }
+    out = safe_emalloc((size_t) out_len, 1U, 0U);
+    if (crypto_generichash(out, out_len, msg, msg_len, key, key_len) != 0) {
+        zend_error(E_ERROR, "crypto_generichash()");
+    }
+    RETURN_STRINGL((char *) out, out_len, 0);
 }

@@ -55,6 +55,7 @@ PHP_FUNCTION(randombytes_uniform);
 PHP_FUNCTION(crypto_shorthash);
 PHP_FUNCTION(crypto_secretbox);
 PHP_FUNCTION(crypto_secretbox_open);
+PHP_FUNCTION(crypto_generichash);
 
 #ifdef ZTS
 #define LIBSODIUM_G(v) TSRMG(libsodium_globals_id, zend_libsodium_globals *, v)
