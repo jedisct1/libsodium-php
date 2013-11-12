@@ -3,8 +3,11 @@ libsodium-php
 
 A simple, low-level libsodium extension for PHP.
 
+Secret-key cryptography
+=======================
+
 Secret-key authenticated encryption
-===================================
+-----------------------------------
 
 ```php
 $nonce = randombytes_buf(CRYPTO_SECRETBOX_NONCEBYTES);
@@ -15,8 +18,11 @@ $plaintext = crypto_secretbox_open($ciphertext, $nonce, $key);
 
 Never ever reuse the same ($nonce, $key) pair.
 
+Hash functions
+==============
+
 Generic hash function
-=====================
+---------------------
 
 ```php
 // Fast, unkeyed hash function.
@@ -36,13 +42,15 @@ $h = crypto_generichash('msg', $key);
 $h = crypto_generichash('msg', $key, 64);
 ```
 
-Fast, short (64 bits), keyed hash function
-==========================================
+Very Fast, short (64 bits), keyed hash function
+-----------------------------------------------
 
 ```php
 // $key must be 16 bytes (128 bits) long
 $h = crypto_shorthash('message', $key);
 ```
+
+This function has been optimized for short messages.
 
 Secure random numbers generators
 ================================
