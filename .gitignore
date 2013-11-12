@@ -12,6 +12,7 @@
 *.out
 *.so
 *.so.*
+*.tmp
 .deps
 .libs
 Makefile
