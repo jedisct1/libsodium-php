@@ -1,6 +1,6 @@
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+# include "config.h"
 #endif
 
 #include "php.h"
@@ -22,25 +22,28 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(sodium_library_version_major, NULL)
     PHP_FE(sodium_library_version_minor, NULL)
     PHP_FE(sodium_memzero, FirstArgByReference)
-    PHP_FE(sodium_memcmp, NULL)                
+    PHP_FE(sodium_memcmp, NULL)
+    PHP_FE(randombytes_buf, NULL)
+    PHP_FE(randombytes_random, NULL)
+    PHP_FE(randombytes_uniform, NULL)
     PHP_FE_END      /* Must be the last line in libsodium_functions[] */
 };
 
 zend_module_entry libsodium_module_entry = {
 #if ZEND_MODULE_API_NO >= 20010901
-        STANDARD_MODULE_HEADER,
+    STANDARD_MODULE_HEADER,
 #endif
-        "libsodium",
-        libsodium_functions,
-        PHP_MINIT(libsodium),
-        PHP_MSHUTDOWN(libsodium),
-        NULL,
-        NULL,
-        PHP_MINFO(libsodium),
+    "libsodium",
+    libsodium_functions,
+    PHP_MINIT(libsodium),
+    PHP_MSHUTDOWN(libsodium),
+    NULL,
+    NULL,
+    PHP_MINFO(libsodium),
 #if ZEND_MODULE_API_NO >= 20010901
-        PHP_LIBSODIUM_VERSION,
+    PHP_LIBSODIUM_VERSION,
 #endif
-        STANDARD_MODULE_PROPERTIES
+    STANDARD_MODULE_PROPERTIES
 };
 /* }}} */
 
@@ -53,34 +56,34 @@ PHP_MINIT_FUNCTION(libsodium)
     if (sodium_init() != 0) {
         zend_error(E_ERROR, "sodium_init()");
     }
-        return SUCCESS;
+    return SUCCESS;
 }
 
 PHP_MSHUTDOWN_FUNCTION(libsodium)
 {
-        return SUCCESS;
+    return SUCCESS;
 }
 
 PHP_MINFO_FUNCTION(libsodium)
 {
-        php_info_print_table_start();
-        php_info_print_table_header(2, "libsodium support", "enabled");
-        php_info_print_table_end();
+    php_info_print_table_start();
+    php_info_print_table_header(2, "libsodium support", "enabled");
+    php_info_print_table_end();
 }
 
 PHP_FUNCTION(sodium_version_string)
 {
-        RETURN_STRING(sodium_version_string(), 1);
+    RETURN_STRING(sodium_version_string(), 1);
 }
 
 PHP_FUNCTION(sodium_library_version_major)
 {
-        RETURN_LONG(sodium_library_version_major());
+    RETURN_LONG(sodium_library_version_major());
 }
 
 PHP_FUNCTION(sodium_library_version_minor)
 {
-        RETURN_LONG(sodium_library_version_minor());
+    RETURN_LONG(sodium_library_version_minor());
 }
 
 PHP_FUNCTION(sodium_memzero)
@@ -92,7 +95,7 @@ PHP_FUNCTION(sodium_memzero)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
                               "z", &zv) == FAILURE ||
         Z_TYPE_P(zv) != IS_STRING) {
-        zend_error(E_ERROR, "sodium_memzero needs a PHP string");
+        zend_error(E_ERROR, "sodium_memzero: a PHP string is required");
         return;
     }
     buf = Z_STRVAL(*zv);
@@ -109,14 +112,50 @@ PHP_FUNCTION(sodium_memcmp)
     char *buf2;
     int   len1;
     int   len2;
-    
+
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &buf1, &len1,
                               &buf2, &len2) == FAILURE) {
         return;
     }
     if (len1 != len2) {
-        zend_error(E_ERROR, "sodium_memcmp() needs strings of the same length");
+        RETURN_LONG(-1);
+    } else {
+        RETURN_LONG(sodium_memcmp(buf1, buf2, len1));
     }
-    RETURN_LONG(sodium_memcmp(buf1, buf2, len1));
+}
+
+PHP_FUNCTION(randombytes_buf)
+{
+    char *buf;
+    int   len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
+                              &len) == FAILURE ||
+        len <= 0) {
+        zend_error(E_ERROR, "randombytes_buf(): invalid length");
+        return;
+    }
+    buf = safe_emalloc((size_t) len, 1U, 0U);
+    randombytes_buf(buf, (size_t) len);
+
+    RETURN_STRINGL(buf, len, 0);
+}
+
+PHP_FUNCTION(randombytes_random)
+{
+    RETURN_LONG((int) randombytes_random());
+}
+
+PHP_FUNCTION(randombytes_uniform)
+{
+    int upper_bound;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
+                              &upper_bound) == FAILURE ||
+        upper_bound <= 0) {
+        zend_error(E_ERROR, "randombytes_uniform(): invalid upper bound");
+        return;
+    }
+    RETURN_LONG((int) randombytes_uniform((uint32_t) upper_bound));
 }
