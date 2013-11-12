@@ -14,15 +14,16 @@ const int pass_rest_by_reference = 1;
 const int pass_arg_by_reference = 0;
 
 ZEND_BEGIN_ARG_INFO(FirstArgByReference, 0)
-   ZEND_ARG_PASS_INFO(1)
+ZEND_ARG_PASS_INFO(1)
 ZEND_END_ARG_INFO()
 
 const zend_function_entry libsodium_functions[] = {
-        PHP_FE(sodium_version_string, NULL)
+    PHP_FE(sodium_version_string, NULL)
     PHP_FE(sodium_library_version_major, NULL)
     PHP_FE(sodium_library_version_minor, NULL)
     PHP_FE(sodium_memzero, FirstArgByReference)
-        PHP_FE_END      /* Must be the last line in libsodium_functions[] */
+    PHP_FE(sodium_memcmp, NULL)                
+    PHP_FE_END      /* Must be the last line in libsodium_functions[] */
 };
 
 zend_module_entry libsodium_module_entry = {
@@ -85,19 +86,37 @@ PHP_FUNCTION(sodium_library_version_minor)
 PHP_FUNCTION(sodium_memzero)
 {
     zval *zv;
-    char *str;
+    char *buf;
     int   len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
                               "z", &zv) == FAILURE ||
         Z_TYPE_P(zv) != IS_STRING) {
-        zend_error(E_ERROR, "sodium_parse");
+        zend_error(E_ERROR, "sodium_memzero needs a PHP string");
         return;
     }
-    str = Z_STRVAL(*zv);
+    buf = Z_STRVAL(*zv);
     len = Z_STRLEN(*zv);
     if (len > 0) {
-        sodium_memzero(str, (size_t) len);
+        sodium_memzero(buf, (size_t) len);
     }
     convert_to_null(zv);
+}
+
+PHP_FUNCTION(sodium_memcmp)
+{
+    char *buf1;
+    char *buf2;
+    int   len1;
+    int   len2;
+    
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &buf1, &len1,
+                              &buf2, &len2) == FAILURE) {
+        return;
+    }
+    if (len1 != len2) {
+        zend_error(E_ERROR, "sodium_memcmp() needs strings of the same length");
+    }
+    RETURN_LONG(sodium_memcmp(buf1, buf2, len1));
 }
