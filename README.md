@@ -1,7 +1,8 @@
 libsodium-php
 =============
 
-A simple, low-level libsodium extension for PHP.
+A simple, low-level PHP extension for
+[libsodium](https://github.com/jedisct1/libsodium).
 
 Secret-key cryptography
 =======================
