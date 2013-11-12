@@ -34,6 +34,10 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(crypto_secretbox, NULL)
     PHP_FE(crypto_secretbox_open, NULL)
     PHP_FE(crypto_generichash, NULL)
+    PHP_FE(crypto_box_keypair, NULL)
+    PHP_FE(crypto_box_secretkey, NULL)
+    PHP_FE(crypto_box_publickey, NULL)
+    PHP_FE(crypto_box_publickey_from_secretkey, NULL)
     PHP_FE_END      /* Must be the last line in libsodium_functions[] */
 };
 
@@ -96,6 +100,15 @@ PHP_MINIT_FUNCTION(libsodium)
                            CONST_PERSISTENT | CONST_CS);
     REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_BLOCKBYTES",
                            crypto_generichash_BLOCKBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_BOX_SECRETKEYBYTES",
+                           crypto_box_SECRETKEYBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_BOX_PUBLICKEYBYTES",
+                           crypto_box_PUBLICKEYBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_BOX_KEYPAIRBYTES",
+                           crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES,
                            CONST_PERSISTENT | CONST_CS);
     return SUCCESS;
 }
@@ -351,3 +364,82 @@ PHP_FUNCTION(crypto_generichash)
     }
     RETURN_STRINGL((char *) out, out_len, 0);
 }
+
+PHP_FUNCTION(crypto_box_keypair)
+{
+    unsigned char *keypair;
+    size_t         keypair_len;
+
+    keypair_len = crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES;
+    keypair = safe_emalloc(keypair_len, 1U, 0U);
+    if (crypto_box_keypair(keypair + crypto_box_SECRETKEYBYTES,
+                           keypair) != 0) {
+        zend_error(E_ERROR, "crypto_box_keypair()");
+    }
+    RETURN_STRINGL((char *) keypair, keypair_len, 0);
+}
+
+PHP_FUNCTION(crypto_box_secretkey)
+{
+    unsigned char *keypair;
+    char          *secretkey;
+    int            keypair_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &keypair, &keypair_len) == FAILURE) {
+        return;
+    }
+    if (keypair_len !=
+        crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_secretkey(): keypair should be CRYPTO_BOX_KEYPAIRBYTES long");
+    }
+    secretkey = safe_emalloc(crypto_box_SECRETKEYBYTES, 1U, 0U);
+    memcpy(secretkey, keypair, crypto_box_SECRETKEYBYTES);
+    RETURN_STRINGL((char *) secretkey, crypto_box_SECRETKEYBYTES, 0);
+}
+
+PHP_FUNCTION(crypto_box_publickey)
+{
+    unsigned char *keypair;
+    char          *publickey;
+    int            keypair_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &keypair, &keypair_len) == FAILURE) {
+        return;
+    }
+    if (keypair_len !=
+        crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_publickey(): keypair should be CRYPTO_BOX_KEYPAIRBYTES long");
+    }
+    publickey = safe_emalloc(crypto_box_PUBLICKEYBYTES, 1U, 0U);
+    memcpy(publickey, keypair + crypto_box_SECRETKEYBYTES,
+           crypto_box_PUBLICKEYBYTES);
+    RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
+}
+
+PHP_FUNCTION(crypto_box_publickey_from_secretkey)
+{
+    unsigned char *secretkey;
+    unsigned char *publickey;
+    int            secretkey_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &secretkey, &secretkey_len) == FAILURE) {
+        return;
+    }
+    if (secretkey_len != crypto_box_SECRETKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_publickey_from_secretkey(): key should be CRYPTO_BOX_SECRETKEYBYTES long");
+    }
+    publickey = safe_emalloc(crypto_box_PUBLICKEYBYTES, 1U, 0U);
+    (void) sizeof(int[crypto_scalarmult_BYTES ==
+                      crypto_box_PUBLICKEYBYTES ? 1 : -1]);
+    (void) sizeof(int[crypto_scalarmult_SCALARBYTES ==
+                      crypto_box_SECRETKEYBYTES ? 1 : -1]);
+    crypto_scalarmult_base(publickey, secretkey);
+    RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
+}
+
