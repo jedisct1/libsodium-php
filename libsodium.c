@@ -43,7 +43,7 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(crypto_box_secretkey, NULL)
     PHP_FE(crypto_box_publickey, NULL)
     PHP_FE(crypto_box_publickey_from_secretkey, NULL)
-    PHP_FE_END      /* Must be the last line in libsodium_functions[] */
+    PHP_FE_END
 };
 
 zend_module_entry libsodium_module_entry = {
