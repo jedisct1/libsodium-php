@@ -16,13 +16,42 @@ var_dump($pk === $pk2);
 $keypair2 = crypto_box_keypair_from_secretkey_and_publickey($sk, $pk);
 var_dump($keypair === $keypair2);
 
-$nonce = randombytes_buf(CRYPTO_BOX_NONCEBYTES);
+$alice_kp = crypto_box_keypair();
+$alice_secretkey = crypto_box_secretkey($alice_kp);
+$alice_publickey = crypto_box_publickey($alice_kp);
 
-$a = crypto_box('test', $nonce, $keypair);
-$x = crypto_box_open($a, $nonce, $keypair);
-var_dump(bin2hex($x));
-$y = crypto_box_open("\0" . $a, $nonce, $keypair);
-var_dump($y);
+$bob_kp = crypto_box_keypair();
+$bob_secretkey = crypto_box_secretkey($bob_kp);
+$bob_publickey = crypto_box_publickey($bob_kp);
+
+$alice_to_bob_kp = crypto_box_keypair_from_secretkey_and_publickey
+  ($alice_secretkey, $bob_publickey);
+
+$bob_to_alice_kp = crypto_box_keypair_from_secretkey_and_publickey
+  ($bob_secretkey, $alice_publickey);
+
+$alice_to_bob_message_nonce = randombytes_buf(CRYPTO_BOX_NONCEBYTES);
+
+$alice_to_bob_ciphertext = crypto_box('Hi, this is Alice',
+                                      $alice_to_bob_message_nonce,
+                                      $alice_to_bob_kp);
+
+$alice_message_decrypted_by_bob = crypto_box_open($alice_to_bob_ciphertext,
+                                                  $alice_to_bob_message_nonce,
+                                                  $bob_to_alice_kp);
+
+$bob_to_alice_message_nonce = randombytes_buf(CRYPTO_BOX_NONCEBYTES);
+
+$bob_to_alice_ciphertext = crypto_box('Hi Alice! This is Bob',
+                                      $bob_to_alice_message_nonce,
+                                      $bob_to_alice_kp);
+
+$bob_message_decrypted_by_alice = crypto_box_open($bob_to_alice_ciphertext,
+                                                  $bob_to_alice_message_nonce,
+                                                  $alice_to_bob_kp);
+
+var_dump($alice_message_decrypted_by_bob);
+var_dump($bob_message_decrypted_by_alice);
 ?>
 --EXPECT--
 bool(true)
@@ -31,6 +60,5 @@ bool(true)
 bool(true)
 bool(true)
 bool(true)
-string(8) "74657374"
-bool(false)
-
+string(17) "Hi, this is Alice"
+string(21) "Hi Alice! This is Bob"
