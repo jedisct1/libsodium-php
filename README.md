@@ -64,6 +64,12 @@ $bob_message_decrypted_by_alice = crypto_box_open($bob_to_alice_ciphertext,
                                                   $alice_to_bob_kp);
 ```
 
+Bob only needs Alice's public key, the nonce and the ciphertext.
+Alice should never disclose her secret key.
+Alice only needs Bob's public key, the nonce and the ciphertext.
+Bob should never disclose his secret key. Unless someone drugs him and
+hits him with a $5 wrench.
+
 Hash functions
 ==============
 
