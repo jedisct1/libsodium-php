@@ -12,6 +12,7 @@ $x = crypto_secretbox_open($a, $nonce, $key);
 var_dump(bin2hex($x));
 $y = crypto_secretbox_open("\0" . $a, $nonce, $key);
 var_dump($y);
+
 ?>
 --EXPECT--
 string(8) "74657374"

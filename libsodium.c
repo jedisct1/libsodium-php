@@ -43,6 +43,8 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(crypto_box_secretkey, NULL)
     PHP_FE(crypto_box_publickey, NULL)
     PHP_FE(crypto_box_publickey_from_secretkey, NULL)
+    PHP_FE(crypto_box, NULL)
+    PHP_FE(crypto_box_open, NULL)
     PHP_FE_END
 };
 
@@ -114,6 +116,9 @@ PHP_MINIT_FUNCTION(libsodium)
                            CONST_PERSISTENT | CONST_CS);
     REGISTER_LONG_CONSTANT("CRYPTO_BOX_KEYPAIRBYTES",
                            crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_BOX_NONCEBYTES",
+                           crypto_box_NONCEBYTES,
                            CONST_PERSISTENT | CONST_CS);
     return SUCCESS;
 }
@@ -478,3 +483,106 @@ PHP_FUNCTION(crypto_box_publickey_from_secretkey)
     RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
 }
 
+PHP_FUNCTION(crypto_box)
+{
+    unsigned char *keypair;
+    unsigned char *msg;
+    unsigned char *msg_zeroed;
+    unsigned char *nonce;
+    unsigned char *out;
+    unsigned char *publickey;
+    unsigned char *secretkey;
+    int            keypair_len;
+    int            msg_len;
+    int            msg_zeroed_len;
+    int            nonce_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
+                              &msg, &msg_len,
+                              &nonce, &nonce_len,
+                              &keypair, &keypair_len) == FAILURE) {
+        return;
+    }
+    if (nonce_len != crypto_box_NONCEBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box(): nonce size should be CRYPTO_SECRETBOX_NONCEBYTES long");
+    }
+    if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box(): keypair size should be CRYPTO_BOX_KEYPAIRBYTES long");
+    }
+    secretkey = keypair;
+    publickey = keypair + crypto_box_SECRETKEYBYTES;
+    if (INT_MAX - msg_len < crypto_box_ZEROBYTES) {
+        zend_error(E_ERROR, "arithmetic overflow");
+    }
+    msg_zeroed_len = msg_len + crypto_box_ZEROBYTES;
+    msg_zeroed = safe_emalloc((size_t) msg_zeroed_len, 1U, 0U);
+    memset(msg_zeroed, 0, crypto_box_ZEROBYTES);
+    memcpy(msg_zeroed + crypto_box_ZEROBYTES, msg, msg_len);
+    if (INT_MAX - msg_len < crypto_box_BOXZEROBYTES) {
+        zend_error(E_ERROR, "arithmetic overflow");
+    }
+    out = safe_emalloc((size_t) msg_len + crypto_box_ZEROBYTES, 1U, 0U);
+    if (crypto_box(out, msg_zeroed, (unsigned long long) msg_zeroed_len,
+                   nonce, publickey, secretkey) != 0) {
+        zend_error(E_ERROR, "crypto_box()");
+    }
+    efree(msg_zeroed);
+    memmove(out, out + crypto_box_MACBYTES,
+            (size_t) msg_len + crypto_box_MACBYTES);
+
+    RETURN_STRINGL((char *) out,
+                   (size_t) msg_len + crypto_box_MACBYTES, 0);
+}
+
+PHP_FUNCTION(crypto_box_open)
+{
+    unsigned char *keypair;
+    unsigned char *ciphertext;
+    unsigned char *ciphertext_boxed;
+    unsigned char *nonce;
+    unsigned char *out;
+    unsigned char *publickey;
+    unsigned char *secretkey;
+    int            keypair_len;
+    int            ciphertext_len;
+    int            ciphertext_boxed_len;
+    int            nonce_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
+                              &ciphertext, &ciphertext_len,
+                              &nonce, &nonce_len,
+                              &keypair, &keypair_len) == FAILURE) {
+        return;
+    }
+    if (nonce_len != crypto_box_NONCEBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_open(): nonce size should be CRYPTO_BOX_NONCEBYTES long");
+    }
+    if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_open(): keypair size should be CRYPTO_BOX_KEYBYTES long");
+    }
+    secretkey = keypair;
+    publickey = keypair + crypto_box_SECRETKEYBYTES;
+    if (ciphertext_len < crypto_box_MACBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_open(): short ciphertext");
+    }
+    ciphertext_boxed_len = ciphertext_len + crypto_box_BOXZEROBYTES;
+    ciphertext_boxed = safe_emalloc((size_t) ciphertext_boxed_len, 1U, 0U);
+    memset(ciphertext_boxed, 0, crypto_box_BOXZEROBYTES);
+    memcpy(ciphertext_boxed + crypto_box_BOXZEROBYTES, ciphertext, ciphertext_len);
+    out = safe_emalloc((size_t) ciphertext_boxed_len +
+                       crypto_box_MACBYTES, 1U, 0U);
+    if (crypto_box_open(out, ciphertext_boxed,
+                        (unsigned long long) ciphertext_boxed_len,
+                        nonce, publickey, secretkey) != 0) {
+        efree(out);
+        RETURN_FALSE;
+    } else {
+        RETURN_STRINGL((char *) out + crypto_box_ZEROBYTES,
+                       ciphertext_len - crypto_box_MACBYTES, 0);
+    }
+}
