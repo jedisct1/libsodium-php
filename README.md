@@ -102,7 +102,7 @@ Very Fast, short (64 bits), keyed hash function
 -----------------------------------------------
 
 ```php
-// $key must be 16 bytes (128 bits) long
+// $key must be CRYPTO_SHORTHASH_KEYBYTES (16 byes, 128 bits) long
 $h = crypto_shorthash('message', $key);
 ```
 
