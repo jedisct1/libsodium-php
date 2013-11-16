@@ -4,6 +4,15 @@ libsodium-php
 A simple, low-level PHP extension for
 [libsodium](https://github.com/jedisct1/libsodium).
 
+Installation
+============
+
+    phpize && ./configure --with-libsodium && make test && sudo make install
+    
+And add the following line to your `php.ini` file:
+
+    extension=libsodium.so
+
 Secret-key cryptography
 =======================
 
@@ -98,7 +107,7 @@ $h = crypto_generichash('msg', $key);
 $h = crypto_generichash('msg', $key, 64);
 ```
 
-Very Fast, short (64 bits), keyed hash function
+Very fast, short (64 bits), keyed hash function
 -----------------------------------------------
 
 ```php
