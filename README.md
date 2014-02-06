@@ -79,7 +79,7 @@ Alice only needs Bob's public key, the nonce and the ciphertext.
 Bob should never disclose his secret key. Unless someone drugs him and
 hits him with a $5 wrench.
 
-If you want don't want to store public keys, the
+If you don't want to store public keys, the
 `crypto_box_publickey_from_secretkey()` function can be used to
 compute a public key given a secret key.
 
