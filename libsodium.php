@@ -11,7 +11,7 @@ foreach($functions as $func) {
     echo $func."$br\n";
 }
 echo "$br\n";
-$function = 'confirm_' . $module . '_compiled';
+$function = 'sodium_version_string';
 if (extension_loaded($module)) {
 	$str = $function($module);
 } else {
