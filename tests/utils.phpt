@@ -14,12 +14,10 @@ if ($a !== 'test') {
 echo "\n";
 $b = 'string';
 $c = 'string';
-echo sodium_memcmp($b, $c);
-echo "\n";
-echo sodium_memcmp($b, 'String');
-echo "\n";
+var_dump(!sodium_memcmp($b, $c));
+var_dump(!sodium_memcmp($b, 'String'));
 ?>
 --EXPECT--
 0
-0
-32
+bool(true)
+bool(false)
