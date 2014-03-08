@@ -192,7 +192,7 @@ PHP_FUNCTION(sodium_memcmp)
 PHP_FUNCTION(randombytes_buf)
 {
     char *buf;
-    int   len;
+    long  len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &len) == FAILURE ||
@@ -213,7 +213,7 @@ PHP_FUNCTION(randombytes_random)
 
 PHP_FUNCTION(randombytes_uniform)
 {
-    int upper_bound;
+    long upper_bound;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &upper_bound) == FAILURE ||
@@ -350,7 +350,7 @@ PHP_FUNCTION(crypto_generichash)
     unsigned char *key = NULL;
     unsigned char *msg;
     unsigned char *out;
-    size_t         out_len = crypto_generichash_BYTES;
+    long           out_len = crypto_generichash_BYTES;
     int            key_len = 0;
     int            msg_len;
 
