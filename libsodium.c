@@ -1,4 +1,3 @@
-
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -493,6 +492,7 @@ PHP_FUNCTION(crypto_box)
     unsigned char *out;
     unsigned char *publickey;
     unsigned char *secretkey;
+    unsigned char *debug;
     int            keypair_len;
     int            msg_len;
     int            msg_zeroed_len;
@@ -505,11 +505,15 @@ PHP_FUNCTION(crypto_box)
         return;
     }
     if (nonce_len != crypto_box_NONCEBYTES) {
-        zend_error(E_ERROR,
+        sprintf(debug, "%d != %d\n", nonce_len, crypto_box_NONCEBYTES);
+        zend_error(E_NOTICE, debug);
+        zend_error(E_NOTICE,
                    "crypto_box(): nonce size should be CRYPTO_BOX_NONCEBYTES long");
     }
     if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
-        zend_error(E_ERROR,
+        sprintf(debug, "%d != %d\n", keypair_len, crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES);
+        zend_error(E_NOTICE, debug);
+        zend_error(E_NOTICE,
                    "crypto_box(): keypair size should be CRYPTO_BOX_KEYPAIRBYTES long");
     }
     secretkey = keypair;
