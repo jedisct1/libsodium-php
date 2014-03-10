@@ -506,7 +506,7 @@ PHP_FUNCTION(crypto_box)
     }
     if (nonce_len != crypto_box_NONCEBYTES) {
         zend_error(E_ERROR,
-                   "crypto_box(): nonce size should be CRYPTO_SECRETBOX_NONCEBYTES long");
+                   "crypto_box(): nonce size should be CRYPTO_BOX_NONCEBYTES long");
     }
     if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
         zend_error(E_ERROR,
