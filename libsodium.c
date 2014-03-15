@@ -34,7 +34,7 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(sodium_memzero, FirstArgByReference)
     PHP_FE(sodium_memcmp, NULL)
     PHP_FE(randombytes_buf, NULL)
-    PHP_FE(randombytes_random, NULL)
+    PHP_FE(randombytes_random16, NULL)
     PHP_FE(randombytes_uniform, NULL)
     PHP_FE(crypto_shorthash, NULL)
     PHP_FE(crypto_secretbox, NULL)
@@ -208,9 +208,9 @@ PHP_FUNCTION(randombytes_buf)
     RETURN_STRINGL(buf, len, 0);
 }
 
-PHP_FUNCTION(randombytes_random)
+PHP_FUNCTION(randombytes_random16)
 {
-    RETURN_LONG((long) randombytes_random());
+    RETURN_LONG((long) (randombytes_random() & (uint32_t) 0xffff));
 }
 
 PHP_FUNCTION(randombytes_uniform)

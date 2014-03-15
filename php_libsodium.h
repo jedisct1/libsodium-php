@@ -50,7 +50,7 @@ PHP_FUNCTION(sodium_library_version_minor);
 PHP_FUNCTION(sodium_memzero);
 PHP_FUNCTION(sodium_memcmp);
 PHP_FUNCTION(randombytes_buf);
-PHP_FUNCTION(randombytes_random);
+PHP_FUNCTION(randombytes_random16);
 PHP_FUNCTION(randombytes_uniform);
 PHP_FUNCTION(crypto_shorthash);
 PHP_FUNCTION(crypto_secretbox);

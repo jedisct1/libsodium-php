@@ -16,8 +16,8 @@ if ($a === $b) {
   echo "OK\n";
 }
 $x = 10;
-$c = randombytes_random();
-while (randombytes_random() === $c) {
+$c = randombytes_random16();
+while (randombytes_random16() === $c) {
   if (--$x <= 0) {
     die("FAIL\n");
   }

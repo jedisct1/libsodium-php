@@ -136,11 +136,11 @@ $n pseudorandom bytes
 $a = randombytes_buf($n);
 ```
 
-A pseudorandom 32-bit value
----------------------------
+A pseudorandom value between 0 and 0xffff
+-----------------------------------------
 
 ```php
-$a = randombyes_random();
+$a = randombytes_random16();
 ```
 
 A pseudorandom value between 0 and $n
