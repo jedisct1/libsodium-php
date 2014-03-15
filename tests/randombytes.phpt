@@ -23,6 +23,14 @@ while (randombytes_random16() === $c) {
   }
 }
 echo "OK\n";
+$x = 10000;
+do {
+  $c = randombytes_random16();
+  if ($c < 0 || $c > 0xffff) {
+    die("FAIL\n");
+  }
+} while (--$x > 0);
+echo "OK\n";
 $d = randombytes_uniform(10);
 if ($d < 10) {
   echo "OK\n";
@@ -31,6 +39,7 @@ if ($d < 10) {
 --EXPECT--
 100
 100
+OK
 OK
 OK
 OK
