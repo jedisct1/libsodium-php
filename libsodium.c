@@ -336,13 +336,12 @@ PHP_FUNCTION(crypto_secretbox_open)
     if (crypto_secretbox_open(out, ciphertext_boxed,
                               (unsigned long long) ciphertext_boxed_len,
                               nonce, key) != 0) {
-        efree(out);
-        RETURN_FALSE;
+        RETVAL_FALSE;
     } else {
         RETVAL_STRINGL((char *) out + crypto_secretbox_ZEROBYTES,
                        ciphertext_len - crypto_secretbox_MACBYTES, 1);
-        efree(out);
     }
+    efree(out);
 }
 
 PHP_FUNCTION(crypto_generichash)
@@ -580,11 +579,10 @@ PHP_FUNCTION(crypto_box_open)
     if (crypto_box_open(out, ciphertext_boxed,
                         (unsigned long long) ciphertext_boxed_len,
                         nonce, publickey, secretkey) != 0) {
-        efree(out);
-        RETURN_FALSE;
+        RETVAL_FALSE;
     } else {
         RETVAL_STRINGL((char *) out + crypto_box_ZEROBYTES,
                        ciphertext_len - crypto_box_MACBYTES, 1);
-        efree(out);
     }
+    efree(out);
 }
