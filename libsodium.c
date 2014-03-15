@@ -119,6 +119,18 @@ PHP_MINIT_FUNCTION(libsodium)
     REGISTER_LONG_CONSTANT("CRYPTO_BOX_NONCEBYTES",
                            crypto_box_NONCEBYTES,
                            CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_BYTES",
+                           crypto_sign_BYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_SEEDBYTES",
+                           crypto_sign_SEEDBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_PUBLICKEYBYTES",
+                           crypto_sign_PUBLICKEYBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_SECRETKEYBYTES",
+                           crypto_sign_SECRETKEYBYTES,
+                           CONST_PERSISTENT | CONST_CS);
     return SUCCESS;
 }
 
