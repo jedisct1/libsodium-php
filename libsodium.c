@@ -117,7 +117,8 @@ PHP_MINIT_FUNCTION(libsodium)
                            crypto_box_PUBLICKEYBYTES,
                            CONST_PERSISTENT | CONST_CS);
     REGISTER_LONG_CONSTANT("CRYPTO_BOX_KEYPAIRBYTES",
-                           crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES,
+                           crypto_box_SECRETKEYBYTES +
+                           crypto_box_PUBLICKEYBYTES,
                            CONST_PERSISTENT | CONST_CS);
     REGISTER_LONG_CONSTANT("CRYPTO_BOX_NONCEBYTES",
                            crypto_box_NONCEBYTES,
@@ -331,7 +332,8 @@ PHP_FUNCTION(crypto_secretbox_open)
     ciphertext_boxed_len = ciphertext_len + crypto_secretbox_BOXZEROBYTES;
     ciphertext_boxed = safe_emalloc((size_t) ciphertext_boxed_len, 1U, 0U);
     memset(ciphertext_boxed, 0, crypto_secretbox_BOXZEROBYTES);
-    memcpy(ciphertext_boxed + crypto_secretbox_BOXZEROBYTES, ciphertext, ciphertext_len);
+    memcpy(ciphertext_boxed + crypto_secretbox_BOXZEROBYTES,
+           ciphertext, ciphertext_len);
     out = safe_emalloc((size_t) ciphertext_boxed_len +
                        crypto_secretbox_MACBYTES, 1U, 0U);
     if (crypto_secretbox_open(out, ciphertext_boxed,
@@ -578,7 +580,8 @@ PHP_FUNCTION(crypto_box_open)
     ciphertext_boxed_len = ciphertext_len + crypto_box_BOXZEROBYTES;
     ciphertext_boxed = safe_emalloc((size_t) ciphertext_boxed_len, 1U, 0U);
     memset(ciphertext_boxed, 0, crypto_box_BOXZEROBYTES);
-    memcpy(ciphertext_boxed + crypto_box_BOXZEROBYTES, ciphertext, ciphertext_len);
+    memcpy(ciphertext_boxed + crypto_box_BOXZEROBYTES,
+           ciphertext, ciphertext_len);
     out = safe_emalloc((size_t) ciphertext_boxed_len +
                        crypto_box_MACBYTES, 1U, 0U);
     if (crypto_box_open(out, ciphertext_boxed,
