@@ -12,7 +12,8 @@
 #include <stdint.h>
 
 #ifndef crypto_secretbox_MACBYTES
-# define crypto_secretbox_MACBYTES (crypto_secretbox_ZEROBYTES - crypto_secretbox_BOXZEROBYTES)
+# define crypto_secretbox_MACBYTES \
+    (crypto_secretbox_ZEROBYTES - crypto_secretbox_BOXZEROBYTES)
 #endif
 
 const int pass_rest_by_reference = 1;
