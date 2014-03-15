@@ -185,6 +185,9 @@ PHP_FUNCTION(sodium_memcmp)
     }
     if (len1 != len2) {
         RETURN_LONG(-1);
+    } else if (len1 > SIZE_MAX) {
+        zend_error(E_ERROR, "sodium_memcmp(): invalid length");
+        return;
     } else {
         RETURN_LONG(sodium_memcmp(buf1, buf2, len1));
     }
@@ -197,7 +200,7 @@ PHP_FUNCTION(randombytes_buf)
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &len) == FAILURE ||
-        len <= 0) {
+        len <= 0 || len > SIZE_MAX) {
         zend_error(E_ERROR, "randombytes_buf(): invalid length");
         return;
     }
@@ -209,7 +212,7 @@ PHP_FUNCTION(randombytes_buf)
 
 PHP_FUNCTION(randombytes_random)
 {
-    RETURN_LONG((int) randombytes_random());
+    RETURN_LONG((long) randombytes_random());
 }
 
 PHP_FUNCTION(randombytes_uniform)
@@ -222,7 +225,7 @@ PHP_FUNCTION(randombytes_uniform)
         zend_error(E_ERROR, "randombytes_uniform(): invalid upper bound");
         return;
     }
-    RETURN_LONG((int) randombytes_uniform((uint32_t) upper_bound));
+    RETURN_LONG((long) randombytes_uniform((uint32_t) upper_bound));
 }
 
 PHP_FUNCTION(crypto_shorthash)
