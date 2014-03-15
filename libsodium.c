@@ -338,8 +338,8 @@ PHP_FUNCTION(crypto_secretbox_open)
                               nonce, key) != 0) {
         efree(out);
         RETURN_FALSE;
-    } else {        
-        RETURN_STRINGL((char *) out + crypto_secretbox_ZEROBYTES,
+    } else {
+        RETVAL_STRINGL((char *) out + crypto_secretbox_ZEROBYTES,
                        ciphertext_len - crypto_secretbox_MACBYTES, 1);
         efree(out);
     }
@@ -583,7 +583,7 @@ PHP_FUNCTION(crypto_box_open)
         efree(out);
         RETURN_FALSE;
     } else {
-        RETURN_STRINGL((char *) out + crypto_box_ZEROBYTES,
+        RETVAL_STRINGL((char *) out + crypto_box_ZEROBYTES,
                        ciphertext_len - crypto_box_MACBYTES, 1);
         efree(out);
     }
