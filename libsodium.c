@@ -219,7 +219,7 @@ PHP_FUNCTION(randombytes_uniform)
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &upper_bound) == FAILURE ||
-        upper_bound <= 0 || upper_bound > UINT32_MAX) {
+        upper_bound <= 0 || upper_bound > INT32_MAX) {
         zend_error(E_ERROR, "randombytes_uniform(): invalid upper bound");
     }
     RETURN_LONG((long) randombytes_uniform((uint32_t) upper_bound));
