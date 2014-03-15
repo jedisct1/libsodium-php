@@ -9,6 +9,7 @@
 #include "php_libsodium.h"
 
 #include <sodium.h>
+#include <stdint.h>
 
 #ifndef crypto_secretbox_MACBYTES
 # define crypto_secretbox_MACBYTES (crypto_secretbox_ZEROBYTES - crypto_secretbox_BOXZEROBYTES)
@@ -217,7 +218,7 @@ PHP_FUNCTION(randombytes_uniform)
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &upper_bound) == FAILURE ||
-        upper_bound <= 0) {
+        upper_bound <= 0 || upper_bound > UINT32_MAX) {
         zend_error(E_ERROR, "randombytes_uniform(): invalid upper bound");
         return;
     }
