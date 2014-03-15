@@ -161,7 +161,6 @@ PHP_FUNCTION(sodium_memzero)
                               "z", &zv) == FAILURE ||
         Z_TYPE_P(zv) != IS_STRING) {
         zend_error(E_ERROR, "sodium_memzero: a PHP string is required");
-        return;
     }
     buf = Z_STRVAL(*zv);
     len = Z_STRLEN(*zv);
