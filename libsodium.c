@@ -1,4 +1,3 @@
-
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -122,6 +121,18 @@ PHP_MINIT_FUNCTION(libsodium)
                            CONST_PERSISTENT | CONST_CS);
     REGISTER_LONG_CONSTANT("CRYPTO_BOX_NONCEBYTES",
                            crypto_box_NONCEBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_BYTES",
+                           crypto_sign_BYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_SEEDBYTES",
+                           crypto_sign_SEEDBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_PUBLICKEYBYTES",
+                           crypto_sign_PUBLICKEYBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_SECRETKEYBYTES",
+                           crypto_sign_SECRETKEYBYTES,
                            CONST_PERSISTENT | CONST_CS);
     return SUCCESS;
 }
@@ -593,4 +604,84 @@ PHP_FUNCTION(crypto_box_open)
                        ciphertext_len - crypto_box_MACBYTES, 1);
     }
     efree(out);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// EXPERIMENTAL BINDING - Return a signature
+////////////////////////////////////////////////////////////////////////////////
+// $sig = crypto_sign($message, $private_key);
+////////////////////////////////////////////////////////////////////////////////
+PHP_FUNCTION(crypto_sign)
+{
+    unsigned char *signature;
+    unsigned char *msg;
+    unsigned char *signing_key;
+    int *skeylen;
+    int *msglen;
+    int siglen = crypto_sign_BYTES;
+    
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &msg, &msglen,
+                              &signing_key, &skeylen) == FAILURE) {
+          return;
+    }
+    
+    if(skeylen != crypto_sign_SECRETKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign(): signing key size should be CRYPTO_SIGN_SECRETKEYBYTES long");
+    }
+    
+    signature = safe_emalloc((size_t) crypto_sign_BYTES, 1U, 0U);
+    
+    if( crypto_sign(signature, (unsigned long long) &siglen,
+                    msg, (unsigned long long) msglen,
+                    signing_key ) != 0 ) {
+        efree(signature);
+        RETURN_FALSE;
+    } else {
+        RETURN_STRINGL((char *) signature + crypto_box_ZEROBYTES,
+                       crypto_sign_BYTES, 1);
+        efree(signature);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// EXPERIMENTAL BINDING - Return true/false
+////////////////////////////////////////////////////////////////////////////////
+// if( !crypto_sign_open($message, $signature, $public_key) ) {
+//   die("Invalid key");
+// }
+////////////////////////////////////////////////////////////////////////////////
+
+PHP_FUNCTION(crypto_sign_open)
+{
+    unsigned char *msg;
+    unsigned char *signature;
+    unsigned char *public_key;
+    int *msglen;
+    int *siglen;
+    int *pkeylen;	
+    
+    
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
+                              &msg, &msglen,
+                              &signature, &siglen,
+                              &public_key, &pkeylen) == FAILURE) {
+          return;
+    }
+    if(*pkeylen != crypto_sign_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign(): public key size should be CRYPTO_SIGN_PUBLICKEYBYTES long");
+    }
+    if(*siglen != crypto_sign_BYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign(): signature size should be CRYPTO_SIGN_BYTES long");
+    }
+    if(crypto_sign_open(signature, (unsigned long long*) siglen,
+                        msg, (unsigned long long) msglen,
+                        public_key)) {
+      RETURN_BOOL(1);
+    } else {
+      RETURN_BOOL(0);
+    }
 }
