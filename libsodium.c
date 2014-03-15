@@ -186,7 +186,6 @@ PHP_FUNCTION(sodium_memcmp)
         RETURN_LONG(-1);
     } else if (len1 > SIZE_MAX) {
         zend_error(E_ERROR, "sodium_memcmp(): invalid length");
-        return;
     } else {
         RETURN_LONG(sodium_memcmp(buf1, buf2, len1));
     }
@@ -201,7 +200,6 @@ PHP_FUNCTION(randombytes_buf)
                               &len) == FAILURE ||
         len <= 0 || len > SIZE_MAX) {
         zend_error(E_ERROR, "randombytes_buf(): invalid length");
-        return;
     }
     buf = safe_emalloc((size_t) len, 1U, 0U);
     randombytes_buf(buf, (size_t) len);
@@ -222,7 +220,6 @@ PHP_FUNCTION(randombytes_uniform)
                               &upper_bound) == FAILURE ||
         upper_bound <= 0 || upper_bound > UINT32_MAX) {
         zend_error(E_ERROR, "randombytes_uniform(): invalid upper bound");
-        return;
     }
     RETURN_LONG((long) randombytes_uniform((uint32_t) upper_bound));
 }
