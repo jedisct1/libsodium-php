@@ -417,6 +417,7 @@ PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey)
     memcpy(keypair, secretkey, crypto_box_SECRETKEYBYTES);
     memcpy(keypair + crypto_box_SECRETKEYBYTES, publickey,
            crypto_box_PUBLICKEYBYTES);
+
     RETURN_STRINGL(keypair, keypair_len, 0);
 }
 
@@ -437,6 +438,7 @@ PHP_FUNCTION(crypto_box_secretkey)
     }
     secretkey = safe_emalloc(crypto_box_SECRETKEYBYTES, 1U, 0U);
     memcpy(secretkey, keypair, crypto_box_SECRETKEYBYTES);
+
     RETURN_STRINGL((char *) secretkey, crypto_box_SECRETKEYBYTES, 0);
 }
 
@@ -458,6 +460,7 @@ PHP_FUNCTION(crypto_box_publickey)
     publickey = safe_emalloc(crypto_box_PUBLICKEYBYTES, 1U, 0U);
     memcpy(publickey, keypair + crypto_box_SECRETKEYBYTES,
            crypto_box_PUBLICKEYBYTES);
+
     RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
 }
 
@@ -481,6 +484,7 @@ PHP_FUNCTION(crypto_box_publickey_from_secretkey)
     (void) sizeof(int[crypto_scalarmult_SCALARBYTES ==
                       crypto_box_SECRETKEYBYTES ? 1 : -1]);
     crypto_scalarmult_base(publickey, secretkey);
+
     RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
 }
 
