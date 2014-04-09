@@ -47,6 +47,13 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(crypto_box_publickey_from_secretkey, NULL)
     PHP_FE(crypto_box, NULL)
     PHP_FE(crypto_box_open, NULL)
+    PHP_FE(crypto_sign_keypair, NULL)
+    PHP_FE(crypto_sign_seed_keypair, NULL)
+    PHP_FE(crypto_sign_keypair_from_secretkey_and_publickey, NULL)
+    PHP_FE(crypto_sign_secretkey, NULL)
+    PHP_FE(crypto_sign_publickey, NULL)
+    PHP_FE(crypto_sign, NULL)
+    PHP_FE(crypto_sign_open, NULL)
     PHP_FE_END
 };
 
@@ -122,6 +129,22 @@ PHP_MINIT_FUNCTION(libsodium)
                            CONST_PERSISTENT | CONST_CS);
     REGISTER_LONG_CONSTANT("CRYPTO_BOX_NONCEBYTES",
                            crypto_box_NONCEBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_BYTES",
+                           crypto_sign_BYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_SEEDBYTES",
+                           crypto_sign_SEEDBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_PUBLICKEYBYTES",
+                           crypto_sign_PUBLICKEYBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_SECRETKEYBYTES",
+                           crypto_sign_SECRETKEYBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_KEYPAIRBYTES",
+                           crypto_sign_SECRETKEYBYTES +
+                           crypto_sign_PUBLICKEYBYTES,
                            CONST_PERSISTENT | CONST_CS);
     return SUCCESS;
 }
@@ -593,4 +616,189 @@ PHP_FUNCTION(crypto_box_open)
                        ciphertext_len - crypto_box_MACBYTES, 1);
     }
     efree(out);
+}
+
+PHP_FUNCTION(crypto_sign_keypair)
+{
+    unsigned char *keypair;
+    size_t         keypair_len;
+
+    keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
+    keypair = safe_emalloc(keypair_len, 1U, 0U);
+    if (crypto_sign_keypair(keypair + crypto_sign_SECRETKEYBYTES,
+                            keypair) != 0) {
+        zend_error(E_ERROR, "crypto_sign_keypair()");
+    }
+    RETURN_STRINGL((char *) keypair, keypair_len, 0);
+}
+
+PHP_FUNCTION(crypto_sign_seed_keypair)
+{
+    unsigned char *keypair;
+    unsigned char *seed;
+    size_t         keypair_len;
+    int            seed_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &seed, &seed_len) == FAILURE) {
+        return;
+    }
+    if (seed_len != crypto_sign_SEEDBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_seed_keypair(): "
+                   "seed should be crypto_sign_SEEDBYTES long");
+    }
+
+    keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
+    keypair = safe_emalloc(keypair_len, 1U, 0U);
+    if (crypto_sign_seed_keypair(keypair + crypto_sign_SECRETKEYBYTES,
+                                 keypair, seed) != 0) {
+        zend_error(E_ERROR, "crypto_sign_seed_keypair()");
+    }
+    RETURN_STRINGL((char *) keypair, keypair_len, 0);
+}
+
+PHP_FUNCTION(crypto_sign_keypair_from_secretkey_and_publickey)
+{
+    char   *keypair;
+    char   *publickey;
+    char   *secretkey;
+    size_t  keypair_len;
+    int     publickey_len;
+    int     secretkey_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &secretkey, &secretkey_len,
+                              &publickey, &publickey_len) == FAILURE) {
+        return;
+    }
+    if (secretkey_len != crypto_sign_SECRETKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_keypair_from_secretkey_and_publickey(): "
+                   "secretkey should be CRYPTO_SIGN_SECRETKEYBYTES long");
+    }
+    if (publickey_len != crypto_sign_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_keypair_from_secretkey_and_publickey(): "
+                   "publickey should be CRYPTO_SIGN_PUBLICKEYBYTES long");
+    }
+    keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
+    keypair = safe_emalloc(keypair_len, 1U, 0U);
+    memcpy(keypair, secretkey, crypto_sign_SECRETKEYBYTES);
+    memcpy(keypair + crypto_sign_SECRETKEYBYTES, publickey,
+           crypto_sign_PUBLICKEYBYTES);
+
+    RETURN_STRINGL(keypair, keypair_len, 0);
+}
+
+PHP_FUNCTION(crypto_sign_secretkey)
+{
+    unsigned char *keypair;
+    char          *secretkey;
+    int            keypair_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &keypair, &keypair_len) == FAILURE) {
+        return;
+    }
+    if (keypair_len !=
+        crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_secretkey(): keypair should be CRYPTO_SIGN_KEYPAIRBYTES long");
+    }
+    secretkey = safe_emalloc(crypto_sign_SECRETKEYBYTES, 1U, 0U);
+    memcpy(secretkey, keypair, crypto_sign_SECRETKEYBYTES);
+
+    RETURN_STRINGL((char *) secretkey, crypto_sign_SECRETKEYBYTES, 0);
+}
+
+PHP_FUNCTION(crypto_sign_publickey)
+{
+    unsigned char *keypair;
+    char          *publickey;
+    int            keypair_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &keypair, &keypair_len) == FAILURE) {
+        return;
+    }
+    if (keypair_len !=
+        crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_publickey(): keypair should be CRYPTO_SIGN_KEYPAIRBYTES long");
+    }
+    publickey = safe_emalloc(crypto_sign_PUBLICKEYBYTES, 1U, 0U);
+    memcpy(publickey, keypair + crypto_sign_SECRETKEYBYTES,
+           crypto_sign_PUBLICKEYBYTES);
+
+    RETURN_STRINGL((char *) publickey, crypto_sign_PUBLICKEYBYTES, 0);
+}
+
+PHP_FUNCTION(crypto_sign)
+{
+    unsigned char      *msg;
+    unsigned char      *msg_signed;
+    unsigned char      *secretkey;
+    unsigned long long  msg_signed_real_len;
+    int                 msg_len;
+    int                 msg_signed_len;
+    int                 secretkey_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &msg, &msg_len,
+                              &secretkey, &secretkey_len) == FAILURE) {
+        return;
+    }
+    if (secretkey_len != crypto_sign_SECRETKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign(): secret key size should be CRYPTO_SIGN_SECRETKEYBYTES long");
+    }
+    if (INT_MAX - msg_len < crypto_sign_BYTES) {
+        zend_error(E_ERROR, "arithmetic overflow");
+    }
+    msg_signed_len = msg_len + crypto_sign_BYTES;
+    msg_signed = safe_emalloc((size_t) msg_signed_len, 1U, 0U);
+    if (crypto_sign(msg_signed, &msg_signed_real_len, msg,
+                    (unsigned long long) msg_len, secretkey) != 0) {
+        zend_error(E_ERROR, "crypto_sign()");
+    }
+    if (msg_signed_real_len <= 0U || msg_signed_real_len > SIZE_MAX) {
+        zend_error(E_ERROR, "arithmetic overflow");
+    }
+    RETURN_STRINGL((char *) msg_signed,
+                   (size_t) msg_signed_real_len, 0);
+}
+
+PHP_FUNCTION(crypto_sign_open)
+{
+    unsigned char      *msg;
+    unsigned char      *msg_signed;
+    unsigned char      *publickey;
+    unsigned long long  msg_real_len;
+    int                 msg_len;
+    int                 msg_signed_len;
+    int                 publickey_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &msg_signed, &msg_signed_len,
+                              &publickey, &publickey_len) == FAILURE) {
+        return;
+    }
+    if (publickey_len != crypto_sign_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_open(): public key size should be CRYPTO_SIGN_PUBLICKEYBYTES long");
+    }
+    msg_len = msg_signed_len;
+    msg = safe_emalloc((size_t) msg_len, 1U, 0U);
+    if (crypto_sign_open(msg, &msg_real_len, msg_signed,
+                         (unsigned long long) msg_signed_len,
+                         publickey) != 0) {
+        sodium_memzero(msg, msg_len);
+        efree(msg);
+        RETURN_FALSE;
+    }
+    if (msg_real_len > SIZE_MAX || msg_real_len > msg_signed_len) {
+        zend_error(E_ERROR, "arithmetic overflow");
+    }
+    RETURN_STRINGL((char *) msg, (size_t) msg_real_len, 0);
 }

@@ -44,6 +44,13 @@ PHP_FUNCTION(crypto_box_publickey);
 PHP_FUNCTION(crypto_box_publickey_from_secretkey);
 PHP_FUNCTION(crypto_box);
 PHP_FUNCTION(crypto_box_open);
+PHP_FUNCTION(crypto_sign_keypair);
+PHP_FUNCTION(crypto_sign_seed_keypair);
+PHP_FUNCTION(crypto_sign_keypair_from_secretkey_and_publickey);
+PHP_FUNCTION(crypto_sign_secretkey);
+PHP_FUNCTION(crypto_sign_publickey);
+PHP_FUNCTION(crypto_sign);
+PHP_FUNCTION(crypto_sign_open);
 
 #ifdef ZTS
 #define LIBSODIUM_G(v) TSRMG(libsodium_globals_id, zend_libsodium_globals *, v)
