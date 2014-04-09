@@ -21,7 +21,7 @@ Secret-key authenticated encryption
 
 ```php
 $nonce = randombytes_buf(CRYPTO_SECRETBOX_NONCEBYTES);
-$key = [a binary string that should be CRYPTO_SECRETBOX_KEYBYTES long];
+$key = [a binary string that must be CRYPTO_SECRETBOX_KEYBYTES long];
 $ciphertext = crypto_secretbox('test', $nonce, $key);
 $plaintext = crypto_secretbox_open($ciphertext, $nonce, $key);
 ```
@@ -33,6 +33,49 @@ Which is probably what you want.
 Do not use the same `(key, nonce)` pair twice.
 
 The nonce can be public as long as the key isn't.
+
+Public-key cryptography
+=======================
+
+Public-key signatures
+---------------------
+
+```php
+$alice_kp = crypto_sign_keypair();
+$alice_secretkey = crypto_sign_secretkey($alice_kp);
+$alice_publickey = crypto_sign_publickey($alice_kp);
+
+$msg = "Here is the message, to be signed using Alice's secret key, and " .
+  "to be verified using Alice's public key";
+
+// Alice signs $msg using her secret key
+// $msg_signed contains the signature followed by the message
+$msg_signed = crypto_sign($msg, $alice_secretkey);
+
+// Bob verifies and removes the signature
+$msg_orig = crypto_sign_open($msg_signed, $alice_publickey);
+if ($msg_orig === FALSE) {
+  trigger_error('Signature verification failed');
+} else {
+  // $msg_orig contains the original message, without the signature
+}
+```
+
+The key pair can also be derived from a single seed, using
+`crypto_sign_seed_keypair()`:
+```php
+// $seed must be CRYPTO_SIGN_SEEDBYTES long
+$seed = randombytes_buf(CRYPTO_SIGN_SEEDBYTES);
+$alice_kp = crypto_sign_seed_keypair($seed);
+```
+
+This operation allows Bob to check that the message has been signed by
+Alice, provided that Bob knows Alice's public key.
+
+It does *not* encrypt the message. If encryption is required in
+addition to authentication, the next operation should be used instead.
+
+Alice should never ever disclose her secret key.
 
 Public-key authenticated encryption
 -----------------------------------
@@ -74,7 +117,7 @@ $bob_message_decrypted_by_alice = crypto_box_open($bob_to_alice_ciphertext,
 ```
 
 Bob only needs Alice's public key, the nonce and the ciphertext.
-Alice should never disclose her secret key.
+Alice should never ever disclose her secret key.
 Alice only needs Bob's public key, the nonce and the ciphertext.
 Bob should never disclose his secret key. Unless someone drugs him and
 hits him with a $5 wrench.
