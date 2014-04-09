@@ -264,7 +264,8 @@ PHP_FUNCTION(crypto_shorthash)
     }
     if (key_len != crypto_shorthash_KEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_shorthash(): key size should be CRYPTO_SHORTHASH_KEYBYTES long");
+                   "crypto_shorthash(): key size should be "
+                   "CRYPTO_SHORTHASH_KEYBYTES long");
     }
     out = safe_emalloc(crypto_shorthash_BYTES, 1U, 0U);
     if (crypto_shorthash(out, msg, (unsigned long long) msg_len, key) != 0) {
@@ -293,11 +294,13 @@ PHP_FUNCTION(crypto_secretbox)
     }
     if (nonce_len != crypto_secretbox_NONCEBYTES) {
         zend_error(E_ERROR,
-                   "crypto_secretbox(): nonce size should be CRYPTO_SECRETBOX_NONCEBYTES long");
+                   "crypto_secretbox(): nonce size should be "
+                   "CRYPTO_SECRETBOX_NONCEBYTES long");
     }
     if (key_len != crypto_secretbox_KEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_secretbox(): key size should be CRYPTO_SECRETBOX_KEYBYTES long");
+                   "crypto_secretbox(): key size should be "
+                   "CRYPTO_SECRETBOX_KEYBYTES long");
     }
     if (INT_MAX - msg_len < crypto_secretbox_ZEROBYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
@@ -342,11 +345,13 @@ PHP_FUNCTION(crypto_secretbox_open)
     }
     if (nonce_len != crypto_secretbox_NONCEBYTES) {
         zend_error(E_ERROR,
-                   "crypto_secretbox_open(): nonce size should be CRYPTO_SECRETBOX_NONCEBYTES long");
+                   "crypto_secretbox_open(): nonce size should be "
+                   "CRYPTO_SECRETBOX_NONCEBYTES long");
     }
     if (key_len != crypto_secretbox_KEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_secretbox_open(): key size should be CRYPTO_SECRETBOX_KEYBYTES long");
+                   "crypto_secretbox_open(): key size should be "
+                   "CRYPTO_SECRETBOX_KEYBYTES long");
     }
     if (ciphertext_len < crypto_secretbox_MACBYTES) {
         zend_error(E_ERROR,
@@ -431,11 +436,13 @@ PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey)
     }
     if (secretkey_len != crypto_box_SECRETKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_box_keypair_from_secretkey_and_publickey(): secretkey should be CRYPTO_BOX_SECRETKEYBYTES long");
+                   "crypto_box_keypair_from_secretkey_and_publickey(): "
+                   "secretkey should be CRYPTO_BOX_SECRETKEYBYTES long");
     }
     if (publickey_len != crypto_box_PUBLICKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_box_keypair_from_secretkey_and_publickey(): publickey should be CRYPTO_BOX_PUBLICKEYBYTES long");
+                   "crypto_box_keypair_from_secretkey_and_publickey(): "
+                   "publickey should be CRYPTO_BOX_PUBLICKEYBYTES long");
     }
     keypair_len = crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES;
     keypair = safe_emalloc(keypair_len, 1U, 0U);
@@ -459,7 +466,8 @@ PHP_FUNCTION(crypto_box_secretkey)
     if (keypair_len !=
         crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_box_secretkey(): keypair should be CRYPTO_BOX_KEYPAIRBYTES long");
+                   "crypto_box_secretkey(): keypair should be "
+                   "CRYPTO_BOX_KEYPAIRBYTES long");
     }
     secretkey = safe_emalloc(crypto_box_SECRETKEYBYTES, 1U, 0U);
     memcpy(secretkey, keypair, crypto_box_SECRETKEYBYTES);
@@ -480,7 +488,8 @@ PHP_FUNCTION(crypto_box_publickey)
     if (keypair_len !=
         crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_box_publickey(): keypair should be CRYPTO_BOX_KEYPAIRBYTES long");
+                   "crypto_box_publickey(): keypair should be "
+                   "CRYPTO_BOX_KEYPAIRBYTES long");
     }
     publickey = safe_emalloc(crypto_box_PUBLICKEYBYTES, 1U, 0U);
     memcpy(publickey, keypair + crypto_box_SECRETKEYBYTES,
@@ -501,7 +510,8 @@ PHP_FUNCTION(crypto_box_publickey_from_secretkey)
     }
     if (secretkey_len != crypto_box_SECRETKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_box_publickey_from_secretkey(): key should be CRYPTO_BOX_SECRETKEYBYTES long");
+                   "crypto_box_publickey_from_secretkey(): key should be "
+                   "CRYPTO_BOX_SECRETKEYBYTES long");
     }
     publickey = safe_emalloc(crypto_box_PUBLICKEYBYTES, 1U, 0U);
     (void) sizeof(int[crypto_scalarmult_BYTES ==
@@ -535,11 +545,13 @@ PHP_FUNCTION(crypto_box)
     }
     if (nonce_len != crypto_box_NONCEBYTES) {
         zend_error(E_ERROR,
-                   "crypto_box(): nonce size should be CRYPTO_BOX_NONCEBYTES long");
+                   "crypto_box(): nonce size should be "
+                   "CRYPTO_BOX_NONCEBYTES long");
     }
     if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_box(): keypair size should be CRYPTO_BOX_KEYPAIRBYTES long");
+                   "crypto_box(): keypair size should be "
+                   "CRYPTO_BOX_KEYPAIRBYTES long");
     }
     secretkey = keypair;
     publickey = keypair + crypto_box_SECRETKEYBYTES;
@@ -588,11 +600,13 @@ PHP_FUNCTION(crypto_box_open)
     }
     if (nonce_len != crypto_box_NONCEBYTES) {
         zend_error(E_ERROR,
-                   "crypto_box_open(): nonce size should be CRYPTO_BOX_NONCEBYTES long");
+                   "crypto_box_open(): nonce size should be "
+                   "CRYPTO_BOX_NONCEBYTES long");
     }
     if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_box_open(): keypair size should be CRYPTO_BOX_KEYBYTES long");
+                   "crypto_box_open(): keypair size should be "
+                   "CRYPTO_BOX_KEYBYTES long");
     }
     secretkey = keypair;
     publickey = keypair + crypto_box_SECRETKEYBYTES;
@@ -704,7 +718,8 @@ PHP_FUNCTION(crypto_sign_secretkey)
     if (keypair_len !=
         crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_sign_secretkey(): keypair should be CRYPTO_SIGN_KEYPAIRBYTES long");
+                   "crypto_sign_secretkey(): keypair should be "
+                   "CRYPTO_SIGN_KEYPAIRBYTES long");
     }
     secretkey = safe_emalloc(crypto_sign_SECRETKEYBYTES, 1U, 0U);
     memcpy(secretkey, keypair, crypto_sign_SECRETKEYBYTES);
@@ -725,7 +740,8 @@ PHP_FUNCTION(crypto_sign_publickey)
     if (keypair_len !=
         crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_sign_publickey(): keypair should be CRYPTO_SIGN_KEYPAIRBYTES long");
+                   "crypto_sign_publickey(): keypair should be "
+                   "CRYPTO_SIGN_KEYPAIRBYTES long");
     }
     publickey = safe_emalloc(crypto_sign_PUBLICKEYBYTES, 1U, 0U);
     memcpy(publickey, keypair + crypto_sign_SECRETKEYBYTES,
@@ -751,7 +767,8 @@ PHP_FUNCTION(crypto_sign)
     }
     if (secretkey_len != crypto_sign_SECRETKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_sign(): secret key size should be CRYPTO_SIGN_SECRETKEYBYTES long");
+                   "crypto_sign(): secret key size should be "
+                   "CRYPTO_SIGN_SECRETKEYBYTES long");
     }
     if (INT_MAX - msg_len < crypto_sign_BYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
@@ -786,7 +803,8 @@ PHP_FUNCTION(crypto_sign_open)
     }
     if (publickey_len != crypto_sign_PUBLICKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_sign_open(): public key size should be CRYPTO_SIGN_PUBLICKEYBYTES long");
+                   "crypto_sign_open(): public key size should be "
+                   "CRYPTO_SIGN_PUBLICKEYBYTES long");
     }
     msg_len = msg_signed_len;
     msg = safe_emalloc((size_t) msg_len, 1U, 0U);
