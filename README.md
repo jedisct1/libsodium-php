@@ -49,7 +49,7 @@ $msg = "Here is the message, to be signed using Alice's secret key, and " .
   "to be verified using Alice's public key";
 
 // Alice signs $msg using her secret key
-// $msg_signed contains the signature followed by the message
+// $msg_signed contains the signature as well as the message
 $msg_signed = crypto_sign($msg, $alice_secretkey);
 
 // Bob verifies and removes the signature
