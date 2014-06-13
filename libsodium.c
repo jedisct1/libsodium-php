@@ -362,8 +362,8 @@ PHP_FUNCTION(crypto_secretbox_open)
     memset(ciphertext_boxed, 0, crypto_secretbox_BOXZEROBYTES);
     memcpy(ciphertext_boxed + crypto_secretbox_BOXZEROBYTES,
            ciphertext, ciphertext_len);
-    out = safe_emalloc((size_t) ciphertext_boxed_len +
-                       crypto_secretbox_MACBYTES, 1U, 0U);
+    out = safe_emalloc(((size_t) ciphertext_len - crypto_secretbox_MACBYTES)
+                       + crypto_secretbox_ZEROBYTES, 1U, 0U);
     if (crypto_secretbox_open(out, ciphertext_boxed,
                               (unsigned long long) ciphertext_boxed_len,
                               nonce, key) != 0) {
@@ -619,8 +619,8 @@ PHP_FUNCTION(crypto_box_open)
     memset(ciphertext_boxed, 0, crypto_box_BOXZEROBYTES);
     memcpy(ciphertext_boxed + crypto_box_BOXZEROBYTES,
            ciphertext, ciphertext_len);
-    out = safe_emalloc((size_t) ciphertext_boxed_len +
-                       crypto_box_MACBYTES, 1U, 0U);
+    out = safe_emalloc(((size_t) ciphertext_len - crypto_box_MACBYTES)
+                       + crypto_box_ZEROBYTES, 1U, 0U);
     if (crypto_box_open(out, ciphertext_boxed,
                         (unsigned long long) ciphertext_boxed_len,
                         nonce, publickey, secretkey) != 0) {
