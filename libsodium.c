@@ -114,9 +114,11 @@ PHP_MINIT_FUNCTION(libsodium)
     REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_KEYBYTES_MAX",
                            crypto_generichash_KEYBYTES_MAX,
                            CONST_PERSISTENT | CONST_CS);
+#ifdef crypto_generichash_BLOCKBYTES
     REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_BLOCKBYTES",
                            crypto_generichash_BLOCKBYTES,
                            CONST_PERSISTENT | CONST_CS);
+#endif
     REGISTER_LONG_CONSTANT("CRYPTO_BOX_SECRETKEYBYTES",
                            crypto_box_SECRETKEYBYTES,
                            CONST_PERSISTENT | CONST_CS);
