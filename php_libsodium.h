@@ -51,6 +51,9 @@ PHP_FUNCTION(crypto_sign_secretkey);
 PHP_FUNCTION(crypto_sign_publickey);
 PHP_FUNCTION(crypto_sign);
 PHP_FUNCTION(crypto_sign_open);
+PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256);
+PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_ll);
+
 
 #ifdef ZTS
 #define LIBSODIUM_G(v) TSRMG(libsodium_globals_id, zend_libsodium_globals *, v)
