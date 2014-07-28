@@ -877,42 +877,46 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_ll) {
     uint64_t    N;
     uint32_t    r;
     uint32_t    p;
+    size_t      h_length;
 
     int                 password_len;
     int                 salt_len;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS( ) TSRMLS_CC, "sslll", &password, &password_len,
-                                                                   &salt, &salt_len,
-                                                                   &N,
-                                                                   &r,
-                                                                   &p) == FAILURE) return;
-    uint8_t data[64];
+    if (zend_parse_parameters(ZEND_NUM_ARGS( ) TSRMLS_CC, "ssllll", &password, &password_len,
+                                                                    &salt, &salt_len,
+                                                                    &N,
+                                                                    &r,
+                                                                    &p,
+                                                                    &h_length) == FAILURE) return;
+    uint8_t data[h_length];
     int     i,j;
-    size_t  olength = (sizeof data / sizeof data[0]);
+//    size_t  olength = (sizeof data / sizeof data[0]);
     size_t  passwordLength = strlen(password);
     size_t  saltLenght = strlen(salt);
-    int     lineitems = 0;
-    int     lineitemsLimit = 15;
 
-    char    out_hex[256 * 2 + 1];
+//    char    out_hex[256 * 2 + 1];
 
     if (crypto_pwhash_scryptsalsa208sha256_ll((const uint8_t *) password,
                                               passwordLength,
                                               (const uint8_t *) salt,
                                               saltLenght,
-                                              N, r, p, data, olength) != 0) {
+                                              N, r, p, data, h_length) != 0) {
         RETURN_FALSE;
     }
 
-//    sodium_bin2hex(out_hex, sizeof out_hex, data, olen);
+//    sodium_bin2hex(out_hex, sizeof out_hex, data, olength);
 
+//    RETURN_STRING(out_hex,1);
+
+
+//
         size_t *out_len;
         unsigned char *outData, *pos;
         const unsigned char *end, *in;
         size_t olen;
-                int line_len;
+        int line_len;
 
-        size_t len = olength;
+        size_t len = h_length;
         const unsigned char *src = data;
 
         olen = len * 4 / 3 + 4; /* 3-byte blocks to 4-byte */
