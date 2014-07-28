@@ -1,4 +1,3 @@
-
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -18,6 +17,9 @@
 
 const int pass_rest_by_reference = 1;
 const int pass_arg_by_reference = 0;
+
+static const unsigned char base64_table[64] =
+"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 ZEND_BEGIN_ARG_INFO(FirstArgByReference, 0)
 ZEND_ARG_PASS_INFO(1)
@@ -54,6 +56,8 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(crypto_sign_publickey, NULL)
     PHP_FE(crypto_sign, NULL)
     PHP_FE(crypto_sign_open, NULL)
+    PHP_FE(crypto_pwhash_scryptsalsa208sha256, NULL)
+    PHP_FE(crypto_pwhash_scryptsalsa208sha256_ll, NULL)
     PHP_FE_END
 };
 
@@ -822,3 +826,137 @@ PHP_FUNCTION(crypto_sign_open)
     }
     RETURN_STRINGL((char *) msg, (size_t) msg_real_len, 0);
 }
+
+PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256) {
+
+    const char         *passwd_hex;
+    unsigned long long  passwdlen;
+    const char         *salt_hex;
+    unsigned long long  outlen;
+    unsigned long long  opslimit;
+    size_t              memlimit;
+
+    int                 pass_hex_len;
+    int                 salt_hex_len;
+    
+    char          passwd[256];
+    unsigned char salt[crypto_pwhash_scryptsalsa208sha256_SALTBYTES];
+    unsigned char out[256];
+    char          out_hex[256 * 2 + 1];
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS( ) TSRMLS_CC, "slslll", &passwd_hex, &pass_hex_len,
+                                                     &passwdlen,
+                                                     &salt_hex, &salt_hex_len,
+                                                     &outlen,
+                                                     &opslimit,
+                                                     &memlimit) == FAILURE) return;
+
+    sodium_hex2bin((unsigned char *) passwd, sizeof passwd,
+                       passwd_hex, strlen(passwd_hex),
+                       NULL, NULL, NULL);
+    sodium_hex2bin(salt, sizeof salt,
+                       salt_hex, strlen(salt_hex),
+                       NULL, NULL, NULL);
+    if (crypto_pwhash_scryptsalsa208sha256(out,outlen,
+                                           passwd,passwdlen,
+                                           (const unsigned char *) salt,
+                                           opslimit,
+                                           memlimit) != 0) {
+        printf("pwhash failure\n");
+    }
+    sodium_bin2hex(out_hex, sizeof out_hex, out, outlen);
+    RETURN_STRING(out_hex,1);
+
+}
+PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_ll) {
+
+    static const unsigned char base64_table[64] ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    const char *password;
+    const char *salt;
+    uint64_t    N;
+    uint32_t    r;
+    uint32_t    p;
+    size_t      h_length;
+
+    int                 password_len;
+    int                 salt_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS( ) TSRMLS_CC, "ssllll", &password, &password_len,
+                                                                    &salt, &salt_len,
+                                                                    &N,
+                                                                    &r,
+                                                                    &p,
+                                                                    &h_length) == FAILURE) return;
+    uint8_t data[h_length];
+    int     i,j;
+//    size_t  olength = (sizeof data / sizeof data[0]);
+    size_t  passwordLength = strlen(password);
+    size_t  saltLenght = strlen(salt);
+
+//    char    out_hex[256 * 2 + 1];
+
+    if (crypto_pwhash_scryptsalsa208sha256_ll((const uint8_t *) password,
+                                              passwordLength,
+                                              (const uint8_t *) salt,
+                                              saltLenght,
+                                              N, r, p, data, h_length) != 0) {
+        RETURN_FALSE;
+    }
+
+//    sodium_bin2hex(out_hex, sizeof out_hex, data, olength);
+
+//    RETURN_STRING(out_hex,1);
+
+
+//
+        size_t *out_len;
+        unsigned char *outData, *pos;
+        const unsigned char *end, *in;
+        size_t olen;
+        int line_len;
+
+        size_t len = h_length;
+        const unsigned char *src = data;
+
+        olen = len * 4 / 3 + 4; /* 3-byte blocks to 4-byte */
+        olen += olen / 72; /* line feeds */
+        olen++; /* nul termination */
+        outData = malloc(olen);
+        if (outData == NULL)RETURN_FALSE;
+        end = src + len;
+        in = src;
+        pos = outData;
+        line_len = 0;
+        while (end - in >= 3) {
+            *pos++ = base64_table[in[0] >> 2];
+            *pos++ = base64_table[((in[0] & 0x03) << 4) | (in[1] >> 4)];
+            *pos++ = base64_table[((in[1] & 0x0f) << 2) | (in[2] >> 6)];
+            *pos++ = base64_table[in[2] & 0x3f];
+            in += 3;
+            line_len += 4;
+
+        }
+
+        if (end - in) {
+            *pos++ = base64_table[in[0] >> 2];
+            if (end - in == 1) {
+                *pos++ = base64_table[(in[0] & 0x03) << 4];
+                *pos++ = '=';
+            } else {
+                *pos++ = base64_table[((in[0] & 0x03) << 4) |
+                                      (in[1] >> 4)];
+                *pos++ = base64_table[(in[1] & 0x0f) << 2];
+            }
+            *pos++ = '=';
+            line_len += 4;
+        }
+
+        *pos = '\0';
+        if (out_len)
+            *out_len = pos - outData;
+
+        RETURN_STRING(outData,1);
+}
+
+
