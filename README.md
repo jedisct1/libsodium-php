@@ -228,8 +228,8 @@ $passwd = 'Correct battery horse staple';
 // create a random salt
 $salt = randombytes_buf(CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES);
 
-// derive a stream of $out_len pseudo random bytes
-// from the password and the salt. This can be used as a secret key.
+// generate a stream of $out_len pseudo random bytes
+// using the password and the salt; this can be used to generate secret keys
 $out_len = 100;
 $key = crypto_pwhash_scryptsalsa208sha256
           ($out_len, $passwd, $salt,
