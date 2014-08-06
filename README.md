@@ -197,25 +197,49 @@ $a = randombytes_uniform($n);
 
 Unlike `rand() % $n`, the distribution of the output values is uniform.
 
-Password hashing
+Password storage
 ================
 
 ```php
-$pwd = 'Correct battery horse staple';
+$passwd = 'Correct battery horse staple';
 
 // hash the password and return an ASCII string suitable for storage
 $hash = crypto_pwhash_scryptsalsa208sha256_str
-  ($pwd, CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-         CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
+  ($passwd, CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+            CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
 
 // verify that the password is valid for the given hash
-$valid = crypto_pwhash_scryptsalsa208sha256_str_verify($hash, $pwd);
-sodium_memzero($pwd); // recommended: wipe the plaintext password from memory
+$valid = crypto_pwhash_scryptsalsa208sha256_str_verify($hash, $passwd);
+
+// recommended: wipe the plaintext password from memory
+sodium_memzero($passwd);
 
 if ($valid === TRUE) {
   // password was valid
 }
 ```
+
+Key derivation
+==============
+
+```php
+$passwd = 'Correct battery horse staple';
+
+// create a random salt
+$salt = randombytes_buf(CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES);
+
+// derive a stream of $out_len pseudo random bytes
+// from the password and the salt. This can be used as a secret key.
+$out_len = 100;
+$key = crypto_pwhash_scryptsalsa208sha256
+          ($out_len, $passwd, $salt,
+           CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+           CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
+
+// recommended: wipe the plaintext password from memory
+sodium_memzero($passwd);
+```
+
 
 Utilities
 =========
