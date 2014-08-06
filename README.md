@@ -204,12 +204,12 @@ Password storage
 $passwd = 'Correct battery horse staple';
 
 // hash the password and return an ASCII string suitable for storage
-$hash = crypto_pwhash_scryptsalsa208sha256_str
+$hash_str = crypto_pwhash_scryptsalsa208sha256_str
   ($passwd, CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
             CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
 
-// verify that the password is valid for the given hash
-$valid = crypto_pwhash_scryptsalsa208sha256_str_verify($hash, $passwd);
+// verify that the password is valid for the given stored string
+$valid = crypto_pwhash_scryptsalsa208sha256_str_verify($hash_str, $passwd);
 
 // recommended: wipe the plaintext password from memory
 sodium_memzero($passwd);
