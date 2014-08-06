@@ -197,6 +197,26 @@ $a = randombytes_uniform($n);
 
 Unlike `rand() % $n`, the distribution of the output values is uniform.
 
+Password hashing
+================
+
+```php
+$pwd = 'Correct battery horse staple';
+
+// hash the password and return an ASCII string suitable for storage
+$hash = crypto_pwhash_scryptsalsa208sha256_str
+  ($pwd, CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+         CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
+
+// verify that the password is valid for the given hash
+$valid = crypto_pwhash_scryptsalsa208sha256_str_verify($hash, $pwd);
+sodium_memzero($pwd); // recommended: wipe the plaintext password from memory
+
+if ($valid === TRUE) {
+  // password was valid
+}
+```
+
 Utilities
 =========
 

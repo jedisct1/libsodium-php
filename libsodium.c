@@ -49,6 +49,8 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(crypto_sign_publickey, NULL)
     PHP_FE(crypto_sign, NULL)
     PHP_FE(crypto_sign_open, NULL)
+    PHP_FE(crypto_pwhash_scryptsalsa208sha256_str, NULL)
+    PHP_FE(crypto_pwhash_scryptsalsa208sha256_str_verify, NULL)
     PHP_FE_END
 };
 
@@ -142,6 +144,24 @@ PHP_MINIT_FUNCTION(libsodium)
     REGISTER_LONG_CONSTANT("CRYPTO_SIGN_KEYPAIRBYTES",
                            crypto_sign_SECRETKEYBYTES +
                            crypto_sign_PUBLICKEYBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("crypto_pwhash_SCRYPTSALSA208SHA256_SALTBYTES",
+                           crypto_pwhash_scryptsalsa208sha256_SALTBYTES,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_STRING_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX",
+                             crypto_pwhash_scryptsalsa208sha256_STRPREFIX,
+                             CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE",
+                           crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE",
+                           crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE",
+                           crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE,
+                           CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
+                           crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE,
                            CONST_PERSISTENT | CONST_CS);
     return SUCCESS;
 }
@@ -770,4 +790,62 @@ PHP_FUNCTION(crypto_sign_open)
         zend_error(E_ERROR, "arithmetic overflow");
     }
     RETURN_STRINGL((char *) msg, (int) msg_real_len, 0);
+}
+
+PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str)
+{
+    char *out;
+    char *passwd;
+    long  opslimit;
+    long  memlimit;
+    int   passwd_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sll",
+                              &passwd, &passwd_len,
+                              &opslimit, &memlimit) == FAILURE ||
+        opslimit <= 0 || memlimit <= 0) {
+        zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256_str(): invalid parameters");
+    }
+    if (passwd_len <= 0) {
+        zend_error(E_WARNING, "empty password");
+    }
+    if (opslimit < crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE) {
+        zend_error(E_WARNING, "number of operations for the scrypt function is low");
+    }
+    if (memlimit < crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) {
+        zend_error(E_WARNING, "maximum memory for the scrypt function is low");
+    }
+    out = safe_emalloc(crypto_pwhash_scryptsalsa208sha256_STRBYTES, 1U, 0U);
+    if (crypto_pwhash_scryptsalsa208sha256_str
+        (out, passwd, (unsigned long long) passwd_len,
+         (unsigned long long) opslimit, (size_t) memlimit) != 0) {
+        zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256_str()");
+    }
+    RETURN_STRINGL((char *) out, crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1, 0);
+}
+
+PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify)
+{
+    char *hash;
+    char *passwd;
+    int   hash_len;
+    int   passwd_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &hash, &hash_len,
+                              &passwd, &passwd_len) == FAILURE) {
+        zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256_str_verify(): invalid parameters");
+    }
+    if (passwd_len <= 0) {
+        zend_error(E_WARNING, "empty password");
+    }
+    if (hash_len != crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1) {
+        zend_error(E_WARNING, "wrong size for the hashed password");
+        RETURN_FALSE;
+    }
+    if (crypto_pwhash_scryptsalsa208sha256_str_verify
+        (hash, passwd, (unsigned long long) passwd_len) == 0) {
+        RETURN_TRUE;
+    }
+    RETURN_FALSE;
 }
