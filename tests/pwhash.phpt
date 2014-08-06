@@ -4,21 +4,30 @@ Check for libsodium utils
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
-$pwd = 'test';
+$passwd = 'test';
 
 $hash = crypto_pwhash_scryptsalsa208sha256_str
-  ($pwd, CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-         CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
+  ($passwd, CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+            CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
 var_dump(substr($hash, 0, 3) ===
          CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX);
 
-$c = crypto_pwhash_scryptsalsa208sha256_str_verify($hash, $pwd);
+$c = crypto_pwhash_scryptsalsa208sha256_str_verify($hash, $passwd);
 var_dump($c);
 
-$c = crypto_pwhash_scryptsalsa208sha256_str_verify($hash, 'pwd');
+$c = crypto_pwhash_scryptsalsa208sha256_str_verify($hash, 'passwd');
 var_dump($c);
+
+$salt = randombytes_buf(CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES);
+$out_len = 100;
+$key = crypto_pwhash_scryptsalsa208sha256
+  ($out_len, $passwd, $salt,
+   CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+   CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
+var_dump(strlen($key) === $out_len);
 ?>
 --EXPECT--
 bool(true)
 bool(true)
 bool(false)
+bool(true)

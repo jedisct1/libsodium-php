@@ -49,6 +49,7 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(crypto_sign_publickey, NULL)
     PHP_FE(crypto_sign, NULL)
     PHP_FE(crypto_sign_open, NULL)
+    PHP_FE(crypto_pwhash_scryptsalsa208sha256, NULL)
     PHP_FE(crypto_pwhash_scryptsalsa208sha256_str, NULL)
     PHP_FE(crypto_pwhash_scryptsalsa208sha256_str_verify, NULL)
     PHP_FE_END
@@ -145,7 +146,7 @@ PHP_MINIT_FUNCTION(libsodium)
                            crypto_sign_SECRETKEYBYTES +
                            crypto_sign_PUBLICKEYBYTES,
                            CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("crypto_pwhash_SCRYPTSALSA208SHA256_SALTBYTES",
+    REGISTER_LONG_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
                            crypto_pwhash_scryptsalsa208sha256_SALTBYTES,
                            CONST_PERSISTENT | CONST_CS);
     REGISTER_STRING_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX",
@@ -286,6 +287,7 @@ PHP_FUNCTION(crypto_shorthash)
     }
     out = safe_emalloc(crypto_shorthash_BYTES, 1U, 0U);
     if (crypto_shorthash(out, msg, (unsigned long long) msg_len, key) != 0) {
+        efree(out);
         zend_error(E_ERROR, "crypto_shorthash()");
     }
     RETURN_STRINGL((char *) out, crypto_shorthash_BYTES, 0);
@@ -323,6 +325,7 @@ PHP_FUNCTION(crypto_secretbox)
     out = safe_emalloc((size_t) msg_len + crypto_secretbox_MACBYTES, 1U, 0U);
     if (crypto_secretbox_easy(out, msg, (unsigned long long) msg_len,
                               nonce, key) != 0) {
+        efree(out);
         zend_error(E_ERROR, "crypto_secretbox()");
     }
     RETURN_STRINGL((char *) out, msg_len + crypto_secretbox_MACBYTES, 0);
@@ -363,6 +366,7 @@ PHP_FUNCTION(crypto_secretbox_open)
     if (crypto_secretbox_open_easy(out, ciphertext,
                                    (unsigned long long) ciphertext_len,
                                    nonce, key) != 0) {
+        efree(out);
         RETURN_FALSE;
     } else {
         RETURN_STRINGL((char *) out,
@@ -396,6 +400,7 @@ PHP_FUNCTION(crypto_generichash)
     }
     out = safe_emalloc((size_t) out_len, 1U, 0U);
     if (crypto_generichash(out, out_len, msg, msg_len, key, key_len) != 0) {
+        efree(out);
         zend_error(E_ERROR, "crypto_generichash()");
     }
     RETURN_STRINGL((char *) out, out_len, 0);
@@ -410,6 +415,7 @@ PHP_FUNCTION(crypto_box_keypair)
     keypair = safe_emalloc(keypair_len, 1U, 0U);
     if (crypto_box_keypair(keypair + crypto_box_SECRETKEYBYTES,
                            keypair) != 0) {
+        efree(keypair);
         zend_error(E_ERROR, "crypto_box_keypair()");
     }
     RETURN_STRINGL((char *) keypair, (int) keypair_len, 0);
@@ -554,6 +560,7 @@ PHP_FUNCTION(crypto_box)
     out = safe_emalloc((size_t) msg_len + crypto_box_MACBYTES, 1U, 0U);
     if (crypto_box_easy(out, msg, (unsigned long long) msg_len,
                         nonce, publickey, secretkey) != 0) {
+        efree(out);
         zend_error(E_ERROR, "crypto_box()");
     }
     RETURN_STRINGL((char *) out, msg_len + crypto_box_MACBYTES, 0);
@@ -597,6 +604,7 @@ PHP_FUNCTION(crypto_box_open)
     if (crypto_box_open_easy(out, ciphertext,
                              (unsigned long long) ciphertext_len,
                              nonce, publickey, secretkey) != 0) {
+        efree(out);
         RETURN_FALSE;
     } else {
         RETURN_STRINGL((char *) out,
@@ -613,6 +621,7 @@ PHP_FUNCTION(crypto_sign_keypair)
     keypair = safe_emalloc(keypair_len, 1U, 0U);
     if (crypto_sign_keypair(keypair + crypto_sign_SECRETKEYBYTES,
                             keypair) != 0) {
+        efree(keypair);
         zend_error(E_ERROR, "crypto_sign_keypair()");
     }
     RETURN_STRINGL((char *) keypair, keypair_len, 0);
@@ -634,11 +643,11 @@ PHP_FUNCTION(crypto_sign_seed_keypair)
                    "crypto_sign_seed_keypair(): "
                    "seed should be crypto_sign_SEEDBYTES long");
     }
-
     keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
     keypair = safe_emalloc(keypair_len, 1U, 0U);
     if (crypto_sign_seed_keypair(keypair + crypto_sign_SECRETKEYBYTES,
                                  keypair, seed) != 0) {
+        efree(keypair);
         zend_error(E_ERROR, "crypto_sign_seed_keypair()");
     }
     RETURN_STRINGL((char *) keypair, keypair_len, 0);
@@ -749,9 +758,11 @@ PHP_FUNCTION(crypto_sign)
     msg_signed = safe_emalloc((size_t) msg_signed_len, 1U, 0U);
     if (crypto_sign(msg_signed, &msg_signed_real_len, msg,
                     (unsigned long long) msg_len, secretkey) != 0) {
+        efree(msg_signed);
         zend_error(E_ERROR, "crypto_sign()");
     }
     if (msg_signed_real_len <= 0U || msg_signed_real_len > INT_MAX) {
+        efree(msg_signed);
         zend_error(E_ERROR, "arithmetic overflow");
     }
     RETURN_STRINGL((char *) msg_signed, (int) msg_signed_real_len, 0);
@@ -787,9 +798,54 @@ PHP_FUNCTION(crypto_sign_open)
         RETURN_FALSE;
     }
     if (msg_real_len > INT_MAX || msg_real_len > msg_signed_len) {
+        efree(msg);
         zend_error(E_ERROR, "arithmetic overflow");
     }
     RETURN_STRINGL((char *) msg, (int) msg_real_len, 0);
+}
+
+PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256)
+{
+    unsigned char *out;
+    unsigned char *salt;
+    char          *passwd;
+    long           opslimit;
+    long           memlimit;
+    long           out_len;
+    int            passwd_len;
+    int            salt_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lssll",
+                              &out_len,
+                              &passwd, &passwd_len,
+                              &salt, &salt_len,
+                              &opslimit, &memlimit) == FAILURE ||
+        out_len <= 0 || out_len > INT_MAX ||
+        opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
+        zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256(): invalid parameters");
+    }
+    if (passwd_len <= 0) {
+        zend_error(E_WARNING, "empty password");
+    }
+    if (salt_len != crypto_pwhash_scryptsalsa208sha256_SALTBYTES) {
+        zend_error(E_ERROR,
+                   "salt should be CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES bytes");
+    }
+    if (opslimit < crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE) {
+        zend_error(E_WARNING, "number of operations for the scrypt function is low");
+    }
+    if (memlimit < crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) {
+        zend_error(E_WARNING, "maximum memory for the scrypt function is low");
+    }
+    out = safe_emalloc((size_t) out_len, 1U, 0U);
+    if (crypto_pwhash_scryptsalsa208sha256
+        (out, (unsigned long long) out_len,
+         passwd, (unsigned long long) passwd_len, salt,
+         (unsigned long long) opslimit, (size_t) memlimit) != 0) {
+        efree(out);
+        zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256()");
+    }
+    RETURN_STRINGL((char *) out, out_len, 0);
 }
 
 PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str)
@@ -803,7 +859,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sll",
                               &passwd, &passwd_len,
                               &opslimit, &memlimit) == FAILURE ||
-        opslimit <= 0 || memlimit <= 0) {
+        opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
         zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256_str(): invalid parameters");
     }
     if (passwd_len <= 0) {
@@ -819,6 +875,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str)
     if (crypto_pwhash_scryptsalsa208sha256_str
         (out, passwd, (unsigned long long) passwd_len,
          (unsigned long long) opslimit, (size_t) memlimit) != 0) {
+        efree(out);
         zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256_str()");
     }
     RETURN_STRINGL((char *) out, crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1, 0);
