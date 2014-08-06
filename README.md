@@ -208,7 +208,7 @@ $hash_str = crypto_pwhash_scryptsalsa208sha256_str
   ($passwd, CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
             CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
 
-// verify that the password is valid for the given stored string
+// verify that the password is valid for the string that was previously stored
 $valid = crypto_pwhash_scryptsalsa208sha256_str_verify($hash_str, $passwd);
 
 // recommended: wipe the plaintext password from memory
