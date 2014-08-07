@@ -4,13 +4,13 @@ Check for libsodium secretbox
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
-$nonce = randombytes_buf(CRYPTO_SECRETBOX_NONCEBYTES);
-$key = randombytes_buf(CRYPTO_SECRETBOX_KEYBYTES);
+$nonce = Sodium::randombytes_buf(CRYPTO_SECRETBOX_NONCEBYTES);
+$key = Sodium::randombytes_buf(CRYPTO_SECRETBOX_KEYBYTES);
 
-$a = crypto_secretbox('test', $nonce, $key);
-$x = crypto_secretbox_open($a, $nonce, $key);
+$a = Sodium::crypto_secretbox('test', $nonce, $key);
+$x = Sodium::crypto_secretbox_open($a, $nonce, $key);
 var_dump(bin2hex($x));
-$y = crypto_secretbox_open("\0" . $a, $nonce, $key);
+$y = Sodium::crypto_secretbox_open("\0" . $a, $nonce, $key);
 var_dump($y);
 
 ?>

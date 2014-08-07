@@ -6,13 +6,13 @@ Check for libsodium shorthash
 <?php
 $m1 = 'message';
 $k1 = '0123456789ABCDEF';
-$h1 = crypto_shorthash($m1, $k1);
+$h1 = Sodium::crypto_shorthash($m1, $k1);
 echo bin2hex($h1) . "\n";
 $k2 = '0123456789abcdef';
-$h2 = crypto_shorthash($m1, $k2);
+$h2 = Sodium::crypto_shorthash($m1, $k2);
 echo bin2hex($h2) . "\n";
 $m2 = 'msg';
-$h3 = crypto_shorthash($m2, $k2);
+$h3 = Sodium::crypto_shorthash($m2, $k2);
 echo bin2hex($h3) . "\n";
 ?>
 --EXPECT--

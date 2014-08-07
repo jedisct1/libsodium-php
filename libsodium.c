@@ -22,36 +22,36 @@ ZEND_END_ARG_INFO()
 # define PHP_FE_END { NULL, NULL, NULL }
 #endif
 
-const zend_function_entry libsodium_functions[] = {
-    PHP_FE(sodium_version_string, NULL)
-    PHP_FE(sodium_library_version_major, NULL)
-    PHP_FE(sodium_library_version_minor, NULL)
-    PHP_FE(sodium_memzero, FirstArgByReference)
-    PHP_FE(sodium_memcmp, NULL)
-    PHP_FE(randombytes_buf, NULL)
-    PHP_FE(randombytes_random16, NULL)
-    PHP_FE(randombytes_uniform, NULL)
-    PHP_FE(crypto_shorthash, NULL)
-    PHP_FE(crypto_secretbox, NULL)
-    PHP_FE(crypto_secretbox_open, NULL)
-    PHP_FE(crypto_generichash, NULL)
-    PHP_FE(crypto_box_keypair, NULL)
-    PHP_FE(crypto_box_keypair_from_secretkey_and_publickey, NULL)
-    PHP_FE(crypto_box_secretkey, NULL)
-    PHP_FE(crypto_box_publickey, NULL)
-    PHP_FE(crypto_box_publickey_from_secretkey, NULL)
-    PHP_FE(crypto_box, NULL)
-    PHP_FE(crypto_box_open, NULL)
-    PHP_FE(crypto_sign_keypair, NULL)
-    PHP_FE(crypto_sign_seed_keypair, NULL)
-    PHP_FE(crypto_sign_keypair_from_secretkey_and_publickey, NULL)
-    PHP_FE(crypto_sign_secretkey, NULL)
-    PHP_FE(crypto_sign_publickey, NULL)
-    PHP_FE(crypto_sign, NULL)
-    PHP_FE(crypto_sign_open, NULL)
-    PHP_FE(crypto_pwhash_scryptsalsa208sha256, NULL)
-    PHP_FE(crypto_pwhash_scryptsalsa208sha256_str, NULL)
-    PHP_FE(crypto_pwhash_scryptsalsa208sha256_str_verify, NULL)
+const zend_function_entry libsodium_methods[] = {
+    PHP_ME(Sodium, sodium_version_string, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, sodium_library_version_major, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, sodium_library_version_minor, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, sodium_memzero, FirstArgByReference, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, sodium_memcmp, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, randombytes_buf, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, randombytes_random16, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, randombytes_uniform, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_shorthash, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_secretbox, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_secretbox_open, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_generichash, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_box_keypair, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_box_keypair_from_secretkey_and_publickey, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_box_secretkey, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_box_publickey, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_box_publickey_from_secretkey, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_box, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_box_open, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign_keypair, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign_seed_keypair, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign_keypair_from_secretkey_and_publickey, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign_secretkey, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign_publickey, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign_open, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256_str, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_FE_END
 };
 
@@ -60,7 +60,7 @@ zend_module_entry libsodium_module_entry = {
     STANDARD_MODULE_HEADER,
 #endif
     "libsodium",
-    libsodium_functions,
+    NULL,
     PHP_MINIT(libsodium),
     PHP_MSHUTDOWN(libsodium),
     NULL,
@@ -79,9 +79,14 @@ ZEND_GET_MODULE(libsodium)
 
 PHP_MINIT_FUNCTION(libsodium)
 {
+    zend_class_entry class_entry;
+
     if (sodium_init() != 0) {
         zend_error(E_ERROR, "sodium_init()");
     }
+    INIT_CLASS_ENTRY(class_entry, "Sodium", libsodium_methods);
+    zend_register_internal_class(&class_entry TSRMLS_CC);
+
     REGISTER_LONG_CONSTANT("CRYPTO_SHORTHASH_BYTES",
                            crypto_shorthash_BYTES,
                            CONST_PERSISTENT | CONST_CS);
@@ -179,22 +184,22 @@ PHP_MINFO_FUNCTION(libsodium)
     php_info_print_table_end();
 }
 
-PHP_FUNCTION(sodium_version_string)
+PHP_METHOD(Sodium, sodium_version_string)
 {
     RETURN_STRING(sodium_version_string(), 1);
 }
 
-PHP_FUNCTION(sodium_library_version_major)
+PHP_METHOD(Sodium, sodium_library_version_major)
 {
     RETURN_LONG(sodium_library_version_major());
 }
 
-PHP_FUNCTION(sodium_library_version_minor)
+PHP_METHOD(Sodium, sodium_library_version_minor)
 {
     RETURN_LONG(sodium_library_version_minor());
 }
 
-PHP_FUNCTION(sodium_memzero)
+PHP_METHOD(Sodium, sodium_memzero)
 {
     zval *zv;
     char *buf;
@@ -213,7 +218,7 @@ PHP_FUNCTION(sodium_memzero)
     convert_to_null(zv);
 }
 
-PHP_FUNCTION(sodium_memcmp)
+PHP_METHOD(Sodium, sodium_memcmp)
 {
     char *buf1;
     char *buf2;
@@ -234,7 +239,7 @@ PHP_FUNCTION(sodium_memcmp)
     }
 }
 
-PHP_FUNCTION(randombytes_buf)
+PHP_METHOD(Sodium, randombytes_buf)
 {
     char *buf;
     long  len;
@@ -250,12 +255,12 @@ PHP_FUNCTION(randombytes_buf)
     RETURN_STRINGL(buf, (int) len, 0);
 }
 
-PHP_FUNCTION(randombytes_random16)
+PHP_METHOD(Sodium, randombytes_random16)
 {
     RETURN_LONG((long) (randombytes_random() & (uint32_t) 0xffff));
 }
 
-PHP_FUNCTION(randombytes_uniform)
+PHP_METHOD(Sodium, randombytes_uniform)
 {
     long upper_bound;
 
@@ -267,7 +272,7 @@ PHP_FUNCTION(randombytes_uniform)
     RETURN_LONG((long) randombytes_uniform((uint32_t) upper_bound));
 }
 
-PHP_FUNCTION(crypto_shorthash)
+PHP_METHOD(Sodium, crypto_shorthash)
 {
     unsigned char *key;
     unsigned char *msg;
@@ -293,7 +298,7 @@ PHP_FUNCTION(crypto_shorthash)
     RETURN_STRINGL((char *) out, crypto_shorthash_BYTES, 0);
 }
 
-PHP_FUNCTION(crypto_secretbox)
+PHP_METHOD(Sodium, crypto_secretbox)
 {
     unsigned char *key;
     unsigned char *msg;
@@ -331,7 +336,7 @@ PHP_FUNCTION(crypto_secretbox)
     RETURN_STRINGL((char *) out, msg_len + crypto_secretbox_MACBYTES, 0);
 }
 
-PHP_FUNCTION(crypto_secretbox_open)
+PHP_METHOD(Sodium, crypto_secretbox_open)
 {
     unsigned char *key;
     unsigned char *ciphertext;
@@ -374,7 +379,7 @@ PHP_FUNCTION(crypto_secretbox_open)
     }
 }
 
-PHP_FUNCTION(crypto_generichash)
+PHP_METHOD(Sodium, crypto_generichash)
 {
     unsigned char *key = NULL;
     unsigned char *msg;
@@ -406,7 +411,7 @@ PHP_FUNCTION(crypto_generichash)
     RETURN_STRINGL((char *) out, out_len, 0);
 }
 
-PHP_FUNCTION(crypto_box_keypair)
+PHP_METHOD(Sodium, crypto_box_keypair)
 {
     unsigned char *keypair;
     size_t         keypair_len;
@@ -421,7 +426,7 @@ PHP_FUNCTION(crypto_box_keypair)
     RETURN_STRINGL((char *) keypair, (int) keypair_len, 0);
 }
 
-PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey)
+PHP_METHOD(Sodium, crypto_box_keypair_from_secretkey_and_publickey)
 {
     char   *keypair;
     char   *publickey;
@@ -454,7 +459,7 @@ PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey)
     RETURN_STRINGL(keypair, (int) keypair_len, 0);
 }
 
-PHP_FUNCTION(crypto_box_secretkey)
+PHP_METHOD(Sodium, crypto_box_secretkey)
 {
     unsigned char *keypair;
     char          *secretkey;
@@ -476,7 +481,7 @@ PHP_FUNCTION(crypto_box_secretkey)
     RETURN_STRINGL((char *) secretkey, crypto_box_SECRETKEYBYTES, 0);
 }
 
-PHP_FUNCTION(crypto_box_publickey)
+PHP_METHOD(Sodium, crypto_box_publickey)
 {
     unsigned char *keypair;
     char          *publickey;
@@ -499,7 +504,7 @@ PHP_FUNCTION(crypto_box_publickey)
     RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
 }
 
-PHP_FUNCTION(crypto_box_publickey_from_secretkey)
+PHP_METHOD(Sodium, crypto_box_publickey_from_secretkey)
 {
     unsigned char *secretkey;
     unsigned char *publickey;
@@ -524,7 +529,7 @@ PHP_FUNCTION(crypto_box_publickey_from_secretkey)
     RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
 }
 
-PHP_FUNCTION(crypto_box)
+PHP_METHOD(Sodium, crypto_box)
 {
     unsigned char *keypair;
     unsigned char *msg;
@@ -566,7 +571,7 @@ PHP_FUNCTION(crypto_box)
     RETURN_STRINGL((char *) out, msg_len + crypto_box_MACBYTES, 0);
 }
 
-PHP_FUNCTION(crypto_box_open)
+PHP_METHOD(Sodium, crypto_box_open)
 {
     unsigned char *keypair;
     unsigned char *ciphertext;
@@ -612,7 +617,7 @@ PHP_FUNCTION(crypto_box_open)
     }
 }
 
-PHP_FUNCTION(crypto_sign_keypair)
+PHP_METHOD(Sodium, crypto_sign_keypair)
 {
     unsigned char *keypair;
     size_t         keypair_len;
@@ -627,7 +632,7 @@ PHP_FUNCTION(crypto_sign_keypair)
     RETURN_STRINGL((char *) keypair, keypair_len, 0);
 }
 
-PHP_FUNCTION(crypto_sign_seed_keypair)
+PHP_METHOD(Sodium, crypto_sign_seed_keypair)
 {
     unsigned char *keypair;
     unsigned char *seed;
@@ -653,7 +658,7 @@ PHP_FUNCTION(crypto_sign_seed_keypair)
     RETURN_STRINGL((char *) keypair, keypair_len, 0);
 }
 
-PHP_FUNCTION(crypto_sign_keypair_from_secretkey_and_publickey)
+PHP_METHOD(Sodium, crypto_sign_keypair_from_secretkey_and_publickey)
 {
     char   *keypair;
     char   *publickey;
@@ -686,7 +691,7 @@ PHP_FUNCTION(crypto_sign_keypair_from_secretkey_and_publickey)
     RETURN_STRINGL(keypair, keypair_len, 0);
 }
 
-PHP_FUNCTION(crypto_sign_secretkey)
+PHP_METHOD(Sodium, crypto_sign_secretkey)
 {
     unsigned char *keypair;
     char          *secretkey;
@@ -708,7 +713,7 @@ PHP_FUNCTION(crypto_sign_secretkey)
     RETURN_STRINGL((char *) secretkey, crypto_sign_SECRETKEYBYTES, 0);
 }
 
-PHP_FUNCTION(crypto_sign_publickey)
+PHP_METHOD(Sodium, crypto_sign_publickey)
 {
     unsigned char *keypair;
     char          *publickey;
@@ -731,7 +736,7 @@ PHP_FUNCTION(crypto_sign_publickey)
     RETURN_STRINGL((char *) publickey, crypto_sign_PUBLICKEYBYTES, 0);
 }
 
-PHP_FUNCTION(crypto_sign)
+PHP_METHOD(Sodium, crypto_sign)
 {
     unsigned char      *msg;
     unsigned char      *msg_signed;
@@ -768,7 +773,7 @@ PHP_FUNCTION(crypto_sign)
     RETURN_STRINGL((char *) msg_signed, (int) msg_signed_real_len, 0);
 }
 
-PHP_FUNCTION(crypto_sign_open)
+PHP_METHOD(Sodium, crypto_sign_open)
 {
     unsigned char      *msg;
     unsigned char      *msg_signed;
@@ -804,7 +809,7 @@ PHP_FUNCTION(crypto_sign_open)
     RETURN_STRINGL((char *) msg, (int) msg_real_len, 0);
 }
 
-PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256)
+PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256)
 {
     unsigned char *out;
     unsigned char *salt;
@@ -848,7 +853,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256)
     RETURN_STRINGL((char *) out, out_len, 0);
 }
 
-PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str)
+PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str)
 {
     char *out;
     char *passwd;
@@ -881,7 +886,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str)
     RETURN_STRINGL((char *) out, crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1, 0);
 }
 
-PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify)
+PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify)
 {
     char *hash;
     char *passwd;

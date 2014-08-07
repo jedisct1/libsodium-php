@@ -6,21 +6,21 @@ Check for libsodium utils
 <?php
 $passwd = 'test';
 
-$hash = crypto_pwhash_scryptsalsa208sha256_str
+$hash = Sodium::crypto_pwhash_scryptsalsa208sha256_str
   ($passwd, CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
             CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
 var_dump(substr($hash, 0, 3) ===
          CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX);
 
-$c = crypto_pwhash_scryptsalsa208sha256_str_verify($hash, $passwd);
+$c = Sodium::crypto_pwhash_scryptsalsa208sha256_str_verify($hash, $passwd);
 var_dump($c);
 
-$c = crypto_pwhash_scryptsalsa208sha256_str_verify($hash, 'passwd');
+$c = Sodium::crypto_pwhash_scryptsalsa208sha256_str_verify($hash, 'passwd');
 var_dump($c);
 
-$salt = randombytes_buf(CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES);
+$salt = Sodium::randombytes_buf(CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES);
 $out_len = 100;
-$key = crypto_pwhash_scryptsalsa208sha256
+$key = Sodium::crypto_pwhash_scryptsalsa208sha256
   ($out_len, $passwd, $salt,
    CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
    CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);

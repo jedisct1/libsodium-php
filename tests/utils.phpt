@@ -5,7 +5,7 @@ Check for libsodium utils
 --FILE--
 <?php
 $a = 'test';
-sodium_memzero($a);
+Sodium::sodium_memzero($a);
 if ($a !== 'test') {
   echo strlen($a);
 } else {
@@ -14,8 +14,8 @@ if ($a !== 'test') {
 echo "\n";
 $b = 'string';
 $c = 'string';
-var_dump(!sodium_memcmp($b, $c));
-var_dump(!sodium_memcmp($b, 'String'));
+var_dump(!Sodium::sodium_memcmp($b, $c));
+var_dump(!Sodium::sodium_memcmp($b, 'String'));
 ?>
 --EXPECT--
 0

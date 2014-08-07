@@ -4,13 +4,13 @@ Check for libsodium generichash
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
-$q = crypto_generichash('msg');
+$q = Sodium::crypto_generichash('msg');
 var_dump(bin2hex($q));
-$q = crypto_generichash('msg', '0123456789abcdef');
+$q = Sodium::crypto_generichash('msg', '0123456789abcdef');
 var_dump(bin2hex($q));
-$q = crypto_generichash('msg', '0123456789abcdef', 64);
+$q = Sodium::crypto_generichash('msg', '0123456789abcdef', 64);
 var_dump(bin2hex($q));
-$q = crypto_generichash('msg', '0123456789abcdef0123456789abcdef', 64);
+$q = Sodium::crypto_generichash('msg', '0123456789abcdef0123456789abcdef', 64);
 var_dump(bin2hex($q));
 ?>
 --EXPECT--
