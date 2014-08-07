@@ -850,10 +850,12 @@ PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256)
                    "salt should be CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES bytes");
     }
     if (opslimit < crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE) {
-        zend_error(E_WARNING, "number of operations for the scrypt function is low");
+        zend_error(E_WARNING,
+                   "number of operations for the scrypt function is low");
     }
     if (memlimit < crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) {
-        zend_error(E_WARNING, "maximum memory for the scrypt function is low");
+        zend_error(E_WARNING,
+                   "maximum memory for the scrypt function is low");
     }
     out = safe_emalloc((size_t) out_len + 1U, 1U, 0U);
     if (crypto_pwhash_scryptsalsa208sha256
@@ -880,16 +882,19 @@ PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str)
                               &passwd, &passwd_len,
                               &opslimit, &memlimit) == FAILURE ||
         opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
-        zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256_str(): invalid parameters");
+        zend_error(E_ERROR,
+                   "crypto_pwhash_scryptsalsa208sha256_str(): invalid parameters");
     }
     if (passwd_len <= 0) {
         zend_error(E_WARNING, "empty password");
     }
     if (opslimit < crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE) {
-        zend_error(E_WARNING, "number of operations for the scrypt function is low");
+        zend_error(E_WARNING,
+                   "number of operations for the scrypt function is low");
     }
     if (memlimit < crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) {
-        zend_error(E_WARNING, "maximum memory for the scrypt function is low");
+        zend_error(E_WARNING,
+                   "maximum memory for the scrypt function is low");
     }
     out = safe_emalloc(crypto_pwhash_scryptsalsa208sha256_STRBYTES + 1U,
                        1U, 0U);
@@ -914,7 +919,8 @@ PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &hash, &hash_len,
                               &passwd, &passwd_len) == FAILURE) {
-        zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256_str_verify(): invalid parameters");
+        zend_error(E_ERROR,
+                   "crypto_pwhash_scryptsalsa208sha256_str_verify(): invalid parameters");
     }
     if (passwd_len <= 0) {
         zend_error(E_WARNING, "empty password");
