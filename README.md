@@ -22,10 +22,10 @@ Secret-key authenticated encryption
 -----------------------------------
 
 ```php
-$nonce = randombytes_buf(CRYPTO_SECRETBOX_NONCEBYTES);
+$nonce = Sodium::randombytes_buf(Sodium::CRYPTO_SECRETBOX_NONCEBYTES);
 $key = [a binary string that must be CRYPTO_SECRETBOX_KEYBYTES long];
-$ciphertext = crypto_secretbox('test', $nonce, $key);
-$plaintext = crypto_secretbox_open($ciphertext, $nonce, $key);
+$ciphertext = Sodium::crypto_secretbox('test', $nonce, $key);
+$plaintext = Sodium::crypto_secretbox_open($ciphertext, $nonce, $key);
 ```
 
 The same message encrypted with the same key, but with two different
@@ -43,19 +43,19 @@ Public-key signatures
 ---------------------
 
 ```php
-$alice_kp = crypto_sign_keypair();
-$alice_secretkey = crypto_sign_secretkey($alice_kp);
-$alice_publickey = crypto_sign_publickey($alice_kp);
+$alice_kp = Sodium::crypto_sign_keypair();
+$alice_secretkey = Sodium::crypto_sign_secretkey($alice_kp);
+$alice_publickey = Sodium::crypto_sign_publickey($alice_kp);
 
 $msg = "Here is the message, to be signed using Alice's secret key, and " .
   "to be verified using Alice's public key";
 
 // Alice signs $msg using her secret key
 // $msg_signed contains the signature as well as the message
-$msg_signed = crypto_sign($msg, $alice_secretkey);
+$msg_signed = Sodium::crypto_sign($msg, $alice_secretkey);
 
 // Bob verifies and removes the signature
-$msg_orig = crypto_sign_open($msg_signed, $alice_publickey);
+$msg_orig = Sodium::crypto_sign_open($msg_signed, $alice_publickey);
 if ($msg_orig === FALSE) {
   trigger_error('Signature verification failed');
 } else {
@@ -67,8 +67,8 @@ The key pair can also be derived from a single seed, using
 `crypto_sign_seed_keypair()`:
 ```php
 // $seed must be CRYPTO_SIGN_SEEDBYTES long
-$seed = randombytes_buf(CRYPTO_SIGN_SEEDBYTES);
-$alice_kp = crypto_sign_seed_keypair($seed);
+$seed = Sodium::randombytes_buf(Sodium::CRYPTO_SIGN_SEEDBYTES);
+$alice_kp = Sodium::crypto_sign_seed_keypair($seed);
 ```
 
 This operation allows Bob to check that the message has been signed by
@@ -83,37 +83,37 @@ Public-key authenticated encryption
 -----------------------------------
 
 ```php
-$alice_kp = crypto_box_keypair();
-$alice_secretkey = crypto_box_secretkey($alice_kp);
-$alice_publickey = crypto_box_publickey($alice_kp);
+$alice_kp = Sodium::crypto_box_keypair();
+$alice_secretkey = Sodium::crypto_box_secretkey($alice_kp);
+$alice_publickey = Sodium::crypto_box_publickey($alice_kp);
 
-$bob_kp = crypto_box_keypair();
-$bob_secretkey = crypto_box_secretkey($bob_kp);
-$bob_publickey = crypto_box_publickey($bob_kp);
+$bob_kp = Sodium::crypto_box_keypair();
+$bob_secretkey = Sodium::crypto_box_secretkey($bob_kp);
+$bob_publickey = Sodium::crypto_box_publickey($bob_kp);
 
-$alice_to_bob_kp = crypto_box_keypair_from_secretkey_and_publickey
+$alice_to_bob_kp = Sodium::crypto_box_keypair_from_secretkey_and_publickey
   ($alice_secretkey, $bob_publickey);
 
-$bob_to_alice_kp = crypto_box_keypair_from_secretkey_and_publickey
+$bob_to_alice_kp = Sodium::crypto_box_keypair_from_secretkey_and_publickey
   ($bob_secretkey, $alice_publickey);
 
-$alice_to_bob_message_nonce = randombytes_buf(CRYPTO_BOX_NONCEBYTES);
+$alice_to_bob_message_nonce = Sodium::randombytes_buf(Sodium::CRYPTO_BOX_NONCEBYTES);
 
-$alice_to_bob_ciphertext = crypto_box('Hi, this is Alice',
+$alice_to_bob_ciphertext = Sodium::crypto_box('Hi, this is Alice',
                                       $alice_to_bob_message_nonce,
                                       $alice_to_bob_kp);
 
-$alice_message_decrypted_by_bob = crypto_box_open($alice_to_bob_ciphertext,
+$alice_message_decrypted_by_bob = Sodium::crypto_box_open($alice_to_bob_ciphertext,
                                                   $alice_to_bob_message_nonce,
                                                   $bob_to_alice_kp);
 
-$bob_to_alice_message_nonce = randombytes_buf(CRYPTO_BOX_NONCEBYTES);
+$bob_to_alice_message_nonce = Sodium::randombytes_buf(Sodium::CRYPTO_BOX_NONCEBYTES);
 
-$bob_to_alice_ciphertext = crypto_box('Hi Alice! This is Bob',
+$bob_to_alice_ciphertext = Sodium::crypto_box('Hi Alice! This is Bob',
                                       $bob_to_alice_message_nonce,
                                       $bob_to_alice_kp);
 
-$bob_message_decrypted_by_alice = crypto_box_open($bob_to_alice_ciphertext,
+$bob_message_decrypted_by_alice = Sodium::crypto_box_open($bob_to_alice_ciphertext,
                                                   $bob_to_alice_message_nonce,
                                                   $alice_to_bob_kp);
 ```
@@ -137,19 +137,19 @@ Generic hash function
 ```php
 // Fast, unkeyed hash function.
 // Can be used as a secure remplacement for MD5
-$h = crypto_generichash('msg');
+$h = Sodium::crypto_generichash('msg');
 
 // Fast, keyed hash function.
 // The key can be of any length between CRYPTO_GENERICHASH_KEYBYTES_MIN
 // and CRYPTO_GENERICHASH_KEYBYTES_MAX, in bytes.
 // CRYPTO_GENERICHASH_KEYBYTES is the recommended length.
-$h = crypto_generichash('msg', $key);
+$h = Sodium::crypto_generichash('msg', $key);
 
 // Fast, keyed hash function, with user-chosen output length, in bytes.
 // Output length can be between CRYPTO_GENERICHASH_BYTES_MIN and
 // CRYPTO_GENERICHASH_BYTES_MAX.
 // CRYPTO_GENERICHASH_BYTES is the default length.
-$h = crypto_generichash('msg', $key, 64);
+$h = Sodium::crypto_generichash('msg', $key, 64);
 ```
 
 Very fast, short (64 bits), keyed hash function
@@ -157,7 +157,7 @@ Very fast, short (64 bits), keyed hash function
 
 ```php
 // $key must be CRYPTO_SHORTHASH_KEYBYTES (16 byes, 128 bits) long
-$h = crypto_shorthash('message', $key);
+$h = Sodium::crypto_shorthash('message', $key);
 ```
 
 This function has been optimized for short messages. Its short output
@@ -178,21 +178,21 @@ $n pseudorandom bytes
 ---------------------
 
 ```php
-$a = randombytes_buf($n);
+$a = Sodium::randombytes_buf($n);
 ```
 
 A pseudorandom value between 0 and 0xffff
 -----------------------------------------
 
 ```php
-$a = randombytes_random16();
+$a = Sodium::randombytes_random16();
 ```
 
 A pseudorandom value between 0 and $n
 -------------------------------------
 
 ```php
-$a = randombytes_uniform($n);
+$a = Sodium::randombytes_uniform($n);
 ```
 
 Unlike `rand() % $n`, the distribution of the output values is uniform.
@@ -204,12 +204,12 @@ Password storage
 $passwd = 'Correct battery horse staple';
 
 // hash the password and return an ASCII string suitable for storage
-$hash_str = crypto_pwhash_scryptsalsa208sha256_str
-  ($passwd, CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-            CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
+$hash_str = Sodium::crypto_pwhash_scryptsalsa208sha256_str
+  ($passwd, Sodium::CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+            Sodium::CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
 
 // verify that the password is valid for the string that was previously stored
-$valid = crypto_pwhash_scryptsalsa208sha256_str_verify($hash_str, $passwd);
+$valid = Sodium::crypto_pwhash_scryptsalsa208sha256_str_verify($hash_str, $passwd);
 
 // recommended: wipe the plaintext password from memory
 sodium_memzero($passwd);
@@ -226,15 +226,15 @@ Key derivation
 $passwd = 'Correct battery horse staple';
 
 // create a random salt
-$salt = randombytes_buf(CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES);
+$salt = Sodium::randombytes_buf(Sodium::CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES);
 
 // generate a stream of $out_len pseudo random bytes
 // using the password and the salt; this can be used to generate secret keys
 $out_len = 100;
-$key = crypto_pwhash_scryptsalsa208sha256
+$key = Sodium::crypto_pwhash_scryptsalsa208sha256
           ($out_len, $passwd, $salt,
-           CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-           CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
+           Sodium::CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+           Sodium::CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
 
 // recommended: wipe the plaintext password from memory
 sodium_memzero($passwd);
