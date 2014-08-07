@@ -212,7 +212,7 @@ $hash_str = Sodium::crypto_pwhash_scryptsalsa208sha256_str
 $valid = Sodium::crypto_pwhash_scryptsalsa208sha256_str_verify($hash_str, $passwd);
 
 // recommended: wipe the plaintext password from memory
-sodium_memzero($passwd);
+Sodium::sodium_memzero($passwd);
 
 if ($valid === TRUE) {
   // password was valid
@@ -237,7 +237,7 @@ $key = Sodium::crypto_pwhash_scryptsalsa208sha256
            Sodium::CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE);
 
 // recommended: wipe the plaintext password from memory
-sodium_memzero($passwd);
+Sodium::sodium_memzero($passwd);
 ```
 
 
@@ -249,14 +249,14 @@ Wiping sensitive information from memory
 
 ```php
 $a = 'secret key';
-sodium_memzero($a);
+Sodium::sodium_memzero($a);
 ```
 
 Constant-time comparison
 ------------------------
 
 ```php
-if (sodium_memcmp($a, $b) === 0) {
+if (Sodium::sodium_memcmp($a, $b) === 0) {
   ...
 }
 ```
