@@ -10,7 +10,7 @@ Installation
 ============
 
     phpize && ./configure --with-libsodium && make test && sudo make install
-    
+
 And add the following line to your `php.ini` file:
 
     extension=libsodium.so
