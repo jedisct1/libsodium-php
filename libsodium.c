@@ -225,11 +225,12 @@ PHP_METHOD(Sodium, randombytes_buf)
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &len) == FAILURE ||
-        len <= 0 || len > INT_MAX) {
+        len <= 0 || len >= INT_MAX) {
         zend_error(E_ERROR, "randombytes_buf(): invalid length");
     }
-    buf = safe_emalloc((size_t) len, 1U, 0U);
+    buf = safe_emalloc((size_t) len + 1U, 1U, 0U);
     randombytes_buf(buf, (size_t) len);
+    buf[len] = 0U;
 
     RETURN_STRINGL(buf, (int) len, 0);
 }
@@ -269,11 +270,13 @@ PHP_METHOD(Sodium, crypto_shorthash)
                    "crypto_shorthash(): key size should be "
                    "CRYPTO_SHORTHASH_KEYBYTES long");
     }
-    out = safe_emalloc(crypto_shorthash_BYTES, 1U, 0U);
+    out = safe_emalloc(crypto_shorthash_BYTES + 1U, 1U, 0U);
     if (crypto_shorthash(out, msg, (unsigned long long) msg_len, key) != 0) {
         efree(out);
         zend_error(E_ERROR, "crypto_shorthash()");
     }
+    out[crypto_shorthash_BYTES] = 0U;
+
     RETURN_STRINGL((char *) out, crypto_shorthash_BYTES, 0);
 }
 
@@ -303,15 +306,18 @@ PHP_METHOD(Sodium, crypto_secretbox)
                    "crypto_secretbox(): key size should be "
                    "CRYPTO_SECRETBOX_KEYBYTES long");
     }
-    if (INT_MAX - msg_len < crypto_secretbox_MACBYTES) {
+    if (INT_MAX - msg_len <= crypto_secretbox_MACBYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    out = safe_emalloc((size_t) msg_len + crypto_secretbox_MACBYTES, 1U, 0U);
+    out = safe_emalloc((size_t) msg_len + crypto_secretbox_MACBYTES + 1U,
+                       1U, 0U);
     if (crypto_secretbox_easy(out, msg, (unsigned long long) msg_len,
                               nonce, key) != 0) {
         efree(out);
         zend_error(E_ERROR, "crypto_secretbox()");
     }
+    out[msg_len + crypto_secretbox_MACBYTES] = 0U;
+
     RETURN_STRINGL((char *) out, msg_len + crypto_secretbox_MACBYTES, 0);
 }
 
@@ -345,7 +351,7 @@ PHP_METHOD(Sodium, crypto_secretbox_open)
         zend_error(E_ERROR,
                    "crypto_secretbox_open(): short ciphertext");
     }
-    out = safe_emalloc((size_t) ciphertext_len - crypto_secretbox_MACBYTES,
+    out = safe_emalloc((size_t) ciphertext_len - crypto_secretbox_MACBYTES + 1U,
                        1U, 0U);
     if (crypto_secretbox_open_easy(out, ciphertext,
                                    (unsigned long long) ciphertext_len,
@@ -353,6 +359,7 @@ PHP_METHOD(Sodium, crypto_secretbox_open)
         efree(out);
         RETURN_FALSE;
     } else {
+        out[ciphertext_len - crypto_secretbox_MACBYTES] = 0U;
         RETURN_STRINGL((char *) out,
                        ciphertext_len - crypto_secretbox_MACBYTES, 0);
     }
@@ -382,11 +389,13 @@ PHP_METHOD(Sodium, crypto_generichash)
          key_len > crypto_generichash_KEYBYTES_MAX)) {
         zend_error(E_ERROR, "crypto_generichash(): unsupported key length");
     }
-    out = safe_emalloc((size_t) out_len, 1U, 0U);
+    out = safe_emalloc((size_t) out_len + 1U, 1U, 0U);
     if (crypto_generichash(out, out_len, msg, msg_len, key, key_len) != 0) {
         efree(out);
         zend_error(E_ERROR, "crypto_generichash()");
     }
+    out[out_len] = 0U;
+
     RETURN_STRINGL((char *) out, out_len, 0);
 }
 
@@ -396,12 +405,14 @@ PHP_METHOD(Sodium, crypto_box_keypair)
     size_t         keypair_len;
 
     keypair_len = crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES;
-    keypair = safe_emalloc(keypair_len, 1U, 0U);
+    keypair = safe_emalloc(keypair_len + 1U, 1U, 0U);
     if (crypto_box_keypair(keypair + crypto_box_SECRETKEYBYTES,
                            keypair) != 0) {
         efree(keypair);
         zend_error(E_ERROR, "crypto_box_keypair()");
     }
+    keypair[keypair_len] = 0U;
+
     RETURN_STRINGL((char *) keypair, (int) keypair_len, 0);
 }
 
@@ -430,10 +441,11 @@ PHP_METHOD(Sodium, crypto_box_keypair_from_secretkey_and_publickey)
                    "publickey should be CRYPTO_BOX_PUBLICKEYBYTES long");
     }
     keypair_len = crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES;
-    keypair = safe_emalloc(keypair_len, 1U, 0U);
+    keypair = safe_emalloc(keypair_len + 1U, 1U, 0U);
     memcpy(keypair, secretkey, crypto_box_SECRETKEYBYTES);
     memcpy(keypair + crypto_box_SECRETKEYBYTES, publickey,
            crypto_box_PUBLICKEYBYTES);
+    keypair[keypair_len] = 0U;
 
     RETURN_STRINGL(keypair, (int) keypair_len, 0);
 }
@@ -454,8 +466,9 @@ PHP_METHOD(Sodium, crypto_box_secretkey)
                    "crypto_box_secretkey(): keypair should be "
                    "CRYPTO_BOX_KEYPAIRBYTES long");
     }
-    secretkey = safe_emalloc(crypto_box_SECRETKEYBYTES, 1U, 0U);
+    secretkey = safe_emalloc(crypto_box_SECRETKEYBYTES + 1U, 1U, 0U);
     memcpy(secretkey, keypair, crypto_box_SECRETKEYBYTES);
+    secretkey[crypto_box_SECRETKEYBYTES] = 0U;
 
     RETURN_STRINGL((char *) secretkey, crypto_box_SECRETKEYBYTES, 0);
 }
@@ -476,9 +489,10 @@ PHP_METHOD(Sodium, crypto_box_publickey)
                    "crypto_box_publickey(): keypair should be "
                    "CRYPTO_BOX_KEYPAIRBYTES long");
     }
-    publickey = safe_emalloc(crypto_box_PUBLICKEYBYTES, 1U, 0U);
+    publickey = safe_emalloc(crypto_box_PUBLICKEYBYTES + 1U, 1U, 0U);
     memcpy(publickey, keypair + crypto_box_SECRETKEYBYTES,
            crypto_box_PUBLICKEYBYTES);
+    publickey[crypto_box_PUBLICKEYBYTES] = 0U;
 
     RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
 }
@@ -498,12 +512,13 @@ PHP_METHOD(Sodium, crypto_box_publickey_from_secretkey)
                    "crypto_box_publickey_from_secretkey(): key should be "
                    "CRYPTO_BOX_SECRETKEYBYTES long");
     }
-    publickey = safe_emalloc(crypto_box_PUBLICKEYBYTES, 1U, 0U);
+    publickey = safe_emalloc(crypto_box_PUBLICKEYBYTES + 1U, 1U, 0U);
     (void) sizeof(int[crypto_scalarmult_BYTES ==
                       crypto_box_PUBLICKEYBYTES ? 1 : -1]);
     (void) sizeof(int[crypto_scalarmult_SCALARBYTES ==
                       crypto_box_SECRETKEYBYTES ? 1 : -1]);
     crypto_scalarmult_base(publickey, secretkey);
+    publickey[crypto_box_PUBLICKEYBYTES] = 0U;
 
     RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
 }
@@ -538,15 +553,17 @@ PHP_METHOD(Sodium, crypto_box)
     }
     secretkey = keypair;
     publickey = keypair + crypto_box_SECRETKEYBYTES;
-    if (INT_MAX - msg_len < crypto_box_MACBYTES) {
+    if (INT_MAX - msg_len <= crypto_box_MACBYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    out = safe_emalloc((size_t) msg_len + crypto_box_MACBYTES, 1U, 0U);
+    out = safe_emalloc((size_t) msg_len + crypto_box_MACBYTES + 1U, 1U, 0U);
     if (crypto_box_easy(out, msg, (unsigned long long) msg_len,
                         nonce, publickey, secretkey) != 0) {
         efree(out);
         zend_error(E_ERROR, "crypto_box()");
     }
+    out[msg_len + crypto_box_MACBYTES] = 0U;
+
     RETURN_STRINGL((char *) out, msg_len + crypto_box_MACBYTES, 0);
 }
 
@@ -584,13 +601,15 @@ PHP_METHOD(Sodium, crypto_box_open)
         zend_error(E_ERROR,
                    "crypto_box_open(): short ciphertext");
     }
-    out = safe_emalloc((size_t) ciphertext_len - crypto_box_MACBYTES, 1U, 0U);
+    out = safe_emalloc((size_t) ciphertext_len - crypto_box_MACBYTES + 1U,
+                       1U, 0U);
     if (crypto_box_open_easy(out, ciphertext,
                              (unsigned long long) ciphertext_len,
                              nonce, publickey, secretkey) != 0) {
         efree(out);
         RETURN_FALSE;
     } else {
+        out[ciphertext_len - crypto_box_MACBYTES] = 0U;
         RETURN_STRINGL((char *) out,
                        ciphertext_len - crypto_box_MACBYTES, 0);
     }
@@ -602,12 +621,14 @@ PHP_METHOD(Sodium, crypto_sign_keypair)
     size_t         keypair_len;
 
     keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
-    keypair = safe_emalloc(keypair_len, 1U, 0U);
+    keypair = safe_emalloc(keypair_len + 1U, 1U, 0U);
     if (crypto_sign_keypair(keypair + crypto_sign_SECRETKEYBYTES,
                             keypair) != 0) {
         efree(keypair);
         zend_error(E_ERROR, "crypto_sign_keypair()");
     }
+    keypair[keypair_len] = 0U;
+
     RETURN_STRINGL((char *) keypair, keypair_len, 0);
 }
 
@@ -628,12 +649,14 @@ PHP_METHOD(Sodium, crypto_sign_seed_keypair)
                    "seed should be crypto_sign_SEEDBYTES long");
     }
     keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
-    keypair = safe_emalloc(keypair_len, 1U, 0U);
+    keypair = safe_emalloc(keypair_len + 1U, 1U, 0U);
     if (crypto_sign_seed_keypair(keypair + crypto_sign_SECRETKEYBYTES,
                                  keypair, seed) != 0) {
         efree(keypair);
         zend_error(E_ERROR, "crypto_sign_seed_keypair()");
     }
+    keypair[keypair_len] = 0U;
+
     RETURN_STRINGL((char *) keypair, keypair_len, 0);
 }
 
@@ -662,10 +685,11 @@ PHP_METHOD(Sodium, crypto_sign_keypair_from_secretkey_and_publickey)
                    "publickey should be CRYPTO_SIGN_PUBLICKEYBYTES long");
     }
     keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
-    keypair = safe_emalloc(keypair_len, 1U, 0U);
+    keypair = safe_emalloc(keypair_len + 1U, 1U, 0U);
     memcpy(keypair, secretkey, crypto_sign_SECRETKEYBYTES);
     memcpy(keypair + crypto_sign_SECRETKEYBYTES, publickey,
            crypto_sign_PUBLICKEYBYTES);
+    keypair[keypair_len] = 0U;
 
     RETURN_STRINGL(keypair, keypair_len, 0);
 }
@@ -686,8 +710,9 @@ PHP_METHOD(Sodium, crypto_sign_secretkey)
                    "crypto_sign_secretkey(): keypair should be "
                    "CRYPTO_SIGN_KEYPAIRBYTES long");
     }
-    secretkey = safe_emalloc(crypto_sign_SECRETKEYBYTES, 1U, 0U);
+    secretkey = safe_emalloc(crypto_sign_SECRETKEYBYTES + 1U, 1U, 0U);
     memcpy(secretkey, keypair, crypto_sign_SECRETKEYBYTES);
+    secretkey[crypto_sign_SECRETKEYBYTES] = 0U;
 
     RETURN_STRINGL((char *) secretkey, crypto_sign_SECRETKEYBYTES, 0);
 }
@@ -708,9 +733,10 @@ PHP_METHOD(Sodium, crypto_sign_publickey)
                    "crypto_sign_publickey(): keypair should be "
                    "CRYPTO_SIGN_KEYPAIRBYTES long");
     }
-    publickey = safe_emalloc(crypto_sign_PUBLICKEYBYTES, 1U, 0U);
+    publickey = safe_emalloc(crypto_sign_PUBLICKEYBYTES + 1U, 1U, 0U);
     memcpy(publickey, keypair + crypto_sign_SECRETKEYBYTES,
            crypto_sign_PUBLICKEYBYTES);
+    publickey[crypto_sign_PUBLICKEYBYTES] = 0U;
 
     RETURN_STRINGL((char *) publickey, crypto_sign_PUBLICKEYBYTES, 0);
 }
@@ -735,20 +761,23 @@ PHP_METHOD(Sodium, crypto_sign)
                    "crypto_sign(): secret key size should be "
                    "CRYPTO_SIGN_SECRETKEYBYTES long");
     }
-    if (INT_MAX - msg_len < crypto_sign_BYTES) {
+    if (INT_MAX - msg_len <= crypto_sign_BYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
     msg_signed_len = msg_len + crypto_sign_BYTES;
-    msg_signed = safe_emalloc((size_t) msg_signed_len, 1U, 0U);
+    msg_signed = safe_emalloc((size_t) msg_signed_len + 1U, 1U, 0U);
     if (crypto_sign(msg_signed, &msg_signed_real_len, msg,
                     (unsigned long long) msg_len, secretkey) != 0) {
         efree(msg_signed);
         zend_error(E_ERROR, "crypto_sign()");
     }
-    if (msg_signed_real_len <= 0U || msg_signed_real_len > INT_MAX) {
+    if (msg_signed_real_len <= 0U || msg_signed_real_len >= INT_MAX ||
+        msg_signed_real_len > msg_signed_len) {
         efree(msg_signed);
         zend_error(E_ERROR, "arithmetic overflow");
     }
+    msg_signed[msg_signed_real_len] = 0U;
+
     RETURN_STRINGL((char *) msg_signed, (int) msg_signed_real_len, 0);
 }
 
@@ -772,8 +801,11 @@ PHP_METHOD(Sodium, crypto_sign_open)
                    "crypto_sign_open(): public key size should be "
                    "CRYPTO_SIGN_PUBLICKEYBYTES long");
     }
+    if (msg_len >= INT_MAX) {
+        zend_error(E_ERROR, "arithmetic overflow");
+    }
     msg_len = msg_signed_len;
-    msg = safe_emalloc((size_t) msg_len, 1U, 0U);
+    msg = safe_emalloc((size_t) msg_len + 1U, 1U, 0U);
     if (crypto_sign_open(msg, &msg_real_len, msg_signed,
                          (unsigned long long) msg_signed_len,
                          publickey) != 0) {
@@ -781,10 +813,12 @@ PHP_METHOD(Sodium, crypto_sign_open)
         efree(msg);
         RETURN_FALSE;
     }
-    if (msg_real_len > INT_MAX || msg_real_len > msg_signed_len) {
+    if (msg_real_len >= INT_MAX || msg_real_len > msg_signed_len) {
         efree(msg);
         zend_error(E_ERROR, "arithmetic overflow");
     }
+    msg[msg_real_len] = 0U;
+
     RETURN_STRINGL((char *) msg, (int) msg_real_len, 0);
 }
 
@@ -804,7 +838,7 @@ PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256)
                               &passwd, &passwd_len,
                               &salt, &salt_len,
                               &opslimit, &memlimit) == FAILURE ||
-        out_len <= 0 || out_len > INT_MAX ||
+        out_len <= 0 || out_len >= INT_MAX ||
         opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
         zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256(): invalid parameters");
     }
@@ -821,7 +855,7 @@ PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256)
     if (memlimit < crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) {
         zend_error(E_WARNING, "maximum memory for the scrypt function is low");
     }
-    out = safe_emalloc((size_t) out_len, 1U, 0U);
+    out = safe_emalloc((size_t) out_len + 1U, 1U, 0U);
     if (crypto_pwhash_scryptsalsa208sha256
         (out, (unsigned long long) out_len,
          passwd, (unsigned long long) passwd_len, salt,
@@ -829,6 +863,8 @@ PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256)
         efree(out);
         zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256()");
     }
+    out[out_len] = 0U;
+
     RETURN_STRINGL((char *) out, out_len, 0);
 }
 
@@ -855,13 +891,16 @@ PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str)
     if (memlimit < crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) {
         zend_error(E_WARNING, "maximum memory for the scrypt function is low");
     }
-    out = safe_emalloc(crypto_pwhash_scryptsalsa208sha256_STRBYTES, 1U, 0U);
+    out = safe_emalloc(crypto_pwhash_scryptsalsa208sha256_STRBYTES + 1U,
+                       1U, 0U);
     if (crypto_pwhash_scryptsalsa208sha256_str
         (out, passwd, (unsigned long long) passwd_len,
          (unsigned long long) opslimit, (size_t) memlimit) != 0) {
         efree(out);
         zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256_str()");
     }
+    out[crypto_pwhash_scryptsalsa208sha256_STRBYTES] = 0U;
+
     RETURN_STRINGL((char *) out, crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1, 0);
 }
 
