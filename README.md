@@ -100,22 +100,22 @@ $bob_to_alice_kp = Sodium::crypto_box_keypair_from_secretkey_and_publickey
 $alice_to_bob_message_nonce = Sodium::randombytes_buf(Sodium::CRYPTO_BOX_NONCEBYTES);
 
 $alice_to_bob_ciphertext = Sodium::crypto_box('Hi, this is Alice',
-                                      $alice_to_bob_message_nonce,
-                                      $alice_to_bob_kp);
+                                              $alice_to_bob_message_nonce,
+                                              $alice_to_bob_kp);
 
 $alice_message_decrypted_by_bob = Sodium::crypto_box_open($alice_to_bob_ciphertext,
-                                                  $alice_to_bob_message_nonce,
-                                                  $bob_to_alice_kp);
+                                                          $alice_to_bob_message_nonce,
+                                                          $bob_to_alice_kp);
 
 $bob_to_alice_message_nonce = Sodium::randombytes_buf(Sodium::CRYPTO_BOX_NONCEBYTES);
 
 $bob_to_alice_ciphertext = Sodium::crypto_box('Hi Alice! This is Bob',
-                                      $bob_to_alice_message_nonce,
-                                      $bob_to_alice_kp);
+                                              $bob_to_alice_message_nonce,
+                                              $bob_to_alice_kp);
 
 $bob_message_decrypted_by_alice = Sodium::crypto_box_open($bob_to_alice_ciphertext,
-                                                  $bob_to_alice_message_nonce,
-                                                  $alice_to_bob_kp);
+                                                          $bob_to_alice_message_nonce,
+                                                          $alice_to_bob_kp);
 ```
 
 Bob only needs Alice's public key, the nonce and the ciphertext.
