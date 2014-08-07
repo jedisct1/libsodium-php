@@ -5,11 +5,11 @@ Check for libsodium box
 --FILE--
 <?php
 $keypair = Sodium::crypto_box_keypair();
-var_dump(strlen($keypair) === CRYPTO_BOX_KEYPAIRBYTES);
+var_dump(strlen($keypair) === Sodium::CRYPTO_BOX_KEYPAIRBYTES);
 $sk = Sodium::crypto_box_secretkey($keypair);
-var_dump(strlen($sk) === CRYPTO_BOX_SECRETKEYBYTES);
+var_dump(strlen($sk) === Sodium::CRYPTO_BOX_SECRETKEYBYTES);
 $pk = Sodium::crypto_box_publickey($keypair);
-var_dump(strlen($pk) === CRYPTO_BOX_PUBLICKEYBYTES);
+var_dump(strlen($pk) === Sodium::CRYPTO_BOX_PUBLICKEYBYTES);
 var_dump($pk !== $sk);
 $pk2 = Sodium::crypto_box_publickey_from_secretkey($sk);
 var_dump($pk === $pk2);
@@ -30,7 +30,7 @@ $alice_to_bob_kp = Sodium::crypto_box_keypair_from_secretkey_and_publickey
 $bob_to_alice_kp = Sodium::crypto_box_keypair_from_secretkey_and_publickey
   ($bob_secretkey, $alice_publickey);
 
-$alice_to_bob_message_nonce = Sodium::randombytes_buf(CRYPTO_BOX_NONCEBYTES);
+$alice_to_bob_message_nonce = Sodium::randombytes_buf(Sodium::CRYPTO_BOX_NONCEBYTES);
 
 $alice_to_bob_ciphertext = Sodium::crypto_box('Hi, this is Alice',
                                       $alice_to_bob_message_nonce,
@@ -40,7 +40,7 @@ $alice_message_decrypted_by_bob = Sodium::crypto_box_open($alice_to_bob_cipherte
                                                           $alice_to_bob_message_nonce,
                                                           $bob_to_alice_kp);
 
-$bob_to_alice_message_nonce = Sodium::randombytes_buf(CRYPTO_BOX_NONCEBYTES);
+$bob_to_alice_message_nonce = Sodium::randombytes_buf(Sodium::CRYPTO_BOX_NONCEBYTES);
 
 $bob_to_alice_ciphertext = Sodium::crypto_box('Hi Alice! This is Bob',
                                               $bob_to_alice_message_nonce,

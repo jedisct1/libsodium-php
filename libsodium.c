@@ -79,96 +79,75 @@ ZEND_GET_MODULE(libsodium)
 
 PHP_MINIT_FUNCTION(libsodium)
 {
-    zend_class_entry class_entry;
+    zend_class_entry  class_entry;
+    zend_class_entry *class_entry_i;
 
     if (sodium_init() != 0) {
         zend_error(E_ERROR, "sodium_init()");
     }
     INIT_CLASS_ENTRY(class_entry, "Sodium", libsodium_methods);
-    zend_register_internal_class(&class_entry TSRMLS_CC);
+    class_entry_i = zend_register_internal_class(&class_entry TSRMLS_CC);
 
-    REGISTER_LONG_CONSTANT("CRYPTO_SHORTHASH_BYTES",
-                           crypto_shorthash_BYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_SHORTHASH_KEYBYTES",
-                           crypto_shorthash_KEYBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_SECRETBOX_KEYBYTES",
-                           crypto_secretbox_KEYBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_SECRETBOX_NONCEBYTES",
-                           crypto_secretbox_NONCEBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_BYTES",
-                           crypto_generichash_BYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_BYTES_MIN",
-                           crypto_generichash_BYTES_MIN,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_BYTES_MAX",
-                           crypto_generichash_BYTES_MAX,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_KEYBYTES",
-                           crypto_generichash_KEYBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_KEYBYTES_MIN",
-                           crypto_generichash_KEYBYTES_MIN,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_KEYBYTES_MAX",
-                           crypto_generichash_KEYBYTES_MAX,
-                           CONST_PERSISTENT | CONST_CS);
-#ifdef crypto_generichash_BLOCKBYTES
-    REGISTER_LONG_CONSTANT("CRYPTO_GENERICHASH_BLOCKBYTES",
-                           crypto_generichash_BLOCKBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-#endif
-    REGISTER_LONG_CONSTANT("CRYPTO_BOX_SECRETKEYBYTES",
-                           crypto_box_SECRETKEYBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_BOX_PUBLICKEYBYTES",
-                           crypto_box_PUBLICKEYBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_BOX_KEYPAIRBYTES",
-                           crypto_box_SECRETKEYBYTES +
-                           crypto_box_PUBLICKEYBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_BOX_NONCEBYTES",
-                           crypto_box_NONCEBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_BYTES",
-                           crypto_sign_BYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_SEEDBYTES",
-                           crypto_sign_SEEDBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_PUBLICKEYBYTES",
-                           crypto_sign_PUBLICKEYBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_SECRETKEYBYTES",
-                           crypto_sign_SECRETKEYBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_SIGN_KEYPAIRBYTES",
-                           crypto_sign_SECRETKEYBYTES +
-                           crypto_sign_PUBLICKEYBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
-                           crypto_pwhash_scryptsalsa208sha256_SALTBYTES,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_STRING_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX",
-                             crypto_pwhash_scryptsalsa208sha256_STRPREFIX,
-                             CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE",
-                           crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE",
-                           crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE",
-                           crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE,
-                           CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
-                           crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE,
-                           CONST_PERSISTENT | CONST_CS);
+#define CLASS_CONSTANT_LONG(NAME, VALUE) \
+    zend_declare_class_constant_long(class_entry_i, NAME, sizeof(NAME) - 1U, \
+                                     (VALUE) TSRMLS_CC)
+
+#define CLASS_CONSTANT_STRING(NAME, STR) \
+    zend_declare_class_constant_string(class_entry_i, NAME, sizeof(NAME) - 1U, \
+                                       STR TSRMLS_CC)
+
+    CLASS_CONSTANT_LONG("CRYPTO_SHORTHASH_BYTES",
+                        crypto_shorthash_BYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SHORTHASH_KEYBYTES",
+                        crypto_shorthash_KEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SECRETBOX_KEYBYTES",
+                        crypto_secretbox_KEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SECRETBOX_NONCEBYTES",
+                        crypto_secretbox_NONCEBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_GENERICHASH_BYTES",
+                        crypto_generichash_BYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_GENERICHASH_BYTES_MIN",
+                        crypto_generichash_BYTES_MIN);
+    CLASS_CONSTANT_LONG("CRYPTO_GENERICHASH_BYTES_MAX",
+                        crypto_generichash_BYTES_MAX);
+    CLASS_CONSTANT_LONG("CRYPTO_GENERICHASH_KEYBYTES",
+                        crypto_generichash_KEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_GENERICHASH_KEYBYTES_MIN",
+                        crypto_generichash_KEYBYTES_MIN);
+    CLASS_CONSTANT_LONG("CRYPTO_GENERICHASH_KEYBYTES_MAX",
+                        crypto_generichash_KEYBYTES_MAX);
+    CLASS_CONSTANT_LONG("CRYPTO_BOX_SECRETKEYBYTES",
+                        crypto_box_SECRETKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_BOX_PUBLICKEYBYTES",
+                        crypto_box_PUBLICKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_BOX_KEYPAIRBYTES",
+                        crypto_box_SECRETKEYBYTES +
+                        crypto_box_PUBLICKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_BOX_NONCEBYTES",
+                        crypto_box_NONCEBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SIGN_BYTES",
+                        crypto_sign_BYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SIGN_SEEDBYTES",
+                        crypto_sign_SEEDBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SIGN_PUBLICKEYBYTES",
+                        crypto_sign_PUBLICKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SIGN_SECRETKEYBYTES",
+                        crypto_sign_SECRETKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SIGN_KEYPAIRBYTES",
+                        crypto_sign_SECRETKEYBYTES +
+                        crypto_sign_PUBLICKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
+                        crypto_pwhash_scryptsalsa208sha256_SALTBYTES);
+    CLASS_CONSTANT_STRING("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX",
+                          crypto_pwhash_scryptsalsa208sha256_STRPREFIX);
+    CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE",
+                        crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE);
+    CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE",
+                        crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE);
+    CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE",
+                        crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE);
+    CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
+                        crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE);
     return SUCCESS;
 }
 
