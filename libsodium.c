@@ -18,9 +18,7 @@ ZEND_BEGIN_ARG_INFO_EX(AI_None, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(AI_FirstArgByReferenceSecondLength, 0, 0, 2)
-  ZEND_ARG_PASS_INFO(1)
-  ZEND_ARG_INFO(0, reference)
-  ZEND_ARG_PASS_INFO(0)
+  ZEND_ARG_INFO(1, reference)
   ZEND_ARG_INFO(0, length)
 ZEND_END_ARG_INFO()
 
