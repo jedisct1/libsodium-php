@@ -866,10 +866,10 @@ PHP_METHOD(Sodium, crypto_sign_open)
                    "crypto_sign_open(): public key size should be "
                    "CRYPTO_SIGN_PUBLICKEYBYTES long");
     }
+    msg_len = msg_signed_len;
     if (msg_len >= INT_MAX) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    msg_len = msg_signed_len;
     msg = safe_emalloc((size_t) msg_len + 1U, 1U, 0U);
     if (crypto_sign_open(msg, &msg_real_len, msg_signed,
                          (unsigned long long) msg_signed_len,
