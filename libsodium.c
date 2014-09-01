@@ -279,7 +279,7 @@ PHP_METHOD(Sodium, sodium_memcmp)
     } else if (len1 > SIZE_MAX) {
         zend_error(E_ERROR, "sodium_memcmp(): invalid length");
     } else {
-        RETURN_LONG(sodium_memcmp(buf1, buf2, len1));
+        RETURN_LONG(sodium_memcmp(buf1, buf2, (size_t) len1));
     }
 }
 
@@ -455,13 +455,15 @@ PHP_METHOD(Sodium, crypto_generichash)
         zend_error(E_ERROR, "crypto_generichash(): unsupported key length");
     }
     out = safe_emalloc((size_t) out_len + 1U, 1U, 0U);
-    if (crypto_generichash(out, out_len, msg, msg_len, key, key_len) != 0) {
+    if (crypto_generichash(out, (size_t) out_len,
+                           msg, (unsigned long long) msg_len,
+                           key, (size_t) key_len) != 0) {
         efree(out);
         zend_error(E_ERROR, "crypto_generichash()");
     }
     out[out_len] = 0U;
 
-    RETURN_STRINGL((char *) out, out_len, 0);
+    RETURN_STRINGL((char *) out, (int) out_len, 0);
 }
 
 PHP_METHOD(Sodium, crypto_box_keypair)
@@ -874,7 +876,7 @@ PHP_METHOD(Sodium, crypto_sign_open)
     if (crypto_sign_open(msg, &msg_real_len, msg_signed,
                          (unsigned long long) msg_signed_len,
                          publickey) != 0) {
-        sodium_memzero(msg, msg_len);
+        sodium_memzero(msg, (size_t) msg_len);
         efree(msg);
         RETURN_FALSE;
     }
