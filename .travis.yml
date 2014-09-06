@@ -24,4 +24,4 @@ script:
  - ./configure --with-libsodium
  - make clean
  - make
- - make test
+ - env NO_INTERACTION=1 make test
