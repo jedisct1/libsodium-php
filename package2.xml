@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package version="2.1" xmlns="http://pear.php.net/dtd/package-2.1" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0     http://pear.php.net/dtd/tasks-1.0.xsd     http://pear.php.net/dtd/package-2.1     http://pear.php.net/dtd/package-2.1.xsd">
+ <name>libsodium</name>
+ <channel>pecl.php.net</channel>
+ <summary>Wrapper for the Sodium cryptographic library
+</summary>
+ <description>
+A simple, low-level PHP extension for libsodium.
+</description>
+ <lead>
+  <name>Frank Denis</name>
+  <user>jedisct1</user>
+  <email>jedisct1@php.net</email>
+  <active>yes</active>
+ </lead>
+ <date>2014-09-06</date>
+ <time>04:34:35</time>
+ <version>
+  <release>0.1.0</release>
+  <api>0.1.0</api>
+ </version>
+ <stability>
+  <release>alpha</release>
+  <api>alpha</api>
+ </stability>
+ <license uri="http://www.opensource.org/licenses/bsd-license.php">New BSD License</license>
+ <notes>Initial release
+</notes>
+ <contents>
+  <dir name="/">
+   <dir name="build">
+    <file role="src" name="libtool.m4"/>
+   </dir>
+   <dir name="tests">
+    <file role="test" name="crypto_box.phpt"/>
+    <file role="test" name="crypto_generichash.phpt"/>
+    <file role="test" name="crypto_secretbox.phpt"/>
+    <file role="test" name="crypto_shorthash.phpt"/>
+    <file role="test" name="crypto_sign.phpt"/>
+    <file role="test" name="installed.phpt"/>
+    <file role="test" name="pwhash.phpt"/>
+    <file role="test" name="randombytes.phpt"/>
+    <file role="test" name="utils.phpt"/>
+    <file role="test" name="version.phpt"/>
+   </dir>
+   <file role="src" name="acinclude.m4"/>
+   <file role="src" name="aclocal.m4"/>
+   <file role="src" name="config.h"/>
+   <file role="src" name="config.m4"/>
+   <file role="src" name="config.w32"/>
+   <file role="src" name="libsodium.c"/>
+   <file role="src" name="php_libsodium.h"/>
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.2.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.8</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <providesextension>libsodium</providesextension>
+ <extsrcrelease/>
+</package>

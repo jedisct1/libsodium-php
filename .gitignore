@@ -12,6 +12,7 @@
 *.out
 *.so
 *.so.*
+*.tgz
 *.tmp
 .deps
 .libs
