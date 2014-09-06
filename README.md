@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jedisct1/libsodium-php.png)](https://travis-ci.org/jedisct1/libsodium-php)
+[![Build Status](https://travis-ci.org/jedisct1/libsodium-php.png?branch=master)](https://travis-ci.org/jedisct1/libsodium-php?branch=master)
 
 libsodium-php
 =============
