@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jedisct1/libsodium-php.png)](https://travis-ci.org/jedisct1/libsodium-php)
+
 libsodium-php
 =============
 
