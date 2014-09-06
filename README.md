@@ -4,7 +4,7 @@ libsodium-php
 A simple, low-level PHP extension for
 [libsodium](https://github.com/jedisct1/libsodium).
 
-Requires libsodium >= 0.5.0
+Requires libsodium >= 0.5.0 and PHP >= 5.2.0
 
 Installation
 ============
