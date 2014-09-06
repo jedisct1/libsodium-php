@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
+<package version="1.0" packagerversion="1.9.5">
+ <name>libsodium</name>
+ <summary>Wrapper for the Sodium cryptographic library</summary>
+ <description>A simple, low-level PHP extension for libsodium.
+ </description>
+ <maintainers>
+  <maintainer>
+   <user>jedisct1</user>
+   <name>Frank Denis</name>
+   <email>jedisct1@php.net</email>
+   <role>lead</role>
+  </maintainer>
+  </maintainers>
+ <release>
+  <version>0.1.0</version>
+  <date>2014-09-06</date>
+  <license>New BSD License</license>
+  <state>alpha</state>
+  <notes>Initial release
+  </notes>
+  <deps>
+   <dep type="php" rel="ge" version="5.2.0"/>
+  </deps>
+  <filelist>
+   <dir name="build">
+    <file role="src" name="libtool.m4"/>
+   </dir> <!-- /build -->
+   <dir name="tests">
+    <file role="test" name="crypto_box.phpt"/>
+    <file role="test" name="crypto_generichash.phpt"/>
+    <file role="test" name="crypto_secretbox.phpt"/>
+    <file role="test" name="crypto_shorthash.phpt"/>
+    <file role="test" name="crypto_sign.phpt"/>
+    <file role="test" name="installed.phpt"/>
+    <file role="test" name="pwhash.phpt"/>
+    <file role="test" name="randombytes.phpt"/>
+    <file role="test" name="utils.phpt"/>
+    <file role="test" name="version.phpt"/>
+   </dir> <!-- /tests -->
+   <file role="src" name="acinclude.m4"/>
+   <file role="src" name="aclocal.m4"/>
+   <file role="src" name="config.h"/>
+   <file role="src" name="config.m4"/>
+   <file role="src" name="config.w32"/>
+   <file role="src" name="libsodium.c"/>
+   <file role="src" name="php_libsodium.h"/>
+  </filelist>
+ </release>
+</package>
