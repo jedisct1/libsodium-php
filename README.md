@@ -11,7 +11,7 @@ Requires libsodium >= 0.5.0 and PHP >= 5.2.0
 Installation
 ============
 
-    phpize && ./configure --with-libsodium && make test && sudo make install
+    pecl install libsodium
 
 And add the following line to your `php.ini` file:
 
