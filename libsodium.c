@@ -201,10 +201,11 @@ PHP_MINIT_FUNCTION(libsodium)
                         crypto_sign_PUBLICKEYBYTES);
     CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
                         crypto_pwhash_scryptsalsa208sha256_SALTBYTES);
-#ifdef crypto_pwhash_scryptsalsa208sha256_STRPREFIX
+#ifndef crypto_pwhash_scryptsalsa208sha256_STRPREFIX
+# define crypto_pwhash_scryptsalsa208sha256_STRPREFIX "$7$"
+#endif
     CLASS_CONSTANT_STRING("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX",
                           crypto_pwhash_scryptsalsa208sha256_STRPREFIX);
-#endif
     CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE",
                         crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE);
     CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE",
