@@ -16,4 +16,4 @@ var_dump($y);
 ?>
 --EXPECT--
 string(8) "74657374"
-bool(false)
+string(5) Random string
