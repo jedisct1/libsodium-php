@@ -38,6 +38,31 @@ Do not use the same `(key, nonce)` pair twice.
 
 The nonce can be public as long as the key isn't.
 
+Secret-key non-authenticated encryption
+-----------------------------------
+
+```php
+$nonce = Sodium::randombytes_buf(Sodium::CRYPTO_STREAM_NONCEBYTES);
+$key = [a binary string that must be CRYPTO_STREAM_KEYBYTES long];
+$ciphertext = Sodium::crypto_stream_xor( 'test', $nonce, $key );
+$plaintext = Sodium::crypto_stream_xor( $ciphertext, $nonce, $key );
+```
+
+The same message encrypted with the same key, but with two different
+nonces, will produce two totally different ciphertexts.
+Which is probably what you want.
+
+Do not use the same `(key, nonce)` pair twice.
+
+The nonce can be public as long as the key isn't.
+
+**Important!**
+[Wikipedia Stream Cipher](http://en.wikipedia.org/wiki/Stream_cipher)
+
+This function always is going to return some output, so if you
+try to decrypt a encrypted text message with a different key and/or nonce,
+this function will NOT warm you, instead, it will return you some very ugly stuff.
+
 Public-key cryptography
 =======================
 

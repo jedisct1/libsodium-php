@@ -46,6 +46,7 @@ A simple, low-level PHP extension for libsodium.
     <file role="test" name="crypto_secretbox.phpt"/>
     <file role="test" name="crypto_shorthash.phpt"/>
     <file role="test" name="crypto_sign.phpt"/>
+    <file role="test" name="crypto_stream.phpt"/>
     <file role="test" name="installed.phpt"/>
     <file role="test" name="pwhash.phpt"/>
     <file role="test" name="randombytes.phpt"/>

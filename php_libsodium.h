@@ -54,6 +54,7 @@ PHP_METHOD(Sodium, crypto_sign_open);
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256);
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str);
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify);
+PHP_METHOD(Sodium, crypto_stream_xor);
 
 #ifdef ZTS
 #define LIBSODIUM_G(v) TSRMG(libsodium_globals_id, zend_libsodium_globals *, v)

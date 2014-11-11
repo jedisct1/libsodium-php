@@ -115,6 +115,7 @@ const zend_function_entry libsodium_methods[] = {
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256, AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256_str, AI_PasswordAndOpsLimitAndMemLimit, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify, AI_HashAndPassword, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_stream_xor, AI_StringAndNonceAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_FE_END
 };
 
@@ -214,6 +215,10 @@ PHP_MINIT_FUNCTION(libsodium)
                         crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE);
     CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
                         crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE);
+    CLASS_CONSTANT_LONG("CRYPTO_STREAM_NONCEBYTES",
+                        crypto_stream_NONCEBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_STREAM_KEYBYTES",
+                        crypto_stream_KEYBYTES);
     return SUCCESS;
 }
 
@@ -1002,4 +1007,42 @@ PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify)
         RETURN_TRUE;
     }
     RETURN_FALSE;
+}
+
+PHP_METHOD(Sodium, crypto_stream_xor)
+{
+    unsigned char *key;
+    unsigned char *msg;
+    unsigned char *nonce;
+    unsigned char *out;
+    int            key_len;
+    int            msg_len;
+    int            nonce_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
+                              &msg, &msg_len,
+                              &nonce, &nonce_len,
+                              &key, &key_len) == FAILURE) {
+        return;
+    }
+    if (nonce_len != crypto_stream_NONCEBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_stream_xor(): nonce size should be "
+                   "CRYPTO_STREAM_NONCEBYTES long");
+    }
+    if (key_len != crypto_stream_KEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_stream_xor(): key size should be "
+                   "CRYPTO_STREAM_KEYBYTES long");
+    }
+    out = safe_emalloc((size_t) msg_len + 1U, 1U, 0U);
+    if (crypto_stream_xor(out, msg, (unsigned long long) msg_len,
+                          nonce, key) != 0) {
+        efree(out);
+        zend_error(E_ERROR, "crypto_stream_xor()");
+    }
+    out[msg_len] = 0U;
+
+    RETURN_STRINGL((char *) out, msg_len, 0);
+
 }
