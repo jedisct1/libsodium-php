@@ -12,14 +12,9 @@ $x = Sodium::crypto_stream_xor($a, $nonce, $key);
 var_dump(bin2hex($x));
 
 $y = Sodium::crypto_stream_xor("\0" . $a, $nonce, $key);
-$z = Sodium::crypto_stream_xor("\0" . $a, $nonce, $key);
-if ($y === $z) {
-  echo "Fail\n";
-} else {
-  echo "OK\n";
-}
+var_dump($y);
 
 ?>
 --EXPECT--
 string(8) "74657374"
-OK
+string(5) Random string
