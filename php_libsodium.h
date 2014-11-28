@@ -51,6 +51,7 @@ PHP_METHOD(Sodium, crypto_sign_secretkey);
 PHP_METHOD(Sodium, crypto_sign_publickey);
 PHP_METHOD(Sodium, crypto_sign);
 PHP_METHOD(Sodium, crypto_sign_open);
+PHP_METHOD(Sodium, crypto_stream);
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256);
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str);
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify);
