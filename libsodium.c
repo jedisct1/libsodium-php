@@ -49,6 +49,12 @@ ZEND_BEGIN_ARG_INFO_EX(AI_SecretKeyAndPublicKey, 0, 0, 2)
   ZEND_ARG_INFO(0, public_key)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(AI_LengthAndNonceAndKey, 0, 0, 3)
+  ZEND_ARG_INFO(0, length)
+  ZEND_ARG_INFO(0, nonce)
+  ZEND_ARG_INFO(0, key)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(AI_StringAndNonceAndKey, 0, 0, 3)
   ZEND_ARG_INFO(0, string)
   ZEND_ARG_INFO(0, nonce)
@@ -112,6 +118,7 @@ const zend_function_entry libsodium_methods[] = {
     PHP_ME(Sodium, crypto_sign_publickey, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_open, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_stream, AI_LengthAndNonceAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256, AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256_str, AI_PasswordAndOpsLimitAndMemLimit, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify, AI_HashAndPassword, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
@@ -199,6 +206,10 @@ PHP_MINIT_FUNCTION(libsodium)
     CLASS_CONSTANT_LONG("CRYPTO_SIGN_KEYPAIRBYTES",
                         crypto_sign_SECRETKEYBYTES +
                         crypto_sign_PUBLICKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_STREAM_NONCEBYTES",
+                        crypto_stream_NONCEBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_STREAM_KEYBYTES",
+                        crypto_stream_KEYBYTES);
     CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
                         crypto_pwhash_scryptsalsa208sha256_SALTBYTES);
 #ifndef crypto_pwhash_scryptsalsa208sha256_STRPREFIX
@@ -888,6 +899,40 @@ PHP_METHOD(Sodium, crypto_sign_open)
     msg[msg_real_len] = 0U;
 
     RETURN_STRINGL((char *) msg, (int) msg_real_len, 0);
+}
+
+PHP_METHOD(Sodium, crypto_stream)
+{
+    unsigned char *out;
+    unsigned char *key;
+    unsigned char *nonce;
+    long           out_len;
+    int            key_len;
+    int            nonce_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lss",
+                              &out_len,
+                              &nonce, &nonce_len,
+                              &key, &key_len) == FAILURE) {
+        return;
+    }
+    if (out_len <= 0 || out_len >= INT_MAX) {
+        zend_error(E_ERROR, "crypto_stream(): invalid length");
+    }
+    if (nonce_len != crypto_stream_NONCEBYTES) {
+        zend_error(E_ERROR, "nonce should be CRYPTO_STREAM_NONCEBYTES bytes");
+    }
+    if (key_len != crypto_stream_KEYBYTES) {
+        zend_error(E_ERROR, "key should be CRYPTO_STREAM_KEYBYTES bytes");
+    }
+    out = safe_emalloc((size_t) out_len + 1U, 1U, 0U);
+    if (crypto_stream(out, (unsigned long long) out_len, nonce, key) != 0) {
+        efree(out);
+        zend_error(E_ERROR, "crypto_stream");
+    }
+    out[out_len] = 0U;
+
+    RETURN_STRINGL((char *) out, out_len, 0);
 }
 
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256)

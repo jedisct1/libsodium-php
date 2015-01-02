@@ -199,6 +199,17 @@ $a = Sodium::randombytes_uniform($n);
 
 Unlike `rand() % $n`, the distribution of the output values is uniform.
 
+Stream cipher
+=============
+
+``` php
+$nonce = Sodium::randombytes_buf(Sodium::CRYPTO_STREAM_NONCEBYTES);
+$key = Sodium::randombytes_buf(Sodium::CRYPTO_STREAM_KEYBYTES);
+
+// drive 100 pseudorandom bytes from the nonce and the key
+$stream = Sodium::crypto_stream(100, $nonce, $key);
+```
+
 Password storage
 ================
 
