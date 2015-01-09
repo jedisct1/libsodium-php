@@ -21,7 +21,7 @@ if test "$PHP_LIBSODIUM" != "no"; then
 
   if test -z "$LIBSODIUM_DIR"; then
     AC_MSG_RESULT([not found])
-    AC_MSG_ERROR([Please reinstall the libsodium distribution])
+    AC_MSG_ERROR([Please install libsodium - See https://github.com/jedisct1/libsodium])
   fi
 
   PHP_ADD_INCLUDE($LIBSODIUM_DIR/include)
