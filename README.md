@@ -206,8 +206,8 @@ Stream cipher
 $nonce = Sodium::randombytes_buf(Sodium::CRYPTO_STREAM_NONCEBYTES);
 $key = Sodium::randombytes_buf(Sodium::CRYPTO_STREAM_KEYBYTES);
 
-// drive 100 pseudorandom bytes from the nonce and the key
-$stream = Sodium::crypto_stream(100, $nonce, $key);
+// Derive $length pseudorandom bytes from the nonce and the key
+$stream = Sodium::crypto_stream($length, $nonce, $key);
 ```
 
 Password storage
@@ -253,7 +253,6 @@ $key = Sodium::crypto_pwhash_scryptsalsa208sha256
 Sodium::sodium_memzero($passwd);
 ```
 
-
 Utilities
 =========
 
@@ -273,3 +272,24 @@ if (Sodium::sodium_memcmp($a, $b) === 0) {
   ...
 }
 ```
+
+Danger zone
+===========
+
+Unauthenticated secret-key encryption
+-------------------------------------
+
+```php
+$nonce = Sodium::randombytes_buf(Sodium::CRYPTO_STREAM_NONCEBYTES);
+$key = [a binary string that must be CRYPTO_STREAM_KEYBYTES long];
+$ciphertext = Sodium::crypto_stream_xor('test', $nonce, $key);
+$plaintext = Sodium::crypto_stream_xor($ciphertext, $nonce, $key);
+```
+
+This operation encrypts or decrypt a message with a key and a nonce.
+However, the ciphertext doesn't include an authentication tag, meaning
+that it is impossible to verify that the message hasn't been tampered
+with.
+
+Unless you specifically need unauthenticated encryption, `crypto_secretbox()`
+is the operation you should use instead.
