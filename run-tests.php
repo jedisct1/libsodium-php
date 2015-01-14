@@ -24,7 +24,7 @@
    +----------------------------------------------------------------------+
  */
 
-/* $Id: 1b5bcec25321864d8bd72596e80f576b26c6efd0 $ */
+/* $Id: 315ae09200aab97cf03e8ba674a1afeb91df6d64 $ */
 
 /* Sanity check to ensure that pcre extension needed by this script is available.
  * In the event it is not, print a nice error message indicating that this script will
@@ -662,7 +662,7 @@ if (isset($argc) && $argc > 1) {
 					$html_output = is_resource($html_file);
 					break;
 				case '--version':
-					echo '$Id: 1b5bcec25321864d8bd72596e80f576b26c6efd0 $' . "\n";
+					echo '$Id: 315ae09200aab97cf03e8ba674a1afeb91df6d64 $' . "\n";
 					exit(1);
 
 				default:
@@ -2718,7 +2718,7 @@ function junit_mark_test_as($type, $file_name, $test_name, $time = null, $messag
 
 	if (is_array($type)) {
 		$output_type = $type[0] . 'ED';
-		$temp = array_intersect(array('XFAIL', 'FAIL'), $type);
+		$temp = array_intersect(array('XFAIL', 'FAIL', 'WARN'), $type);
 		$type = reset($temp);
 	} else {
 		$output_type = $type . 'ED';
@@ -2732,6 +2732,9 @@ function junit_mark_test_as($type, $file_name, $test_name, $time = null, $messag
 	} elseif ('SKIP' == $type) {
 		junit_suite_record($suite, 'test_skip');
 		$JUNIT['files'][$file_name]['xml'] .= "<skipped>$escaped_message</skipped>\n";
+	} elseif ('WARN' == $type) {
+		junit_suite_record($suite, 'test_warn');
+		$JUNIT['files'][$file_name]['xml'] .= "<warning>$escaped_message</warning>\n";
 	} elseif('FAIL' == $type) {
 		junit_suite_record($suite, 'test_fail');
 		$JUNIT['files'][$file_name]['xml'] .= "<failure type='$output_type' message='$escaped_message'>$escaped_details</failure>\n";
