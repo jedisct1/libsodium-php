@@ -171,6 +171,19 @@ Typical uses are:
 
 When in doubt, use `crypto_generichash()` instead.
 
+Authenticated encryption with additional data (AEAD)
+====================================================
+
+```php
+$nonce = Sodium::randombytes_buf(Sodium::CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES);
+$key = Sodium::randombytes_buf(Sodium::CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES);
+$ad = 'Additional (public) data';
+$ciphertext =
+    Sodium::crypto_aead_chacha20poly1305_encrypt('test', $ad, $nonce, $key);
+$plaintext =
+    Sodium::crypto_aead_chacha20poly1305_decrypt($ciphertext, $ad, $nonce, $key);
+```
+
 Pseudorandom numbers generators
 ===============================
 
