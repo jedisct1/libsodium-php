@@ -43,7 +43,7 @@ Authenticated encryption with additional data (AEAD)
 
 ```php
 $nonce = Sodium::randombytes_buf(Sodium::CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES);
-$key = Sodium::randombytes_buf(Sodium::CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES);
+$key = [a binary string that must be CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES long];
 $ad = 'Additional (public) data';
 $ciphertext =
     Sodium::crypto_aead_chacha20poly1305_encrypt('test', $ad, $nonce, $key);
