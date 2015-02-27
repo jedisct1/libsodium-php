@@ -167,14 +167,23 @@ PHP_MINIT_FUNCTION(libsodium)
     zend_declare_class_constant_string(class_entry_i, NAME, sizeof(NAME) - 1U, \
                                        STR TSRMLS_CC)
 
-    CLASS_CONSTANT_LONG("CRYPTO_SHORTHASH_BYTES",
-                        crypto_shorthash_BYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_SHORTHASH_KEYBYTES",
-                        crypto_shorthash_KEYBYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_SECRETBOX_KEYBYTES",
-                        crypto_secretbox_KEYBYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_SECRETBOX_NONCEBYTES",
-                        crypto_secretbox_NONCEBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES",
+			crypto_aead_chacha20poly1305_KEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_AEAD_CHACHA20POLY1305_NSECBYTES",
+			crypto_aead_chacha20poly1305_NSECBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES",
+			crypto_aead_chacha20poly1305_NPUBBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_AEAD_CHACHA20POLY1305_ABYTES",
+			crypto_aead_chacha20poly1305_ABYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_BOX_SECRETKEYBYTES",
+                        crypto_box_SECRETKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_BOX_PUBLICKEYBYTES",
+                        crypto_box_PUBLICKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_BOX_KEYPAIRBYTES",
+                        crypto_box_SECRETKEYBYTES +
+                        crypto_box_PUBLICKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_BOX_NONCEBYTES",
+                        crypto_box_NONCEBYTES);
     CLASS_CONSTANT_LONG("CRYPTO_GENERICHASH_BYTES",
                         crypto_generichash_BYTES);
     CLASS_CONSTANT_LONG("CRYPTO_GENERICHASH_BYTES_MIN",
@@ -187,30 +196,6 @@ PHP_MINIT_FUNCTION(libsodium)
                         crypto_generichash_KEYBYTES_MIN);
     CLASS_CONSTANT_LONG("CRYPTO_GENERICHASH_KEYBYTES_MAX",
                         crypto_generichash_KEYBYTES_MAX);
-    CLASS_CONSTANT_LONG("CRYPTO_BOX_SECRETKEYBYTES",
-                        crypto_box_SECRETKEYBYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_BOX_PUBLICKEYBYTES",
-                        crypto_box_PUBLICKEYBYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_BOX_KEYPAIRBYTES",
-                        crypto_box_SECRETKEYBYTES +
-                        crypto_box_PUBLICKEYBYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_BOX_NONCEBYTES",
-                        crypto_box_NONCEBYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_SIGN_BYTES",
-                        crypto_sign_BYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_SIGN_SEEDBYTES",
-                        crypto_sign_SEEDBYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_SIGN_PUBLICKEYBYTES",
-                        crypto_sign_PUBLICKEYBYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_SIGN_SECRETKEYBYTES",
-                        crypto_sign_SECRETKEYBYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_SIGN_KEYPAIRBYTES",
-                        crypto_sign_SECRETKEYBYTES +
-                        crypto_sign_PUBLICKEYBYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_STREAM_NONCEBYTES",
-                        crypto_stream_NONCEBYTES);
-    CLASS_CONSTANT_LONG("CRYPTO_STREAM_KEYBYTES",
-                        crypto_stream_KEYBYTES);
     CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
                         crypto_pwhash_scryptsalsa208sha256_SALTBYTES);
 #ifndef crypto_pwhash_scryptsalsa208sha256_STRPREFIX
@@ -226,6 +211,29 @@ PHP_MINIT_FUNCTION(libsodium)
                         crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE);
     CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
                         crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE);
+    CLASS_CONSTANT_LONG("CRYPTO_SHORTHASH_BYTES",
+                        crypto_shorthash_BYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SHORTHASH_KEYBYTES",
+                        crypto_shorthash_KEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SECRETBOX_KEYBYTES",
+                        crypto_secretbox_KEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SECRETBOX_NONCEBYTES",
+                        crypto_secretbox_NONCEBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SIGN_BYTES",
+                        crypto_sign_BYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SIGN_SEEDBYTES",
+                        crypto_sign_SEEDBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SIGN_PUBLICKEYBYTES",
+                        crypto_sign_PUBLICKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SIGN_SECRETKEYBYTES",
+                        crypto_sign_SECRETKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SIGN_KEYPAIRBYTES",
+                        crypto_sign_SECRETKEYBYTES +
+                        crypto_sign_PUBLICKEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_STREAM_NONCEBYTES",
+                        crypto_stream_NONCEBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_STREAM_KEYBYTES",
+                        crypto_stream_KEYBYTES);
     return SUCCESS;
 }
 
