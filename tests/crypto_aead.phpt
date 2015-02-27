@@ -1,0 +1,19 @@
+--TEST--
+Check for libsodium AEAD
+--SKIPIF--
+<?php if (!extension_loaded("libsodium")) print "skip"; ?>
+--FILE--
+<?php
+$secretkey = Sodium::randombytes_buf(Sodium::CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES);
+$msg = Sodium::randombytes_buf(Sodium::randombytes_uniform(1000));
+$ad = Sodium::randombytes_buf(Sodium::randombytes_uniform(1000));
+$nonce = Sodium::randombytes_buf(Sodium::CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES);
+
+$ciphertext = Sodium::crypto_aead_chacha20poly1305_encrypt($msg, $ad, $nonce, $secretkey);
+$msg2 = Sodium::crypto_aead_chacha20poly1305_decrypt($ciphertext, $ad, $nonce, $secretkey);
+var_dump($ciphertext !== $msg);
+var_dump($msg === $msg2);
+?>
+--EXPECT--
+bool(true)
+bool(true)
