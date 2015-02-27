@@ -38,6 +38,19 @@ Do not use the same `(key, nonce)` pair twice.
 
 The nonce can be public as long as the key isn't.
 
+Authenticated encryption with additional data (AEAD)
+----------------------------------------------------
+
+```php
+$nonce = Sodium::randombytes_buf(Sodium::CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES);
+$key = Sodium::randombytes_buf(Sodium::CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES);
+$ad = 'Additional (public) data';
+$ciphertext =
+    Sodium::crypto_aead_chacha20poly1305_encrypt('test', $ad, $nonce, $key);
+$plaintext =
+    Sodium::crypto_aead_chacha20poly1305_decrypt($ciphertext, $ad, $nonce, $key);
+```
+
 Public-key cryptography
 =======================
 
@@ -170,19 +183,6 @@ Typical uses are:
 - Adding authentication tags to network traffic.
 
 When in doubt, use `crypto_generichash()` instead.
-
-Authenticated encryption with additional data (AEAD)
-====================================================
-
-```php
-$nonce = Sodium::randombytes_buf(Sodium::CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES);
-$key = Sodium::randombytes_buf(Sodium::CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES);
-$ad = 'Additional (public) data';
-$ciphertext =
-    Sodium::crypto_aead_chacha20poly1305_encrypt('test', $ad, $nonce, $key);
-$plaintext =
-    Sodium::crypto_aead_chacha20poly1305_decrypt($ciphertext, $ad, $nonce, $key);
-```
 
 Pseudorandom numbers generators
 ===============================
