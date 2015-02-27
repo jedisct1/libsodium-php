@@ -1115,7 +1115,7 @@ PHP_METHOD(Sodium, crypto_aead_chacha20poly1305_encrypt)
     int                 secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss",
-			      &ciphertext, &ciphertext_len,
+			      &msg, &msg_len,
 			      &ad, &ad_len,
 			      &npub, &npub_len,
 			      &secretkey, &secretkey_len) == FAILURE) {
