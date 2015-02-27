@@ -177,13 +177,13 @@ PHP_MINIT_FUNCTION(libsodium)
                                        STR TSRMLS_CC)
 
     CLASS_CONSTANT_LONG("CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES",
-			crypto_aead_chacha20poly1305_KEYBYTES);
+                        crypto_aead_chacha20poly1305_KEYBYTES);
     CLASS_CONSTANT_LONG("CRYPTO_AEAD_CHACHA20POLY1305_NSECBYTES",
-			crypto_aead_chacha20poly1305_NSECBYTES);
+                        crypto_aead_chacha20poly1305_NSECBYTES);
     CLASS_CONSTANT_LONG("CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES",
-			crypto_aead_chacha20poly1305_NPUBBYTES);
+                        crypto_aead_chacha20poly1305_NPUBBYTES);
     CLASS_CONSTANT_LONG("CRYPTO_AEAD_CHACHA20POLY1305_ABYTES",
-			crypto_aead_chacha20poly1305_ABYTES);
+                        crypto_aead_chacha20poly1305_ABYTES);
     CLASS_CONSTANT_LONG("CRYPTO_BOX_SECRETKEYBYTES",
                         crypto_box_SECRETKEYBYTES);
     CLASS_CONSTANT_LONG("CRYPTO_BOX_PUBLICKEYBYTES",
@@ -1115,39 +1115,39 @@ PHP_METHOD(Sodium, crypto_aead_chacha20poly1305_encrypt)
     int                 secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss",
-			      &msg, &msg_len,
-			      &ad, &ad_len,
-			      &npub, &npub_len,
-			      &secretkey, &secretkey_len) == FAILURE) {
-	return;
+                              &msg, &msg_len,
+                              &ad, &ad_len,
+                              &npub, &npub_len,
+                              &secretkey, &secretkey_len) == FAILURE) {
+        return;
     }
     if (npub_len != crypto_aead_chacha20poly1305_NPUBBYTES) {
-	zend_error(E_ERROR,
-		   "crypto_aead_chacha20poly1305_encrypt(): "
-		   "public nonce size should be "
-		   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
+        zend_error(E_ERROR,
+                   "crypto_aead_chacha20poly1305_encrypt(): "
+                   "public nonce size should be "
+                   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
     }
     if (secretkey_len != crypto_aead_chacha20poly1305_KEYBYTES) {
-	zend_error(E_ERROR,
-		   "crypto_aead_chacha20poly1305_encrypt(): "
-		   "secret key size should be "
-		   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
+        zend_error(E_ERROR,
+                   "crypto_aead_chacha20poly1305_encrypt(): "
+                   "secret key size should be "
+                   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
     }
     if (INT_MAX - msg_len <= crypto_aead_chacha20poly1305_ABYTES) {
-	zend_error(E_ERROR, "arithmetic overflow");
+        zend_error(E_ERROR, "arithmetic overflow");
     }
     ciphertext_len = msg_len + crypto_aead_chacha20poly1305_ABYTES;
     ciphertext = safe_emalloc((size_t) ciphertext_len + 1U, 1U, 0U);
     if (crypto_aead_chacha20poly1305_encrypt
-	(ciphertext, &ciphertext_real_len, msg, (unsigned long long) msg_len,
-	 ad, (unsigned long long) ad_len, NULL, npub, secretkey) != 0) {
-	efree(ciphertext);
-	zend_error(E_ERROR, "crypto_aead_chacha20poly1305_encrypt()");
+        (ciphertext, &ciphertext_real_len, msg, (unsigned long long) msg_len,
+         ad, (unsigned long long) ad_len, NULL, npub, secretkey) != 0) {
+        efree(ciphertext);
+        zend_error(E_ERROR, "crypto_aead_chacha20poly1305_encrypt()");
     }
     if (ciphertext_real_len <= 0U || ciphertext_real_len >= INT_MAX ||
-	ciphertext_real_len > ciphertext_len) {
-	efree(ciphertext);
-	zend_error(E_ERROR, "arithmetic overflow");
+        ciphertext_real_len > ciphertext_len) {
+        efree(ciphertext);
+        zend_error(E_ERROR, "arithmetic overflow");
     }
     ciphertext[ciphertext_real_len] = 0U;
 
@@ -1169,39 +1169,39 @@ PHP_METHOD(Sodium, crypto_aead_chacha20poly1305_decrypt)
     int                 secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss",
-			      &ciphertext, &ciphertext_len,
-			      &ad, &ad_len,
-			      &npub, &npub_len,
-			      &secretkey, &secretkey_len) == FAILURE) {
-	return;
+                              &ciphertext, &ciphertext_len,
+                              &ad, &ad_len,
+                              &npub, &npub_len,
+                              &secretkey, &secretkey_len) == FAILURE) {
+        return;
     }
     if (npub_len != crypto_aead_chacha20poly1305_NPUBBYTES) {
-	zend_error(E_ERROR,
-		   "crypto_aead_chacha20poly1305_decrypt(): "
-		   "public nonce size should be "
-		   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
+        zend_error(E_ERROR,
+                   "crypto_aead_chacha20poly1305_decrypt(): "
+                   "public nonce size should be "
+                   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
     }
     if (secretkey_len != crypto_aead_chacha20poly1305_KEYBYTES) {
-	zend_error(E_ERROR,
-		   "crypto_aead_chacha20poly1305_decrypt(): "
-		   "secret key size should be "
-		   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
+        zend_error(E_ERROR,
+                   "crypto_aead_chacha20poly1305_decrypt(): "
+                   "secret key size should be "
+                   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
     }
     msg_len = ciphertext_len;
     if (msg_len >= INT_MAX) {
-	zend_error(E_ERROR, "arithmetic overflow");
+        zend_error(E_ERROR, "arithmetic overflow");
     }
     msg = safe_emalloc((size_t) msg_len + 1U, 1U, 0U);
     if (crypto_aead_chacha20poly1305_decrypt
-	(msg, &msg_real_len, NULL,
-	 ciphertext, (unsigned long long) ciphertext_len,
-	 ad, (unsigned long long) ad_len, npub, secretkey) != 0) {
-	efree(msg);
-	zend_error(E_ERROR, "crypto_aead_chacha20poly1305_decrypt()");
+        (msg, &msg_real_len, NULL,
+         ciphertext, (unsigned long long) ciphertext_len,
+         ad, (unsigned long long) ad_len, npub, secretkey) != 0) {
+        efree(msg);
+        zend_error(E_ERROR, "crypto_aead_chacha20poly1305_decrypt()");
     }
     if (msg_real_len >= INT_MAX || msg_real_len > msg_len) {
-	efree(msg);
-	zend_error(E_ERROR, "arithmetic overflow");
+        efree(msg);
+        zend_error(E_ERROR, "arithmetic overflow");
     }
     msg[msg_real_len] = 0U;
 
