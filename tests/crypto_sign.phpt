@@ -43,6 +43,12 @@ var_dump(strlen($msg_signed) - strlen($msg) === Sodium::CRYPTO_SIGN_BYTES);
 $msg_orig = Sodium::crypto_sign_open($msg_signed, $alice_publickey);
 var_dump($msg_orig === $msg);
 
+$signature = Sodium::crypto_sign_detached($msg, $alice_secretkey);
+var_dump(strlen($signature) === Sodium::CRYPTO_SIGN_BYTES);
+var_dump(Sodium::crypto_sign_verify_detached($signature,
+                                             $msg, $alice_publickey));
+var_dump(Sodium::crypto_sign_verify_detached($signature,
+                                             $msg . "\0", $alice_publickey));
 ?>
 --EXPECT--
 bool(true)
@@ -54,3 +60,6 @@ bool(true)
 bool(true)
 bool(true)
 bool(true)
+bool(true)
+bool(true)
+bool(false)
