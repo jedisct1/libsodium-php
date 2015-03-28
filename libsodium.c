@@ -116,6 +116,7 @@ const zend_function_entry libsodium_methods[] = {
     PHP_ME(Sodium, crypto_secretbox_open, AI_StringAndNonceAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_shorthash, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign_detached, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_keypair, AI_None, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_keypair_from_secretkey_and_publickey, AI_SecretKeyAndPublicKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_open, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
@@ -917,6 +918,40 @@ PHP_METHOD(Sodium, crypto_sign_open)
     msg[msg_real_len] = 0U;
 
     RETURN_STRINGL((char *) msg, (int) msg_real_len, 0);
+}
+
+PHP_METHOD(Sodium, crypto_sign_detached)
+{
+    unsigned char      *msg;
+    unsigned char      *signature;
+    unsigned char      *secretkey;
+    unsigned long long  signature_real_len;
+    int                 msg_len;
+    int                 secretkey_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &msg, &msg_len,
+                              &secretkey, &secretkey_len) == FAILURE) {
+        return;
+    }
+    if (secretkey_len != crypto_sign_SECRETKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_detached(): secret key size should be "
+                   "CRYPTO_SIGN_SECRETKEYBYTES bytes");
+    }
+    signature = safe_emalloc((size_t) crypto_sign_BYTES + 1U, 1U, 0U);
+    if (crypto_sign_detached(signature, &signature_real_len, msg,
+                             (unsigned long long) msg_len, secretkey) != 0) {
+        efree(signature);
+        zend_error(E_ERROR, "crypto_sign_detached()");
+    }
+    if (signature_real_len <= 0U || signature_real_len > crypto_sign_BYTES) {
+        efree(signature);
+        zend_error(E_ERROR, "signature has a bogus size");
+    }
+    signature[signature_real_len] = 0U;
+
+    RETURN_STRINGL((char *) signature, (int) signature_real_len, 0);
 }
 
 PHP_METHOD(Sodium, crypto_stream)

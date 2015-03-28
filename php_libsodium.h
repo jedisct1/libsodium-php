@@ -42,6 +42,7 @@ PHP_METHOD(Sodium, crypto_secretbox);
 PHP_METHOD(Sodium, crypto_secretbox_open);
 PHP_METHOD(Sodium, crypto_shorthash);
 PHP_METHOD(Sodium, crypto_sign);
+PHP_METHOD(Sodium, crypto_sign_detached);
 PHP_METHOD(Sodium, crypto_sign_keypair);
 PHP_METHOD(Sodium, crypto_sign_keypair_from_secretkey_and_publickey);
 PHP_METHOD(Sodium, crypto_sign_open);
