@@ -46,6 +46,7 @@ PHP_METHOD(Sodium, crypto_sign_detached);
 PHP_METHOD(Sodium, crypto_sign_keypair);
 PHP_METHOD(Sodium, crypto_sign_keypair_from_secretkey_and_publickey);
 PHP_METHOD(Sodium, crypto_sign_open);
+PHP_METHOD(Sodium, crypto_sign_verify_detached);
 PHP_METHOD(Sodium, crypto_sign_publickey);
 PHP_METHOD(Sodium, crypto_sign_secretkey);
 PHP_METHOD(Sodium, crypto_sign_seed_keypair);

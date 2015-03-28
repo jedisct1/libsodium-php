@@ -40,6 +40,12 @@ ZEND_BEGIN_ARG_INFO_EX(AI_StringAndKey, 0, 0, 2)
   ZEND_ARG_INFO(0, key)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(AI_SignatureAndStringAndKey, 0, 0, 3)
+  ZEND_ARG_INFO(0, signature)
+  ZEND_ARG_INFO(0, string)
+  ZEND_ARG_INFO(0, key)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(AI_Key, 0, 0, 1)
   ZEND_ARG_INFO(0, key)
 ZEND_END_ARG_INFO()
@@ -120,6 +126,7 @@ const zend_function_entry libsodium_methods[] = {
     PHP_ME(Sodium, crypto_sign_keypair, AI_None, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_keypair_from_secretkey_and_publickey, AI_SecretKeyAndPublicKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_open, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign_verify_detached, AI_SignatureAndStringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_publickey, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_secretkey, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_seed_keypair, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
@@ -952,6 +959,39 @@ PHP_METHOD(Sodium, crypto_sign_detached)
     signature[signature_real_len] = 0U;
 
     RETURN_STRINGL((char *) signature, (int) signature_real_len, 0);
+}
+
+PHP_METHOD(Sodium, crypto_sign_verify_detached)
+{
+    unsigned char *msg;
+    unsigned char *publickey;
+    unsigned char *signature;
+    int            msg_len;
+    int            publickey_len;
+    int            signature_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
+                              &signature, &signature_len,
+                              &msg, &msg_len,
+                              &publickey, &publickey_len) == FAILURE) {
+        return;
+    }
+    if (signature_len != crypto_sign_BYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_verify_detached(): signature size should be "
+                   "CRYPTO_SIGN_BYTES bytes");
+    }
+    if (publickey_len != crypto_sign_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_verify_detached(): public key size should be "
+                   "CRYPTO_SIGN_PUBLICKEYBYTES bytes");
+    }
+    if (crypto_sign_verify_detached(signature,
+                                    msg, (unsigned long long) msg_len,
+                                    publickey) != 0) {
+        RETURN_FALSE;
+    }
+    RETURN_TRUE;
 }
 
 PHP_METHOD(Sodium, crypto_stream)
