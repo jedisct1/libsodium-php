@@ -27,6 +27,15 @@ ZEND_BEGIN_ARG_INFO_EX(AI_TwoStrings, 0, 0, 2)
   ZEND_ARG_INFO(0, string_2)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(AI_OneString, 0, 0, 1)
+  ZEND_ARG_INFO(0, string)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(AI_StringAndOptionalString, 0, 0, 1)
+  ZEND_ARG_INFO(0, string_1)
+  ZEND_ARG_INFO(0, string_2)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(AI_Length, 0, 0, 1)
   ZEND_ARG_INFO(0, length)
 ZEND_END_ARG_INFO()
@@ -139,6 +148,8 @@ const zend_function_entry libsodium_methods[] = {
     PHP_ME(Sodium, sodium_library_version_minor, AI_None, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, sodium_memcmp, AI_TwoStrings, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, sodium_memzero, AI_FirstArgByReferenceSecondLength, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, sodium_bin2hex, AI_OneString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, sodium_hex2bin, AI_StringAndOptionalString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, sodium_version_string, AI_None, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_FE_END
 };
@@ -1283,4 +1294,54 @@ PHP_METHOD(Sodium, crypto_aead_chacha20poly1305_decrypt)
     msg[msg_real_len] = 0U;
 
     RETURN_STRINGL((char *) msg, (int) msg_real_len, 0);
+}
+
+PHP_METHOD(Sodium, sodium_bin2hex)
+{
+    unsigned char      *binstring;
+    int                binstring_len;
+    unsigned char      *hexstring;
+    int                hexstring_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &binstring, &binstring_len) == FAILURE) {
+        return;
+    }
+
+    if (sodium_bin2hex(hexstring, (size_t) hexstring_len,
+                       binstring, (size_t) binstring_len) != 0) {
+        zend_error(E_ERROR, "sodium_bin2hex()");
+    }
+    hexstring[hexstring_len] = 0U;
+
+    RETURN_STRINGL((char *) hexstring, (int) hexstring_len, 0);
+}
+
+PHP_METHOD(Sodium, sodium_hex2bin)
+{
+    unsigned char      *hexstring;
+    int                hexstring_len;
+    unsigned char      *ignore;
+    int                ignore_len;
+
+    unsigned char      *binstring;
+    int                binstring_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s",
+                              &hexstring, &hexstring_len,
+                              &ignore, &ignore_len) == FAILURE) {
+        return;
+    }
+
+    const char        **hexend = hexstring[hexstring_len - 1];
+
+    if (sodium_hex2bin(binstring, (size_t) binstring_len,
+                       hexstring, (size_t) hexstring_len,
+                       ignore, (size_t) ignore_len,
+                       (char**) hexend) != 0) {
+        zend_error(E_ERROR, "sodium_bin2hex()");
+    }
+    binstring[binstring_len] = 0U;
+
+    RETURN_STRINGL((char *) binstring, (int) binstring_len, 0);
 }
