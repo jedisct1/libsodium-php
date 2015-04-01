@@ -1333,7 +1333,7 @@ PHP_METHOD(Sodium, sodium_hex2bin)
         return;
     }
 
-    const char        *hexend = hexstring[hexstring_len - 1];
+    const char        **hexend = hexstring[hexstring_len - 1];
 
     if (sodium_hex2bin(binstring, (size_t) binstring_len,
                        hexstring, (size_t) hexstring_len,
