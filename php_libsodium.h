@@ -59,6 +59,8 @@ PHP_METHOD(Sodium, sodium_library_version_major);
 PHP_METHOD(Sodium, sodium_library_version_minor);
 PHP_METHOD(Sodium, sodium_memcmp);
 PHP_METHOD(Sodium, sodium_memzero);
+PHP_METHOD(Sodium, sodium_bin2hex);
+PHP_METHOD(Sodium, sodium_hex2bin);
 PHP_METHOD(Sodium, sodium_version_string);
 
 #ifdef ZTS
