@@ -59,6 +59,7 @@ A simple, low-level PHP extension for libsodium.
   <required>
    <php>
     <min>5.2.0</min>
+    <min>5.99.99</min>
    </php>
    <pearinstaller>
     <min>1.4.8</min>
