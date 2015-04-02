@@ -340,7 +340,11 @@ PHP_METHOD(Sodium, sodium_memcmp)
 
 PHP_METHOD(Sodium, randombytes_buf)
 {
+#if PHP_MAJOR_VERSION < 7
     char *buf;
+#else
+    zend_string *result;
+#endif
     zend_long  len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
@@ -348,11 +352,19 @@ PHP_METHOD(Sodium, randombytes_buf)
         len <= 0 || len >= INT_MAX) {
         zend_error(E_ERROR, "randombytes_buf(): invalid length");
     }
+#if PHP_MAJOR_VERSION < 7
     buf = safe_emalloc((size_t) len + 1U, 1U, 0U);
     randombytes_buf(buf, (size_t) len);
     buf[len] = 0U;
 
     _RETURN_STRINGL(buf, (int) len);
+#else
+    result = zend_string_alloc(len, 0);
+    randombytes_buf(result->val, result->len);
+    result->val[result->len] = '\0';
+
+    RETURN_NEW_STR(result);
+#endif
 }
 
 PHP_METHOD(Sodium, randombytes_random16)
