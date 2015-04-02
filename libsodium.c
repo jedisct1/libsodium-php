@@ -140,6 +140,7 @@ const zend_function_entry libsodium_methods[] = {
     PHP_ME(Sodium, randombytes_random16, AI_None, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, randombytes_uniform, AI_Integer, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, sodium_bin2hex, AI_String, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, sodium_hex2bin, AI_TwoStrings, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, sodium_library_version_major, AI_None, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, sodium_library_version_minor, AI_None, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, sodium_memcmp, AI_TwoStrings, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
@@ -1309,4 +1310,31 @@ PHP_METHOD(Sodium, sodium_bin2hex)
     sodium_bin2hex(hex, hex_len + 1U, bin, bin_len);
 
     RETURN_STRINGL(hex, hex_len, 0);
+}
+
+PHP_METHOD(Sodium, sodium_hex2bin)
+{
+    unsigned char *bin;
+    char          *hex;
+    char          *ignore = NULL;
+    size_t         bin_real_len;
+    size_t         bin_len;
+    int            hex_len;
+    int            ignore_len = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s",
+                              &hex, &hex_len,
+                              &ignore, &ignore_len) == FAILURE) {
+        return;
+    }
+    bin_len = hex_len / 2;
+    bin = safe_emalloc(bin_len + 1U, 1U, 0U);
+    if (sodium_hex2bin(bin, bin_len, hex, hex_len, ignore,
+                       &bin_real_len, NULL) != 0 ||
+        bin_real_len >= INT_MAX || bin_real_len > bin_len) {
+        zend_error(E_ERROR, "arithmetic overflow");
+    }
+    bin[bin_real_len] = 0U;
+
+    RETURN_STRINGL((char *) bin, (int) bin_real_len, 0);
 }

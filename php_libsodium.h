@@ -56,6 +56,7 @@ PHP_METHOD(Sodium, randombytes_buf);
 PHP_METHOD(Sodium, randombytes_random16);
 PHP_METHOD(Sodium, randombytes_uniform);
 PHP_METHOD(Sodium, sodium_bin2hex);
+PHP_METHOD(Sodium, sodium_hex2bin);
 PHP_METHOD(Sodium, sodium_library_version_major);
 PHP_METHOD(Sodium, sodium_library_version_minor);
 PHP_METHOD(Sodium, sodium_memcmp);
