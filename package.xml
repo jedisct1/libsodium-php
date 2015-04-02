@@ -13,11 +13,11 @@ A simple, low-level PHP extension for libsodium.
   <email>jedisct1@php.net</email>
   <active>yes</active>
  </lead>
- <date>2014-09-27</date>
- <time>13:06:45</time>
+ <date>2015-04-02</date>
+ <time>17:10:12</time>
  <version>
-  <release>0.1.1</release>
-  <api>0.1.1</api>
+  <release>0.1.2</release>
+  <api>0.1.2</api>
  </version>
  <stability>
   <release>beta</release>
@@ -41,8 +41,10 @@ A simple, low-level PHP extension for libsodium.
     <file role="src" name="libtool.m4"/>
    </dir>
    <dir name="tests">
+    <file role="test" name="crypto_aead.phpt"/>
     <file role="test" name="crypto_box.phpt"/>
     <file role="test" name="crypto_generichash.phpt"/>
+    <file role="test" name="crypto_hex.phpt"/>
     <file role="test" name="crypto_secretbox.phpt"/>
     <file role="test" name="crypto_shorthash.phpt"/>
     <file role="test" name="crypto_sign.phpt"/>
