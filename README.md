@@ -94,6 +94,30 @@ addition to authentication, the next operation should be used instead.
 
 Alice should never ever disclose her secret key.
 
+Detached signatures
+-------------------
+
+```php
+$alice_kp = Sodium::crypto_sign_keypair();
+$alice_secretkey = Sodium::crypto_sign_secretkey($alice_kp);
+$alice_publickey = Sodium::crypto_sign_publickey($alice_kp);
+
+$msg = "Here is the message, to be signed using Alice's secret key, and " .
+  "to be verified using Alice's public key";
+
+// Alice signs $msg using her secret key
+// $signature contains only the signature
+$signature = Sodium::crypto_sign_detached($msg, $alice_secretkey);
+
+// Bob verifies that the message signer is Alice
+$verifies = Sodium::crypto_sign_verify_detached($signature, $msg, $alice_publickey);
+if ($verifies === FALSE) {
+  trigger_error('Signature verification failed');
+} else {
+  // The signature is valid, the message is very likely to be from Alice
+}
+```
+
 Public-key authenticated encryption
 -----------------------------------
 
@@ -286,6 +310,24 @@ Constant-time comparison
 if (Sodium::sodium_memcmp($a, $b) === 0) {
   ...
 }
+```
+
+Constant-time binary/hexadecimal conversions
+--------------------------------------------
+
+// Binary to hexadecimal
+```php
+$hex = Sodium::sodium_bin2hex($bin);
+```
+
+// Hexadecimal to binary
+```php
+$bin = Sodium::sodium_hex2bin($hex);
+```
+
+// Hexadecimal to binary, ignoring a set of characters
+```php
+$bin = Sodium::sodium_hex2bin($hex, $string_of_characters_to_ignore);
 ```
 
 Danger zone
