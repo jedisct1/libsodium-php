@@ -279,7 +279,7 @@ PHP_MINFO_FUNCTION(libsodium)
 
 PHP_METHOD(Sodium, sodium_version_string)
 {
-    RETURN_STRING(sodium_version_string(), 1);
+    _RETURN_STRING(sodium_version_string());
 }
 
 PHP_METHOD(Sodium, sodium_library_version_major)
@@ -296,12 +296,18 @@ PHP_METHOD(Sodium, sodium_memzero)
 {
     zval *zv;
     char *buf;
-    int   len;
+    strsize_t len;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-                              "z", &zv) == FAILURE ||
-        Z_TYPE_P(zv) != IS_STRING) {
-        zend_error(E_ERROR, "sodium_memzero: a PHP string is required");
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &zv) == FAILURE) {
+        return;
+    }
+#if PHP_MAJOR_VERSION >= 7
+    if (Z_TYPE_P(zv) == IS_REFERENCE) {
+        ZVAL_DEREF(zv);
+    }
+#endif
+    if (Z_TYPE_P(zv) != IS_STRING) {
+        zend_error(E_ERROR, "sodium_memzero: a PHP string is required") ;
     }
     buf = Z_STRVAL(*zv);
     len = Z_STRLEN(*zv);
@@ -315,8 +321,8 @@ PHP_METHOD(Sodium, sodium_memcmp)
 {
     char *buf1;
     char *buf2;
-    int   len1;
-    int   len2;
+    strsize_t   len1;
+    strsize_t   len2;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &buf1, &len1,
@@ -335,7 +341,7 @@ PHP_METHOD(Sodium, sodium_memcmp)
 PHP_METHOD(Sodium, randombytes_buf)
 {
     char *buf;
-    long  len;
+    zend_long  len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &len) == FAILURE ||
@@ -346,7 +352,7 @@ PHP_METHOD(Sodium, randombytes_buf)
     randombytes_buf(buf, (size_t) len);
     buf[len] = 0U;
 
-    RETURN_STRINGL(buf, (int) len, 0);
+    _RETURN_STRINGL(buf, (int) len);
 }
 
 PHP_METHOD(Sodium, randombytes_random16)
@@ -356,7 +362,7 @@ PHP_METHOD(Sodium, randombytes_random16)
 
 PHP_METHOD(Sodium, randombytes_uniform)
 {
-    long upper_bound;
+    zend_long upper_bound;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &upper_bound) == FAILURE ||
@@ -371,8 +377,8 @@ PHP_METHOD(Sodium, crypto_shorthash)
     unsigned char *hash;
     unsigned char *key;
     unsigned char *msg;
-    int            key_len;
-    int            msg_len;
+    strsize_t      key_len;
+    strsize_t      msg_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &msg, &msg_len,
@@ -391,7 +397,7 @@ PHP_METHOD(Sodium, crypto_shorthash)
     }
     hash[crypto_shorthash_BYTES] = 0U;
 
-    RETURN_STRINGL((char *) hash, crypto_shorthash_BYTES, 0);
+    _RETURN_STRINGL((char *) hash, crypto_shorthash_BYTES);
 }
 
 PHP_METHOD(Sodium, crypto_secretbox)
@@ -400,9 +406,9 @@ PHP_METHOD(Sodium, crypto_secretbox)
     unsigned char *key;
     unsigned char *msg;
     unsigned char *nonce;
-    int            key_len;
-    int            msg_len;
-    int            nonce_len;
+    strsize_t      key_len;
+    strsize_t      msg_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &msg, &msg_len,
@@ -432,7 +438,7 @@ PHP_METHOD(Sodium, crypto_secretbox)
     }
     ciphertext[msg_len + crypto_secretbox_MACBYTES] = 0U;
 
-    RETURN_STRINGL((char *) ciphertext, msg_len + crypto_secretbox_MACBYTES, 0);
+    _RETURN_STRINGL((char *) ciphertext, msg_len + crypto_secretbox_MACBYTES);
 }
 
 PHP_METHOD(Sodium, crypto_secretbox_open)
@@ -441,9 +447,9 @@ PHP_METHOD(Sodium, crypto_secretbox_open)
     unsigned char *ciphertext;
     unsigned char *msg;
     unsigned char *nonce;
-    int            key_len;
-    int            ciphertext_len;
-    int            nonce_len;
+    strsize_t      key_len;
+    strsize_t      ciphertext_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &ciphertext, &ciphertext_len,
@@ -474,8 +480,8 @@ PHP_METHOD(Sodium, crypto_secretbox_open)
         RETURN_FALSE;
     } else {
         msg[ciphertext_len - crypto_secretbox_MACBYTES] = 0U;
-        RETURN_STRINGL((char *) msg,
-                       ciphertext_len - crypto_secretbox_MACBYTES, 0);
+        _RETURN_STRINGL((char *) msg,
+                       ciphertext_len - crypto_secretbox_MACBYTES);
     }
 }
 
@@ -484,9 +490,9 @@ PHP_METHOD(Sodium, crypto_generichash)
     unsigned char *hash;
     unsigned char *key = NULL;
     unsigned char *msg;
-    long           hash_len = crypto_generichash_BYTES;
-    int            key_len = 0;
-    int            msg_len;
+    zend_long      hash_len = crypto_generichash_BYTES;
+    strsize_t      key_len = 0;
+    strsize_t      msg_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sl",
                               &msg, &msg_len,
@@ -512,7 +518,7 @@ PHP_METHOD(Sodium, crypto_generichash)
     }
     hash[hash_len] = 0U;
 
-    RETURN_STRINGL((char *) hash, (int) hash_len, 0);
+    _RETURN_STRINGL((char *) hash, (int) hash_len);
 }
 
 PHP_METHOD(Sodium, crypto_box_keypair)
@@ -529,7 +535,7 @@ PHP_METHOD(Sodium, crypto_box_keypair)
     }
     keypair[keypair_len] = 0U;
 
-    RETURN_STRINGL((char *) keypair, (int) keypair_len, 0);
+    _RETURN_STRINGL((char *) keypair, (int) keypair_len);
 }
 
 PHP_METHOD(Sodium, crypto_box_keypair_from_secretkey_and_publickey)
@@ -538,8 +544,8 @@ PHP_METHOD(Sodium, crypto_box_keypair_from_secretkey_and_publickey)
     char   *publickey;
     char   *secretkey;
     size_t  keypair_len;
-    int     publickey_len;
-    int     secretkey_len;
+    strsize_t publickey_len;
+    strsize_t secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &secretkey, &secretkey_len,
@@ -563,14 +569,14 @@ PHP_METHOD(Sodium, crypto_box_keypair_from_secretkey_and_publickey)
            crypto_box_PUBLICKEYBYTES);
     keypair[keypair_len] = 0U;
 
-    RETURN_STRINGL(keypair, (int) keypair_len, 0);
+    _RETURN_STRINGL(keypair, (int) keypair_len);
 }
 
 PHP_METHOD(Sodium, crypto_box_secretkey)
 {
     unsigned char *keypair;
     char          *secretkey;
-    int            keypair_len;
+    strsize_t      keypair_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &keypair, &keypair_len) == FAILURE) {
@@ -586,14 +592,14 @@ PHP_METHOD(Sodium, crypto_box_secretkey)
     memcpy(secretkey, keypair, crypto_box_SECRETKEYBYTES);
     secretkey[crypto_box_SECRETKEYBYTES] = 0U;
 
-    RETURN_STRINGL((char *) secretkey, crypto_box_SECRETKEYBYTES, 0);
+    _RETURN_STRINGL((char *) secretkey, crypto_box_SECRETKEYBYTES);
 }
 
 PHP_METHOD(Sodium, crypto_box_publickey)
 {
     unsigned char *keypair;
     char          *publickey;
-    int            keypair_len;
+    strsize_t      keypair_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &keypair, &keypair_len) == FAILURE) {
@@ -610,14 +616,14 @@ PHP_METHOD(Sodium, crypto_box_publickey)
            crypto_box_PUBLICKEYBYTES);
     publickey[crypto_box_PUBLICKEYBYTES] = 0U;
 
-    RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
+    _RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES);
 }
 
 PHP_METHOD(Sodium, crypto_box_publickey_from_secretkey)
 {
     unsigned char *publickey;
     unsigned char *secretkey;
-    int            secretkey_len;
+    strsize_t      secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &secretkey, &secretkey_len) == FAILURE) {
@@ -636,7 +642,7 @@ PHP_METHOD(Sodium, crypto_box_publickey_from_secretkey)
     crypto_scalarmult_base(publickey, secretkey);
     publickey[crypto_box_PUBLICKEYBYTES] = 0U;
 
-    RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
+    _RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES);
 }
 
 PHP_METHOD(Sodium, crypto_box)
@@ -647,9 +653,9 @@ PHP_METHOD(Sodium, crypto_box)
     unsigned char *nonce;
     unsigned char *publickey;
     unsigned char *secretkey;
-    int            keypair_len;
-    int            msg_len;
-    int            nonce_len;
+    strsize_t      keypair_len;
+    strsize_t      msg_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &msg, &msg_len,
@@ -680,7 +686,7 @@ PHP_METHOD(Sodium, crypto_box)
     }
     ciphertext[msg_len + crypto_box_MACBYTES] = 0U;
 
-    RETURN_STRINGL((char *) ciphertext, msg_len + crypto_box_MACBYTES, 0);
+    _RETURN_STRINGL((char *) ciphertext, msg_len + crypto_box_MACBYTES);
 }
 
 PHP_METHOD(Sodium, crypto_box_open)
@@ -691,9 +697,9 @@ PHP_METHOD(Sodium, crypto_box_open)
     unsigned char *nonce;
     unsigned char *publickey;
     unsigned char *secretkey;
-    int            ciphertext_len;
-    int            keypair_len;
-    int            nonce_len;
+    strsize_t      ciphertext_len;
+    strsize_t      keypair_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &ciphertext, &ciphertext_len,
@@ -726,8 +732,8 @@ PHP_METHOD(Sodium, crypto_box_open)
         RETURN_FALSE;
     } else {
         msg[ciphertext_len - crypto_box_MACBYTES] = 0U;
-        RETURN_STRINGL((char *) msg,
-                       ciphertext_len - crypto_box_MACBYTES, 0);
+        _RETURN_STRINGL((char *) msg,
+                       ciphertext_len - crypto_box_MACBYTES);
     }
 }
 
@@ -745,7 +751,7 @@ PHP_METHOD(Sodium, crypto_sign_keypair)
     }
     keypair[keypair_len] = 0U;
 
-    RETURN_STRINGL((char *) keypair, keypair_len, 0);
+    _RETURN_STRINGL((char *) keypair, keypair_len);
 }
 
 PHP_METHOD(Sodium, crypto_sign_seed_keypair)
@@ -753,7 +759,7 @@ PHP_METHOD(Sodium, crypto_sign_seed_keypair)
     unsigned char *keypair;
     unsigned char *seed;
     size_t         keypair_len;
-    int            seed_len;
+    strsize_t      seed_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &seed, &seed_len) == FAILURE) {
@@ -773,7 +779,7 @@ PHP_METHOD(Sodium, crypto_sign_seed_keypair)
     }
     keypair[keypair_len] = 0U;
 
-    RETURN_STRINGL((char *) keypair, keypair_len, 0);
+    _RETURN_STRINGL((char *) keypair, keypair_len);
 }
 
 PHP_METHOD(Sodium, crypto_sign_keypair_from_secretkey_and_publickey)
@@ -782,8 +788,8 @@ PHP_METHOD(Sodium, crypto_sign_keypair_from_secretkey_and_publickey)
     char   *publickey;
     char   *secretkey;
     size_t  keypair_len;
-    int     publickey_len;
-    int     secretkey_len;
+    strsize_t publickey_len;
+    strsize_t secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &secretkey, &secretkey_len,
@@ -807,14 +813,14 @@ PHP_METHOD(Sodium, crypto_sign_keypair_from_secretkey_and_publickey)
            crypto_sign_PUBLICKEYBYTES);
     keypair[keypair_len] = 0U;
 
-    RETURN_STRINGL(keypair, keypair_len, 0);
+    _RETURN_STRINGL(keypair, keypair_len);
 }
 
 PHP_METHOD(Sodium, crypto_sign_secretkey)
 {
     unsigned char *keypair;
     char          *secretkey;
-    int            keypair_len;
+    strsize_t      keypair_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &keypair, &keypair_len) == FAILURE) {
@@ -830,14 +836,14 @@ PHP_METHOD(Sodium, crypto_sign_secretkey)
     memcpy(secretkey, keypair, crypto_sign_SECRETKEYBYTES);
     secretkey[crypto_sign_SECRETKEYBYTES] = 0U;
 
-    RETURN_STRINGL((char *) secretkey, crypto_sign_SECRETKEYBYTES, 0);
+    _RETURN_STRINGL((char *) secretkey, crypto_sign_SECRETKEYBYTES);
 }
 
 PHP_METHOD(Sodium, crypto_sign_publickey)
 {
     unsigned char *keypair;
     char          *publickey;
-    int            keypair_len;
+    strsize_t      keypair_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &keypair, &keypair_len) == FAILURE) {
@@ -854,7 +860,7 @@ PHP_METHOD(Sodium, crypto_sign_publickey)
            crypto_sign_PUBLICKEYBYTES);
     publickey[crypto_sign_PUBLICKEYBYTES] = 0U;
 
-    RETURN_STRINGL((char *) publickey, crypto_sign_PUBLICKEYBYTES, 0);
+    _RETURN_STRINGL((char *) publickey, crypto_sign_PUBLICKEYBYTES);
 }
 
 PHP_METHOD(Sodium, crypto_sign)
@@ -863,9 +869,9 @@ PHP_METHOD(Sodium, crypto_sign)
     unsigned char      *msg_signed;
     unsigned char      *secretkey;
     unsigned long long  msg_signed_real_len;
-    int                 msg_len;
-    int                 msg_signed_len;
-    int                 secretkey_len;
+    strsize_t           msg_len;
+    strsize_t           msg_signed_len;
+    strsize_t           secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &msg, &msg_len,
@@ -894,7 +900,7 @@ PHP_METHOD(Sodium, crypto_sign)
     }
     msg_signed[msg_signed_real_len] = 0U;
 
-    RETURN_STRINGL((char *) msg_signed, (int) msg_signed_real_len, 0);
+    _RETURN_STRINGL((char *) msg_signed, (int) msg_signed_real_len);
 }
 
 PHP_METHOD(Sodium, crypto_sign_open)
@@ -903,9 +909,9 @@ PHP_METHOD(Sodium, crypto_sign_open)
     unsigned char      *msg_signed;
     unsigned char      *publickey;
     unsigned long long  msg_real_len;
-    int                 msg_len;
-    int                 msg_signed_len;
-    int                 publickey_len;
+    strsize_t           msg_len;
+    strsize_t           msg_signed_len;
+    strsize_t           publickey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &msg_signed, &msg_signed_len,
@@ -935,7 +941,7 @@ PHP_METHOD(Sodium, crypto_sign_open)
     }
     msg[msg_real_len] = 0U;
 
-    RETURN_STRINGL((char *) msg, (int) msg_real_len, 0);
+    _RETURN_STRINGL((char *) msg, (int) msg_real_len);
 }
 
 PHP_METHOD(Sodium, crypto_sign_detached)
@@ -944,8 +950,8 @@ PHP_METHOD(Sodium, crypto_sign_detached)
     unsigned char      *signature;
     unsigned char      *secretkey;
     unsigned long long  signature_real_len;
-    int                 msg_len;
-    int                 secretkey_len;
+    strsize_t           msg_len;
+    strsize_t           secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &msg, &msg_len,
@@ -969,7 +975,7 @@ PHP_METHOD(Sodium, crypto_sign_detached)
     }
     signature[signature_real_len] = 0U;
 
-    RETURN_STRINGL((char *) signature, (int) signature_real_len, 0);
+    _RETURN_STRINGL((char *) signature, (int) signature_real_len);
 }
 
 PHP_METHOD(Sodium, crypto_sign_verify_detached)
@@ -977,9 +983,9 @@ PHP_METHOD(Sodium, crypto_sign_verify_detached)
     unsigned char *msg;
     unsigned char *publickey;
     unsigned char *signature;
-    int            msg_len;
-    int            publickey_len;
-    int            signature_len;
+    strsize_t      msg_len;
+    strsize_t      publickey_len;
+    strsize_t      signature_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &signature, &signature_len,
@@ -1010,9 +1016,9 @@ PHP_METHOD(Sodium, crypto_stream)
     unsigned char *ciphertext;
     unsigned char *key;
     unsigned char *nonce;
-    long           ciphertext_len;
-    int            key_len;
-    int            nonce_len;
+    zend_long      ciphertext_len;
+    strsize_t      key_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lss",
                               &ciphertext_len,
@@ -1037,7 +1043,7 @@ PHP_METHOD(Sodium, crypto_stream)
     }
     ciphertext[ciphertext_len] = 0U;
 
-    RETURN_STRINGL((char *) ciphertext, ciphertext_len, 0);
+    _RETURN_STRINGL((char *) ciphertext, ciphertext_len);
 }
 
 PHP_METHOD(Sodium, crypto_stream_xor)
@@ -1046,9 +1052,9 @@ PHP_METHOD(Sodium, crypto_stream_xor)
     unsigned char *key;
     unsigned char *msg;
     unsigned char *nonce;
-    int            key_len;
-    int            msg_len;
-    int            nonce_len;
+    strsize_t      key_len;
+    strsize_t      msg_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &msg, &msg_len,
@@ -1070,7 +1076,7 @@ PHP_METHOD(Sodium, crypto_stream_xor)
     }
     ciphertext[msg_len] = 0U;
 
-    RETURN_STRINGL((char *) ciphertext, msg_len, 0);
+    _RETURN_STRINGL((char *) ciphertext, msg_len);
 }
 
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256)
@@ -1078,11 +1084,11 @@ PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256)
     unsigned char *hash;
     unsigned char *salt;
     char          *passwd;
-    long           hash_len;
-    long           memlimit;
-    long           opslimit;
-    int            passwd_len;
-    int            salt_len;
+    zend_long      hash_len;
+    zend_long      memlimit;
+    zend_long      opslimit;
+    strsize_t      passwd_len;
+    strsize_t      salt_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lssll",
                               &hash_len,
@@ -1118,16 +1124,16 @@ PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256)
     }
     hash[hash_len] = 0U;
 
-    RETURN_STRINGL((char *) hash, hash_len, 0);
+    _RETURN_STRINGL((char *) hash, hash_len);
 }
 
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str)
 {
     char *hash_str;
     char *passwd;
-    long  memlimit;
-    long  opslimit;
-    int   passwd_len;
+    zend_long memlimit;
+    zend_long opslimit;
+    strsize_t passwd_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sll",
                               &passwd, &passwd_len,
@@ -1157,16 +1163,16 @@ PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str)
     }
     hash_str[crypto_pwhash_scryptsalsa208sha256_STRBYTES] = 0U;
 
-    RETURN_STRINGL((char *) hash_str,
-                   crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1, 0);
+    _RETURN_STRINGL((char *) hash_str,
+                   crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1);
 }
 
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify)
 {
     char *hash_str;
     char *passwd;
-    int   hash_str_len;
-    int   passwd_len;
+    strsize_t hash_str_len;
+    strsize_t passwd_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &hash_str, &hash_str_len,
@@ -1196,11 +1202,11 @@ PHP_METHOD(Sodium, crypto_aead_chacha20poly1305_encrypt)
     unsigned char      *npub;
     unsigned char      *secretkey;
     unsigned long long  ciphertext_real_len;
-    int                 ad_len;
-    int                 ciphertext_len;
-    int                 msg_len;
-    int                 npub_len;
-    int                 secretkey_len;
+    strsize_t           ad_len;
+    strsize_t           ciphertext_len;
+    strsize_t           msg_len;
+    strsize_t           npub_len;
+    strsize_t           secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss",
                               &msg, &msg_len,
@@ -1239,7 +1245,7 @@ PHP_METHOD(Sodium, crypto_aead_chacha20poly1305_encrypt)
     }
     ciphertext[ciphertext_real_len] = 0U;
 
-    RETURN_STRINGL((char *) ciphertext, (int) ciphertext_real_len, 0);
+    _RETURN_STRINGL((char *) ciphertext, (int) ciphertext_real_len);
 }
 
 PHP_METHOD(Sodium, crypto_aead_chacha20poly1305_decrypt)
@@ -1250,11 +1256,11 @@ PHP_METHOD(Sodium, crypto_aead_chacha20poly1305_decrypt)
     unsigned char      *npub;
     unsigned char      *secretkey;
     unsigned long long  msg_real_len;
-    int                 ad_len;
-    int                 ciphertext_len;
-    int                 msg_len;
-    int                 npub_len;
-    int                 secretkey_len;
+    strsize_t           ad_len;
+    strsize_t           ciphertext_len;
+    strsize_t           msg_len;
+    strsize_t           npub_len;
+    strsize_t           secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss",
                               &ciphertext, &ciphertext_len,
@@ -1293,15 +1299,15 @@ PHP_METHOD(Sodium, crypto_aead_chacha20poly1305_decrypt)
     }
     msg[msg_real_len] = 0U;
 
-    RETURN_STRINGL((char *) msg, (int) msg_real_len, 0);
+    _RETURN_STRINGL((char *) msg, (int) msg_real_len);
 }
 
 PHP_METHOD(Sodium, sodium_bin2hex)
 {
     unsigned char *bin;
     char          *hex;
-    int            bin_len;
-    int            hex_len;
+    strsize_t      bin_len;
+    strsize_t      hex_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &bin, &bin_len) == FAILURE) {
@@ -1314,7 +1320,7 @@ PHP_METHOD(Sodium, sodium_bin2hex)
     hex = safe_emalloc((size_t) hex_len + 1U, 1U, 0U);
     sodium_bin2hex(hex, hex_len + 1U, bin, bin_len);
 
-    RETURN_STRINGL(hex, hex_len, 0);
+    _RETURN_STRINGL(hex, hex_len);
 }
 
 PHP_METHOD(Sodium, sodium_hex2bin)
@@ -1324,8 +1330,8 @@ PHP_METHOD(Sodium, sodium_hex2bin)
     char          *ignore = NULL;
     size_t         bin_real_len;
     size_t         bin_len;
-    int            hex_len;
-    int            ignore_len = 0;
+    strsize_t      hex_len;
+    strsize_t      ignore_len = 0;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s",
                               &hex, &hex_len,
@@ -1341,7 +1347,7 @@ PHP_METHOD(Sodium, sodium_hex2bin)
     }
     bin[bin_real_len] = 0U;
 
-    RETURN_STRINGL((char *) bin, (int) bin_real_len, 0);
+    _RETURN_STRINGL((char *) bin, (int) bin_real_len);
 }
 
 PHP_METHOD(Sodium, crypto_scalarmult)

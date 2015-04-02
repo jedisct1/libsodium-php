@@ -70,6 +70,18 @@ PHP_METHOD(Sodium, sodium_version_string);
 #define LIBSODIUM_G(v) (libsodium_globals.v)
 #endif
 
+#if PHP_MAJOR_VERSION < 7
+typedef long zend_long;
+typedef int strsize_t;
+#define _RETURN_STRING(a)      RETURN_STRING(a,1)
+#define _RETURN_STRINGL(a,l)   RETURN_STRINGL(a,l,0)
+#else
+typedef size_t strsize_t;
+#define TSRMLS_CC
+#define _RETURN_STRING(a)      RETURN_STRING(a)
+#define _RETURN_STRINGL(a,l)   { RETVAL_STRINGL(a, l); efree(a); return; }
+#endif
+
 #endif  /* PHP_LIBSODIUM_H */
 
 /*
