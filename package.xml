@@ -24,8 +24,27 @@ A simple, low-level PHP extension for libsodium.
   <api>beta</api>
  </stability>
  <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
- <notes>Initial release
-</notes>
+ <notes>
+New bindings have been added.
+
+Detached signatures:
+* crypto_sign_detached() computes a signature and returns it without a
+copy of the initial message
+* crypto_sign_verify_detached() verifies that a signature matches a
+given message.
+
+Authenticated encryption with additional data (chacha20poly1305):
+* crypto_aead_chacha20poly1305_encrypt()
+* crypto_aead_chacha20poly1305_decrypt()
+
+Stream cipher (salsa20):
+* Sodium::crypto_stream()
+* Sodium::crypto_stream_xor()
+
+Constant-time bin/hex conversions:
+* Sodium::sodium_bin2hex()
+* Sodium::sodium_hex2bin()
+ </notes>
  <contents>
   <dir name="/">
    <file role="doc" name="README.md"/>
