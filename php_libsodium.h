@@ -38,6 +38,7 @@ PHP_METHOD(Sodium, crypto_generichash);
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256);
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str);
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify);
+PHP_METHOD(Sodium, crypto_scalarmult);
 PHP_METHOD(Sodium, crypto_secretbox);
 PHP_METHOD(Sodium, crypto_secretbox_open);
 PHP_METHOD(Sodium, crypto_shorthash);

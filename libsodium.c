@@ -122,6 +122,7 @@ const zend_function_entry libsodium_methods[] = {
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256, AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256_str, AI_PasswordAndOpsLimitAndMemLimit, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify, AI_HashAndPassword, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_scalarmult, AI_TwoStrings, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_secretbox, AI_StringAndNonceAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_secretbox_open, AI_StringAndNonceAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_shorthash, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
@@ -234,6 +235,10 @@ PHP_MINIT_FUNCTION(libsodium)
                         crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE);
     CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
                         crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE);
+    CLASS_CONSTANT_LONG("CRYPTO_SCALARMULT_BYTES",
+                        crypto_scalarmult_BYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_SCALARMULT_SCALARBYTES",
+                        crypto_scalarmult_SCALARBYTES);
     CLASS_CONSTANT_LONG("CRYPTO_SHORTHASH_BYTES",
                         crypto_shorthash_BYTES);
     CLASS_CONSTANT_LONG("CRYPTO_SHORTHASH_KEYBYTES",
@@ -1337,4 +1342,30 @@ PHP_METHOD(Sodium, sodium_hex2bin)
     bin[bin_real_len] = 0U;
 
     RETURN_STRINGL((char *) bin, (int) bin_real_len, 0);
+}
+
+PHP_METHOD(Sodium, crypto_scalarmult)
+{
+    unsigned char *n;
+    unsigned char *p;
+    unsigned char *q;
+    int            n_len;
+    int            p_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &n, &n_len, &p, &p_len) == FAILURE) {
+        return;
+    }
+    if (n_len != crypto_scalarmult_SCALARBYTES ||
+        p_len != crypto_scalarmult_SCALARBYTES) {
+        zend_error(E_ERROR, "crypto_scalarmult(): scalar and point must be "
+                   "CRYPTO_SCALARMULT_SCALARBYTES bytes");
+    }
+    q = safe_emalloc(crypto_scalarmult_BYTES + 1U, 1U, 0U);
+    if (crypto_scalarmult(q, n, p) != 0) {
+        zend_error(E_ERROR, "crypto_scalarmult(): internal error");
+    }
+    q[crypto_scalarmult_BYTES] = 0;
+
+    RETURN_STRINGL((char *) q, crypto_scalarmult_BYTES, 0);
 }

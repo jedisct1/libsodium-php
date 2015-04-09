@@ -333,6 +333,13 @@ $bin = Sodium::sodium_hex2bin($hex, $string_of_characters_to_ignore);
 Danger zone
 ===========
 
+Scalar multiplication
+---------------------
+
+```php
+$shared_key = Sodium::crypto_scalarmult($alice_key, $bob_key);
+```
+
 Unauthenticated secret-key encryption
 -------------------------------------
 
