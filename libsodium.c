@@ -402,7 +402,7 @@ PHP_METHOD(Sodium, crypto_shorthash)
 
 PHP_METHOD(Sodium, crypto_secretbox)
 {
-    unsigned char *ciphertext;
+    zend_string   *ciphertext;
     unsigned char *key;
     unsigned char *msg;
     unsigned char *nonce;
@@ -429,16 +429,15 @@ PHP_METHOD(Sodium, crypto_secretbox)
     if (INT_MAX - msg_len <= crypto_secretbox_MACBYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    ciphertext = safe_emalloc((size_t) msg_len + crypto_secretbox_MACBYTES + 1U,
-                              1U, 0U);
-    if (crypto_secretbox_easy(ciphertext, msg, (unsigned long long) msg_len,
+    ciphertext = zend_string_alloc(msg_len + crypto_secretbox_MACBYTES, 0U);
+    if (crypto_secretbox_easy((unsigned char *)ciphertext->val, msg, (unsigned long long) msg_len,
                               nonce, key) != 0) {
         efree(ciphertext);
         zend_error(E_ERROR, "crypto_secretbox()");
     }
-    ciphertext[msg_len + crypto_secretbox_MACBYTES] = 0U;
+    ciphertext->val[msg_len + crypto_secretbox_MACBYTES] = 0U;
 
-    _RETURN_STRINGL((char *) ciphertext, msg_len + crypto_secretbox_MACBYTES);
+    RETURN_NEW_STR(ciphertext);
 }
 
 PHP_METHOD(Sodium, crypto_secretbox_open)
