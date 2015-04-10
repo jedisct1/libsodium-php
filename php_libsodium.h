@@ -71,13 +71,36 @@ PHP_METHOD(Sodium, sodium_version_string);
 #endif
 
 #if PHP_MAJOR_VERSION < 7
+struct _zend_string {
+  char *val;
+  int   len;
+};
+typedef struct _zend_string zend_string;
 typedef long zend_long;
 typedef int strsize_t;
+
+static zend_always_inline zend_string *zend_string_alloc(int len, int persistent)
+{
+	/* single alloc, so free the bug, will also free the struct */
+	char *buf = safe_emalloc(sizeof(zend_string)+len+1,1,0);
+	zend_string *str = (zend_string *)(buf+len+1);
+
+	str->val = buf;
+	str->len = len;
+
+	return str;
+}
+/* compatibility macros */
 #define _RETURN_STRING(a)      RETURN_STRING(a,1)
 #define _RETURN_STRINGL(a,l)   RETURN_STRINGL(a,l,0)
+/* new macros */
+#define RETURN_NEW_STR(s)     RETURN_STRINGL(s->val,s->len,0);
+
 #else
 typedef size_t strsize_t;
+/* removed/uneeded macros */
 #define TSRMLS_CC
+/* compatibility macros */
 #define _RETURN_STRING(a)      RETURN_STRING(a)
 #define _RETURN_STRINGL(a,l)   { RETVAL_STRINGL(a, l); efree(a); return; }
 #endif
