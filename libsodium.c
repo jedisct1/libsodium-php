@@ -374,7 +374,7 @@ PHP_METHOD(Sodium, randombytes_uniform)
 
 PHP_METHOD(Sodium, crypto_shorthash)
 {
-    unsigned char *hash;
+    zend_string   *hash;
     unsigned char *key;
     unsigned char *msg;
     strsize_t      key_len;
@@ -390,14 +390,14 @@ PHP_METHOD(Sodium, crypto_shorthash)
                    "crypto_shorthash(): key size should be "
                    "CRYPTO_SHORTHASH_KEYBYTES bytes");
     }
-    hash = safe_emalloc(crypto_shorthash_BYTES + 1U, 1U, 0U);
-    if (crypto_shorthash(hash, msg, (unsigned long long) msg_len, key) != 0) {
+    hash = zend_string_alloc(crypto_shorthash_BYTES, 0U);
+    if (crypto_shorthash((unsigned char *)hash->val, msg, (unsigned long long) msg_len, key) != 0) {
         efree(hash);
         zend_error(E_ERROR, "crypto_shorthash()");
     }
-    hash[crypto_shorthash_BYTES] = 0U;
+    hash->val[crypto_shorthash_BYTES] = 0U;
 
-    _RETURN_STRINGL((char *) hash, crypto_shorthash_BYTES);
+    RETURN_NEW_STR(hash);
 }
 
 PHP_METHOD(Sodium, crypto_secretbox)
