@@ -82,7 +82,7 @@ typedef int strsize_t;
 static zend_always_inline zend_string *zend_string_alloc(int len, int persistent)
 {
 	/* single alloc, so free the buf, will also free the struct */
-	char *buf = safe_emalloc(sizeof(zend_string)+len+1,1,0);
+	char *buf = safe_pemalloc(sizeof(zend_string)+len+1,1,0,persistent);
 	zend_string *str = (zend_string *)(buf+len+1);
 
 	str->val = buf;
