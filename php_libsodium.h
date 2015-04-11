@@ -74,6 +74,7 @@ PHP_METHOD(Sodium, sodium_version_string);
 struct _zend_string {
   char *val;
   int   len;
+  int   persistent;
 };
 typedef struct _zend_string zend_string;
 typedef long zend_long;
@@ -87,8 +88,13 @@ static zend_always_inline zend_string *zend_string_alloc(int len, int persistent
 
 	str->val = buf;
 	str->len = len;
+	str->persistent = persistent;
 
 	return str;
+}
+static zend_always_inline void zend_string_free(zend_string *s)
+{
+	pefree(s->val, s->persistent);
 }
 /* compatibility macros */
 #define _RETURN_STRING(a)      RETURN_STRING(a,1)

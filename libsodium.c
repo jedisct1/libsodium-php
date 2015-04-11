@@ -392,7 +392,7 @@ PHP_METHOD(Sodium, crypto_shorthash)
     }
     hash = zend_string_alloc(crypto_shorthash_BYTES, 0U);
     if (crypto_shorthash((unsigned char *)hash->val, msg, (unsigned long long) msg_len, key) != 0) {
-        efree(hash);
+        zend_string_free(hash);
         zend_error(E_ERROR, "crypto_shorthash()");
     }
     hash->val[crypto_shorthash_BYTES] = 0U;
@@ -432,7 +432,7 @@ PHP_METHOD(Sodium, crypto_secretbox)
     ciphertext = zend_string_alloc(msg_len + crypto_secretbox_MACBYTES, 0U);
     if (crypto_secretbox_easy((unsigned char *)ciphertext->val, msg, (unsigned long long) msg_len,
                               nonce, key) != 0) {
-        efree(ciphertext);
+        zend_string_free(ciphertext);
         zend_error(E_ERROR, "crypto_secretbox()");
     }
     ciphertext->val[msg_len + crypto_secretbox_MACBYTES] = 0U;
