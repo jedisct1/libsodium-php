@@ -1353,9 +1353,9 @@ PHP_METHOD(Sodium, crypto_scalarmult)
 {
     unsigned char *n;
     unsigned char *p;
-    unsigned char *q;
-    int            n_len;
-    int            p_len;
+    zend_string   *q;
+    strsize_t      n_len;
+    strsize_t      p_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &n, &n_len, &p, &p_len) == FAILURE) {
@@ -1366,11 +1366,11 @@ PHP_METHOD(Sodium, crypto_scalarmult)
         zend_error(E_ERROR, "crypto_scalarmult(): scalar and point must be "
                    "CRYPTO_SCALARMULT_SCALARBYTES bytes");
     }
-    q = safe_emalloc(crypto_scalarmult_BYTES + 1U, 1U, 0U);
-    if (crypto_scalarmult(q, n, p) != 0) {
+    q = zend_string_alloc(crypto_scalarmult_BYTES, 0);
+    if (crypto_scalarmult((unsigned char *)q->val, n, p) != 0) {
         zend_error(E_ERROR, "crypto_scalarmult(): internal error");
     }
-    q[crypto_scalarmult_BYTES] = 0;
+    q->val[crypto_scalarmult_BYTES] = 0;
 
-    RETURN_STRINGL((char *) q, crypto_scalarmult_BYTES, 0);
+    RETURN_NEW_STR(q);
 }
