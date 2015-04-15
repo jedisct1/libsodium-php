@@ -13,11 +13,11 @@ A simple, low-level PHP extension for libsodium.
   <email>jedisct1@php.net</email>
   <active>yes</active>
  </lead>
- <date>2015-04-02</date>
- <time>17:10:12</time>
+ <date>2015-04-15</date>
+ <time>15:53:32</time>
  <version>
-  <release>0.1.2</release>
-  <api>0.1.2</api>
+  <release>0.1.3</release>
+  <api>0.1.3</api>
  </version>
  <stability>
   <release>beta</release>
@@ -25,25 +25,7 @@ A simple, low-level PHP extension for libsodium.
  </stability>
  <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
  <notes>
-New bindings have been added.
-
-Detached signatures:
-* crypto_sign_detached() computes a signature and returns it without a
-copy of the initial message
-* crypto_sign_verify_detached() verifies that a signature matches a
-given message.
-
-Authenticated encryption with additional data (chacha20poly1305):
-* crypto_aead_chacha20poly1305_encrypt()
-* crypto_aead_chacha20poly1305_decrypt()
-
-Stream cipher (salsa20):
-* Sodium::crypto_stream()
-* Sodium::crypto_stream_xor()
-
-Constant-time bin/hex conversions:
-* Sodium::sodium_bin2hex()
-* Sodium::sodium_hex2bin()
+crypto_scalarmult() has been added.
  </notes>
  <contents>
   <dir name="/">
@@ -64,6 +46,7 @@ Constant-time bin/hex conversions:
     <file role="test" name="crypto_box.phpt"/>
     <file role="test" name="crypto_generichash.phpt"/>
     <file role="test" name="crypto_hex.phpt"/>
+    <file role="test" name="crypto_scalarmult.phpt"/>
     <file role="test" name="crypto_secretbox.phpt"/>
     <file role="test" name="crypto_shorthash.phpt"/>
     <file role="test" name="crypto_sign.phpt"/>
