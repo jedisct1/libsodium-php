@@ -98,7 +98,6 @@ static zend_always_inline void zend_string_free(zend_string *s)
 }
 /* compatibility macros */
 #define _RETURN_STRING(a)      RETURN_STRING(a,1)
-#define _RETURN_STRINGL(a,l)   RETURN_STRINGL(a,l,0)
 /* new macros */
 #define RETURN_NEW_STR(s)     RETURN_STRINGL(s->val,s->len,0);
 
@@ -108,7 +107,6 @@ typedef size_t strsize_t;
 #define TSRMLS_CC
 /* compatibility macros */
 #define _RETURN_STRING(a)      RETURN_STRING(a)
-#define _RETURN_STRINGL(a,l)   { RETVAL_STRINGL(a, l); efree(a); return; }
 #endif
 
 #endif  /* PHP_LIBSODIUM_H */
