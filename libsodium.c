@@ -1342,6 +1342,7 @@ PHP_METHOD(Sodium, sodium_hex2bin)
     if (sodium_hex2bin((unsigned char *)bin->val, bin_len, hex, hex_len, ignore,
                        &bin_real_len, NULL) != 0 ||
         bin_real_len >= INT_MAX || bin_real_len > bin_len) {
+        zend_string_free(bin);
         zend_error(E_ERROR, "arithmetic overflow");
     }
     bin->val[bin_real_len] = 0U;
@@ -1369,6 +1370,7 @@ PHP_METHOD(Sodium, crypto_scalarmult)
     }
     q = zend_string_alloc(crypto_scalarmult_BYTES, 0);
     if (crypto_scalarmult((unsigned char *)q->val, n, p) != 0) {
+        zend_string_free(q);
         zend_error(E_ERROR, "crypto_scalarmult(): internal error");
     }
     q->val[crypto_scalarmult_BYTES] = 0;
