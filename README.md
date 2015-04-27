@@ -8,6 +8,10 @@ A simple, low-level PHP extension for
 
 Requires libsodium >= 0.6.0 and PHP >= 5.4.0
 
+On Debian 8 and Ubuntu 15.04, libsodium can be installed with:
+
+    apt-get install libsodium
+
 Installation
 ============
 
