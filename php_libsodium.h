@@ -33,6 +33,8 @@ PHP_METHOD(Sodium, crypto_box_keypair_from_secretkey_and_publickey);
 PHP_METHOD(Sodium, crypto_box_open);
 PHP_METHOD(Sodium, crypto_box_publickey);
 PHP_METHOD(Sodium, crypto_box_publickey_from_secretkey);
+PHP_METHOD(Sodium, crypto_box_seal);
+PHP_METHOD(Sodium, crypto_box_seal_open);
 PHP_METHOD(Sodium, crypto_box_secretkey);
 PHP_METHOD(Sodium, crypto_generichash);
 PHP_METHOD(Sodium, crypto_pwhash_scryptsalsa208sha256);

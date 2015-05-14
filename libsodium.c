@@ -44,6 +44,11 @@ ZEND_BEGIN_ARG_INFO_EX(AI_StringAndKey, 0, 0, 2)
   ZEND_ARG_INFO(0, key)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(AI_StringAndKeyPair, 0, 0, 2)
+  ZEND_ARG_INFO(0, string)
+  ZEND_ARG_INFO(0, keypair)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(AI_SignatureAndStringAndKey, 0, 0, 3)
   ZEND_ARG_INFO(0, signature)
   ZEND_ARG_INFO(0, string)
@@ -66,6 +71,12 @@ ZEND_BEGIN_ARG_INFO_EX(AI_LengthAndNonceAndKey, 0, 0, 3)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(AI_StringAndNonceAndKey, 0, 0, 3)
+  ZEND_ARG_INFO(0, string)
+  ZEND_ARG_INFO(0, nonce)
+  ZEND_ARG_INFO(0, key)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(AI_StringAndNonceAndKeyPair, 0, 0, 3)
   ZEND_ARG_INFO(0, string)
   ZEND_ARG_INFO(0, nonce)
   ZEND_ARG_INFO(0, key)
@@ -111,12 +122,14 @@ ZEND_END_ARG_INFO()
 const zend_function_entry libsodium_methods[] = {
     PHP_ME(Sodium, crypto_aead_chacha20poly1305_decrypt, AI_StringAndADAndNonceAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_aead_chacha20poly1305_encrypt, AI_StringAndADAndNonceAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Sodium, crypto_box, AI_StringAndNonceAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_box, AI_StringAndNonceAndKeyPair, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_box_keypair, AI_None, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_box_keypair_from_secretkey_and_publickey, AI_SecretKeyAndPublicKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_box_open, AI_StringAndNonceAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_box_publickey, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_box_publickey_from_secretkey, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_box_seal, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_box_seal_open, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_box_secretkey, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_generichash, AI_StringAndMaybeKeyAndLength, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256, AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
@@ -126,11 +139,11 @@ const zend_function_entry libsodium_methods[] = {
     PHP_ME(Sodium, crypto_secretbox, AI_StringAndNonceAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_secretbox_open, AI_StringAndNonceAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_shorthash, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Sodium, crypto_sign, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Sodium, crypto_sign_detached, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign, AI_StringAndKeyPair, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign_detached, AI_StringAndKeyPair, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_keypair, AI_None, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_keypair_from_secretkey_and_publickey, AI_SecretKeyAndPublicKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Sodium, crypto_sign_open, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_sign_open, AI_StringAndKeyPair, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_publickey, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_secretkey, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_sign_seed_keypair, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
@@ -728,6 +741,78 @@ PHP_METHOD(Sodium, crypto_box_open)
         msg[ciphertext_len - crypto_box_MACBYTES] = 0U;
         RETURN_STRINGL((char *) msg,
                        ciphertext_len - crypto_box_MACBYTES, 0);
+    }
+}
+
+PHP_METHOD(Sodium, crypto_box_seal)
+{
+    unsigned char *ciphertext;
+    unsigned char *msg;
+    unsigned char *publickey;
+    int            msg_len;
+    int            publickey_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &msg, &msg_len,
+                              &publickey, &publickey_len) == FAILURE) {
+        return;
+    }
+    if (publickey_len != crypto_box_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_seal(): public key size should be "
+                   "CRYPTO_BOX_PUBLICKEYBYTES bytes");
+    }
+    if (INT_MAX - msg_len <= crypto_box_SEALBYTES) {
+        zend_error(E_ERROR, "arithmetic overflow");
+    }
+    ciphertext = safe_emalloc((size_t) msg_len + crypto_box_SEALBYTES + 1U, 1U, 0U);
+    if (crypto_box_seal(ciphertext, msg, (unsigned long long) msg_len,
+                        publickey) != 0) {
+        efree(ciphertext);
+        zend_error(E_ERROR, "crypto_box_seal()");
+    }
+    ciphertext[msg_len + crypto_box_SEALBYTES] = 0U;
+
+    RETURN_STRINGL((char *) ciphertext, msg_len + crypto_box_SEALBYTES, 0);
+}
+
+PHP_METHOD(Sodium, crypto_box_seal_open)
+{
+    unsigned char *ciphertext;
+    unsigned char *keypair;
+    unsigned char *msg;
+    unsigned char *publickey;
+    unsigned char *secretkey;
+    int            ciphertext_len;
+    int            keypair_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &ciphertext, &ciphertext_len,
+                              &keypair, &keypair_len) == FAILURE) {
+        return;
+    }
+    if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_seal_open(): keypair size should be "
+                   "CRYPTO_BOX_KEYBYTES bytes");
+    }
+    secretkey = keypair;
+    publickey = keypair + crypto_box_SECRETKEYBYTES;
+    if (ciphertext_len < crypto_box_SEALBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_seal_open(): short ciphertext");
+    }
+    msg = safe_emalloc((size_t) ciphertext_len - crypto_box_SEALBYTES + 1U,
+                       1U, 0U);
+    if (crypto_box_seal_open(msg, ciphertext,
+                             (unsigned long long) ciphertext_len,
+                             publickey, secretkey) != 0) {
+        efree(msg);
+        RETURN_FALSE;
+    } else {
+        msg[ciphertext_len - crypto_box_SEALBYTES] = 0U;
+        RETURN_STRINGL((char *) msg,
+                       ciphertext_len - crypto_box_SEALBYTES, 0);
     }
 }
 
