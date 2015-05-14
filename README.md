@@ -361,3 +361,16 @@ with.
 
 Unless you specifically need unauthenticated encryption, `crypto_secretbox()`
 is the operation you should use instead.
+
+Sealed boxes
+------------
+
+```php
+$alice_kp = Sodium::crypto_box_keypair();
+
+$anonymous_message_to_alice = Sodium::crypto_box_seal("Anonymous message",
+                                                      $alice_publickey);
+
+$decrypted_message = Sodium::crypto_box_seal_open($anonymous_message_to_alice,
+                                                  $alice_kp);
+```
