@@ -744,6 +744,8 @@ PHP_METHOD(Sodium, crypto_box_open)
     }
 }
 
+#if SODIUM_LIBRARY_VERSION_MAJOR > 7 || \
+    (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 5)
 PHP_METHOD(Sodium, crypto_box_seal)
 {
     unsigned char *ciphertext;
@@ -815,6 +817,7 @@ PHP_METHOD(Sodium, crypto_box_seal_open)
                        ciphertext_len - crypto_box_SEALBYTES, 0);
     }
 }
+#endif
 
 PHP_METHOD(Sodium, crypto_sign_keypair)
 {
