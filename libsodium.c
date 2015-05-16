@@ -287,6 +287,8 @@ PHP_MINFO_FUNCTION(libsodium)
 {
     php_info_print_table_start();
     php_info_print_table_header(2, "libsodium support", "enabled");
+    php_info_print_table_header(2, "libsodium headers version", SODIUM_VERSION_STRING);
+    php_info_print_table_header(2, "libsodium library version", sodium_version_string());
     php_info_print_table_end();
 }
 
