@@ -100,6 +100,7 @@ static zend_always_inline void zend_string_free(zend_string *s)
 #define _RETURN_STRING(a)      RETURN_STRING(a,1)
 /* new macros */
 #define RETURN_NEW_STR(s)     RETURN_STRINGL(s->val,s->len,0);
+#define ZVAL_DEREF(z)
 
 #else
 typedef size_t strsize_t;

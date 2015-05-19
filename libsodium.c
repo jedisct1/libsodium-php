@@ -301,11 +301,8 @@ PHP_METHOD(Sodium, sodium_memzero)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &zv) == FAILURE) {
         return;
     }
-#if PHP_MAJOR_VERSION >= 7
-    if (Z_TYPE_P(zv) == IS_REFERENCE) {
-        ZVAL_DEREF(zv);
-    }
-#endif
+    ZVAL_DEREF(zv);
+
     if (Z_TYPE_P(zv) != IS_STRING) {
         zend_error(E_ERROR, "sodium_memzero: a PHP string is required") ;
     }
