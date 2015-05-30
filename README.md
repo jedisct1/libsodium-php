@@ -10,12 +10,12 @@ Requires libsodium >= 0.6.0 and PHP >= 5.4.0
 
 On Debian 8 and Ubuntu 15.04, libsodium can be installed with:
 
-    apt-get install libsodium
+    apt-get install libsodium-dev
 
 Installation
 ============
 
-    pecl install libsodium
+    pecl install libsodium-beta
 
 And add the following line to your `php.ini` file:
 
