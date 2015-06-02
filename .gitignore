@@ -36,3 +36,5 @@ tests/*.diff
 tests/*.log
 tests/*.php
 tests/*.sh
+run-tests.php
+tmp-php.ini

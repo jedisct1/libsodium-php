@@ -72,6 +72,46 @@ PHP_METHOD(Sodium, sodium_version_string);
 #define LIBSODIUM_G(v) (libsodium_globals.v)
 #endif
 
+#if PHP_MAJOR_VERSION < 7
+struct _zend_string {
+  char *val;
+  int   len;
+  int   persistent;
+};
+typedef struct _zend_string zend_string;
+typedef long zend_long;
+typedef int strsize_t;
+
+static zend_always_inline zend_string *zend_string_alloc(int len, int persistent)
+{
+	/* single alloc, so free the buf, will also free the struct */
+	char *buf = safe_pemalloc(sizeof(zend_string)+len+1,1,0,persistent);
+	zend_string *str = (zend_string *)(buf+len+1);
+
+	str->val = buf;
+	str->len = len;
+	str->persistent = persistent;
+
+	return str;
+}
+static zend_always_inline void zend_string_free(zend_string *s)
+{
+	pefree(s->val, s->persistent);
+}
+/* compatibility macros */
+#define _RETURN_STRING(a)      RETURN_STRING(a,1)
+/* new macros */
+#define RETURN_NEW_STR(s)     RETURN_STRINGL(s->val,s->len,0);
+#define ZVAL_DEREF(z)
+
+#else
+typedef size_t strsize_t;
+/* removed/uneeded macros */
+#define TSRMLS_CC
+/* compatibility macros */
+#define _RETURN_STRING(a)      RETURN_STRING(a)
+#endif
+
 #endif  /* PHP_LIBSODIUM_H */
 
 /*
