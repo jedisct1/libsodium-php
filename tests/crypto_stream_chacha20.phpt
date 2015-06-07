@@ -4,6 +4,9 @@ Check for libsodium stream ChaCha20
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
+
+define('BLOCK_BYTES', 64);
+
 $nonce = Sodium::randombytes_buf(Sodium::CRYPTO_STREAM_CHACHA20_NONCEBYTES);
 $key = Sodium::randombytes_buf(Sodium::CRYPTO_STREAM_CHACHA20_KEYBYTES);
 
@@ -29,21 +32,17 @@ var_dump($stream3 !== $stream4);
 $stream5 = Sodium::crypto_stream_chacha20_xor($stream, $nonce, $key);
 var_dump($stream5 !== $stream);
 $stream6 = Sodium::crypto_stream_chacha20_xor($stream5, $nonce, $key);
-
 var_dump($stream6 === $stream);
 
-$stream7 = Sodium::crypto_stream_salsa20_xor_ic($stream, $nonce, 8, $key);
-var_dump($stream7 !== $stream);
-$stream8 = Sodium::crypto_stream_salsa20_xor_ic($stream7, $nonce, 8, $key);
-var_dump($stream8 === $stream);
-$stream9 = Sodium::crypto_stream_salsa20_xor_ic($stream7, $nonce, 9, $key);
-var_dump($stream9 !== $stream);
+$originalSection = substr($stream, 64, 32);
+$encryptedSection = substr($stream5, 64, 32);
+
+$decryptedSection = Sodium::crypto_stream_chacha20_xor_ic($encryptedSection, $nonce, 64 / BLOCK_BYTES, $key);
+var_dump($decryptedSection === $originalSection);
 
 ?>
 --EXPECT--
 int(100)
-bool(true)
-bool(true)
 bool(true)
 bool(true)
 bool(true)
