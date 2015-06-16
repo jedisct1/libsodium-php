@@ -14,6 +14,11 @@
 const int pass_rest_by_reference = 1;
 const int pass_arg_by_reference = 0;
 
+#define PHP_SODIUM_GENERIC_HASH_STATE_RES_NAME "Sodium Hash State"
+#define PHP_SODIUM_ONETIMEAUTH_STATE_RES_NAME "Sodium One-time Authentication State"
+int le_sodium_generic_hash_state;
+int le_sodium_onetimeauth_state;
+
 ZEND_BEGIN_ARG_INFO_EX(AI_None, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
@@ -42,6 +47,20 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(AI_StringAndKey, 0, 0, 2)
   ZEND_ARG_INFO(0, string)
   ZEND_ARG_INFO(0, key)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(AI_StateByReference, 0, 0, 1)
+  ZEND_ARG_INFO(1, state)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(AI_StateByReferenceAndMaybeLength, 0, 0, 1)
+  ZEND_ARG_INFO(1, state)
+  ZEND_ARG_INFO(0, length)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(AI_StateByReferenceAndString, 0, 0, 2)
+  ZEND_ARG_INFO(1, state)
+  ZEND_ARG_INFO(0, string)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(AI_StringAndKeyPair, 0, 0, 2)
@@ -87,6 +106,11 @@ ZEND_BEGIN_ARG_INFO_EX(AI_StringAndNonceAndKeyPair, 0, 0, 3)
   ZEND_ARG_INFO(0, string)
   ZEND_ARG_INFO(0, nonce)
   ZEND_ARG_INFO(0, key)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(AI_MaybeKeyAndLength, 0, 0, 0)
+  ZEND_ARG_INFO(0, key)
+  ZEND_ARG_INFO(0, length)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(AI_StringAndMaybeKeyAndLength, 0, 0, 1)
@@ -138,6 +162,13 @@ const zend_function_entry libsodium_methods[] = {
     PHP_ME(Sodium, crypto_box_seal_open, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_box_secretkey, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_generichash, AI_StringAndMaybeKeyAndLength, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_generichash_init, AI_MaybeKeyAndLength, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_generichash_update, AI_StateByReferenceAndString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_generichash_final, AI_StateByReferenceAndMaybeLength, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_onetimeauth, AI_StringAndKey, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_onetimeauth_init, AI_Key, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_onetimeauth_update, AI_StateByReferenceAndString, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sodium, crypto_onetimeauth_final, AI_StateByReference, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256, AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256_str, AI_PasswordAndOpsLimitAndMemLimit, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sodium, crypto_pwhash_scryptsalsa208sha256_str_verify, AI_HashAndPassword, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
@@ -204,6 +235,9 @@ ZEND_GET_MODULE(libsodium)
 
 PHP_MINIT_FUNCTION(libsodium)
 {
+    le_sodium_generic_hash_state = zend_register_list_destructors_ex(NULL, NULL, PHP_SODIUM_GENERIC_HASH_STATE_RES_NAME, module_number);
+    le_sodium_onetimeauth_state = zend_register_list_destructors_ex(NULL, NULL, PHP_SODIUM_ONETIMEAUTH_STATE_RES_NAME, module_number);
+    
     zend_class_entry  class_entry;
     zend_class_entry *class_entry_i;
 
@@ -250,6 +284,10 @@ PHP_MINIT_FUNCTION(libsodium)
                         crypto_generichash_KEYBYTES_MIN);
     CLASS_CONSTANT_LONG("CRYPTO_GENERICHASH_KEYBYTES_MAX",
                         crypto_generichash_KEYBYTES_MAX);
+    CLASS_CONSTANT_LONG("CRYPTO_ONETIMEAUTH_KEYBYTES",
+                        crypto_onetimeauth_KEYBYTES);
+    CLASS_CONSTANT_LONG("CRYPTO_ONETIMEAUTH_BYTES",
+                        crypto_onetimeauth_BYTES);
     CLASS_CONSTANT_LONG("CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
                         crypto_pwhash_scryptsalsa208sha256_SALTBYTES);
 #ifndef crypto_pwhash_scryptsalsa208sha256_STRPREFIX
@@ -561,6 +599,177 @@ PHP_METHOD(Sodium, crypto_generichash)
     hash[hash_len] = 0U;
 
     RETURN_STRINGL((char *) hash, (int) hash_len, 0);
+}
+
+PHP_METHOD(Sodium, crypto_generichash_init)
+{
+    unsigned char            *key = NULL;
+    long                      hash_len = crypto_generichash_BYTES;
+    int                       key_len = 0;
+    crypto_generichash_state *state;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|sl",
+                              &key, &key_len,
+                              &hash_len) == FAILURE) {
+        return;
+    }
+    if (hash_len < crypto_generichash_BYTES_MIN ||
+        hash_len > crypto_generichash_BYTES_MAX) {
+        zend_error(E_ERROR, "crypto_generichash_init(): unsupported output length");
+    }
+    if (key_len != 0 &&
+        (key_len < crypto_generichash_KEYBYTES_MIN ||
+         key_len > crypto_generichash_KEYBYTES_MAX)) {
+        zend_error(E_ERROR, "crypto_generichash_init(): unsupported key length");
+    }
+    state = safe_emalloc(sizeof (crypto_generichash_state), 1U, 0U);
+    if (crypto_generichash_init(state,
+                                key, (size_t) key_len, 
+                                (size_t) hash_len) != 0) {
+        efree(state);
+        zend_error(E_ERROR, "crypto_generichash_init()");
+    }
+
+    ZEND_REGISTER_RESOURCE(return_value, state, le_sodium_generic_hash_state);
+}
+
+PHP_METHOD(Sodium, crypto_generichash_update)
+{
+    unsigned char            *msg;
+    int                       msg_len;
+    zval                     *zstate;
+    crypto_generichash_state *state;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs",
+                              &zstate, &msg, &msg_len) == FAILURE) {
+        return;
+    }
+    ZEND_FETCH_RESOURCE(state, crypto_generichash_state*, &zstate, -1,
+                        PHP_SODIUM_GENERIC_HASH_STATE_RES_NAME, 
+                        le_sodium_generic_hash_state);
+    
+    crypto_generichash_update(state, msg, (unsigned long long) msg_len);
+}
+
+PHP_METHOD(Sodium, crypto_generichash_final)
+{
+    unsigned char            *hash;
+    long                      hash_len = crypto_generichash_BYTES;
+    zval                     *zstate;
+    crypto_generichash_state *state;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r|l",
+                              &zstate, &hash_len) == FAILURE) {
+        return;
+    }
+    ZEND_FETCH_RESOURCE(state, crypto_generichash_state*, &zstate, -1,
+                        PHP_SODIUM_GENERIC_HASH_STATE_RES_NAME, 
+                        le_sodium_generic_hash_state);
+    if (hash_len < crypto_generichash_BYTES_MIN ||
+        hash_len > crypto_generichash_BYTES_MAX) {
+        zend_error(E_ERROR, "crypto_generichash_final(): unsupported output length");
+    }
+    hash = safe_emalloc((size_t) hash_len + 1U, 1U, 0U);
+    if (crypto_generichash_final(state, hash, (size_t) hash_len) != 0) {
+        efree(hash);
+        efree(state);
+        zend_error(E_ERROR, "crypto_generichash_final()");
+    }
+    efree(state);
+    hash[hash_len] = 0U;
+
+    RETURN_STRINGL((char *) hash, (int) hash_len, 0);
+}
+
+PHP_METHOD(Sodium, crypto_onetimeauth)
+{
+    unsigned char *hash;
+    unsigned char *key = NULL;
+    unsigned char *msg;
+    int            key_len = 0;
+    int            msg_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &msg, &msg_len,
+                              &key, &key_len) == FAILURE) {
+        return;
+    }
+    if (key_len != crypto_onetimeauth_KEYBYTES) {
+        zend_error(E_ERROR, "crypto_onetimeauth(): unsupported key length");
+    }
+    hash = safe_emalloc((size_t) crypto_onetimeauth_BYTES + 1U, 1U, 0U);
+    if (crypto_onetimeauth(hash, msg, (unsigned long long) msg_len, key) != 0) {
+        efree(hash);
+        zend_error(E_ERROR, "crypto_onetimeauth()");
+    }
+    hash[crypto_onetimeauth_BYTES] = 0U;
+
+    RETURN_STRINGL((char *) hash, crypto_onetimeauth_BYTES, 0);
+}
+
+PHP_METHOD(Sodium, crypto_onetimeauth_init)
+{
+    unsigned char            *key = NULL;
+    int                       key_len = 0;
+    crypto_onetimeauth_state *state;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &key, &key_len) == FAILURE) {
+        return;
+    }
+    if (key_len != crypto_onetimeauth_KEYBYTES) {
+        zend_error(E_ERROR, "crypto_onetimeauth_init(): unsupported key length");
+    }
+    state = safe_emalloc(sizeof (crypto_onetimeauth_state), 1U, 0U);
+    if (crypto_onetimeauth_init(state, key) != 0) {
+        efree(state);
+        zend_error(E_ERROR, "crypto_onetimeauth_init()");
+    }
+
+    ZEND_REGISTER_RESOURCE(return_value, state, le_sodium_onetimeauth_state);
+}
+
+PHP_METHOD(Sodium, crypto_onetimeauth_update)
+{
+    unsigned char            *msg;
+    int                       msg_len;
+    zval                     *zstate;
+    crypto_onetimeauth_state *state;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs",
+                              &zstate, &msg, &msg_len) == FAILURE) {
+        return;
+    }
+    ZEND_FETCH_RESOURCE(state, crypto_onetimeauth_state*, &zstate, -1,
+                        PHP_SODIUM_ONETIMEAUTH_STATE_RES_NAME, 
+                        le_sodium_onetimeauth_state);
+    
+    crypto_onetimeauth_update(state, msg, (unsigned long long) msg_len);
+}
+
+PHP_METHOD(Sodium, crypto_onetimeauth_final)
+{
+    unsigned char            *hash;
+    zval                     *zstate;
+    crypto_onetimeauth_state *state;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r",
+                              &zstate) == FAILURE) {
+        return;
+    }
+    ZEND_FETCH_RESOURCE(state, crypto_onetimeauth_state*, &zstate, -1,
+                        PHP_SODIUM_ONETIMEAUTH_STATE_RES_NAME, 
+                        le_sodium_onetimeauth_state);
+    hash = safe_emalloc(crypto_onetimeauth_BYTES + 1U, 1U, 0U);
+    if (crypto_onetimeauth_final(state, hash) != 0) {
+        efree(hash);
+        efree(state);
+        zend_error(E_ERROR, "crypto_onetimeauth_final()");
+    }
+    efree(state);
+    hash[crypto_onetimeauth_BYTES] = 0U;
+
+    RETURN_STRINGL((char *) hash, crypto_onetimeauth_BYTES, 0);
 }
 
 PHP_METHOD(Sodium, crypto_box_keypair)
