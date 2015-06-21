@@ -179,7 +179,7 @@ Generic hash function
 
 ```php
 // Fast, unkeyed hash function.
-// Can be used as a secure remplacement for MD5
+// Can be used as a secure replacement for MD5
 $h = Sodium::crypto_generichash('msg');
 
 // Fast, keyed hash function.
