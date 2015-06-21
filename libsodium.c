@@ -84,7 +84,7 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(AI_StringAndMaybeKeyAndLength, 0, 0, 1)
   ZEND_ARG_INFO(0, string)
-
+  /* optional */
   ZEND_ARG_INFO(0, key)
   ZEND_ARG_INFO(0, length)
 ZEND_END_ARG_INFO()
@@ -115,6 +115,27 @@ ZEND_BEGIN_ARG_INFO_EX(AI_StringAndADAndNonceAndKey, 0, 0, 4)
   ZEND_ARG_INFO(0, key)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(AI_StateByReference, 0, 0, 1)
+  ZEND_ARG_INFO(1, state)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(AI_StateByReferenceAndMaybeLength, 0, 0, 1)
+  ZEND_ARG_INFO(1, state)
+  /* optional */
+  ZEND_ARG_INFO(0, length)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(AI_StateByReferenceAndString, 0, 0, 2)
+  ZEND_ARG_INFO(1, state)
+  ZEND_ARG_INFO(0, string)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(AI_MaybeKeyAndLength, 0, 0, 0)
+  /* optional */
+  ZEND_ARG_INFO(0, key)
+  ZEND_ARG_INFO(0, length)
+ZEND_END_ARG_INFO()
+
 #ifndef PHP_FE_END
 # define PHP_FE_END { NULL, NULL, NULL }
 #endif
@@ -132,6 +153,9 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", crypto_box_seal_open, ZEND_FN(crypto_box_seal_open), AI_StringAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_secretkey, ZEND_FN(crypto_box_secretkey), AI_Key)
     ZEND_NS_NAMED_FE("Sodium", crypto_generichash, ZEND_FN(crypto_generichash), AI_StringAndMaybeKeyAndLength)
+    ZEND_NS_NAMED_FE("Sodium", crypto_generichash_init, ZEND_FN(crypto_generichash_init), AI_MaybeKeyAndLength)
+    ZEND_NS_NAMED_FE("Sodium", crypto_generichash_update, ZEND_FN(crypto_generichash_update), AI_StateByReferenceAndString)
+    ZEND_NS_NAMED_FE("Sodium", crypto_generichash_final, ZEND_FN(crypto_generichash_final), AI_StateByReferenceAndMaybeLength)
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256, ZEND_FN(crypto_pwhash_scryptsalsa208sha256), AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256_str, ZEND_FN(crypto_pwhash_scryptsalsa208sha256_str), AI_PasswordAndOpsLimitAndMemLimit)
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256_str_verify, ZEND_FN(crypto_pwhash_scryptsalsa208sha256_str_verify), AI_HashAndPassword)
@@ -296,21 +320,21 @@ PHP_FUNCTION(library_version_minor)
 
 PHP_FUNCTION(memzero)
 {
-    zval *zv;
+    zval *buf_zv;
     char *buf;
-    int   len;
+    int   buf_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-                              "z", &zv) == FAILURE ||
-        Z_TYPE_P(zv) != IS_STRING) {
+                              "z", &buf_zv) == FAILURE ||
+        Z_TYPE_P(buf_zv) != IS_STRING) {
         zend_error(E_ERROR, "memzero: a PHP string is required");
     }
-    buf = Z_STRVAL(*zv);
-    len = Z_STRLEN(*zv);
-    if (len > 0) {
-        sodium_memzero(buf, (size_t) len);
+    buf = Z_STRVAL(*buf_zv);
+    buf_len = Z_STRLEN(*buf_zv);
+    if (buf_len > 0) {
+        sodium_memzero(buf, (size_t) buf_len);
     }
-    convert_to_null(zv);
+    convert_to_null(buf_zv);
 }
 
 PHP_FUNCTION(memcmp)
@@ -513,6 +537,98 @@ PHP_FUNCTION(crypto_generichash)
         zend_error(E_ERROR, "crypto_generichash()");
     }
     hash[hash_len] = 0U;
+
+    RETURN_STRINGL((char *) hash, (int) hash_len, 0);
+}
+
+PHP_FUNCTION(crypto_generichash_init)
+{
+    unsigned char *state;
+    unsigned char *key = NULL;
+    size_t         state_len = sizeof (crypto_generichash_state);
+    long           hash_len = crypto_generichash_BYTES;
+    int            key_len = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|sl",
+                              &key, &key_len,
+                              &hash_len) == FAILURE) {
+        return;
+    }
+    if (hash_len < crypto_generichash_BYTES_MIN ||
+        hash_len > crypto_generichash_BYTES_MAX) {
+        zend_error(E_ERROR, "crypto_generichash_init(): unsupported output length");
+    }
+    if (key_len != 0 &&
+        (key_len < crypto_generichash_KEYBYTES_MIN ||
+         key_len > crypto_generichash_KEYBYTES_MAX)) {
+        zend_error(E_ERROR, "crypto_generichash_init(): unsupported key length");
+    }
+    state = safe_emalloc((state_len + (size_t) 1U + (size_t) 63U)
+                         & ~(size_t) 63U, 1U, 0U);
+    if (crypto_generichash_init((void *) state, key, (size_t) key_len,
+                                (size_t) hash_len) != 0) {
+        efree(state);
+        zend_error(E_ERROR, "crypto_generichash_init()");
+    }
+    state[state_len] = 0;
+
+    RETURN_STRINGL((char *) state, (int) state_len, 0);
+}
+
+PHP_FUNCTION(crypto_generichash_update)
+{
+    zval          *state_zv;
+    unsigned char *msg;
+    unsigned char *state;
+    int            msg_len;
+    int            state_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zs",
+                              &state_zv, &msg, &msg_len) == FAILURE ||
+        Z_TYPE_P(state_zv) != IS_STRING) {
+        zend_error(E_ERROR, "crypto_generichash_update: a reference to a state is required");
+    }
+    state = (unsigned char *) Z_STRVAL(*state_zv);
+    state_len = Z_STRLEN(*state_zv);
+    if (state_len != sizeof (crypto_generichash_state)) {
+        zend_error(E_ERROR, "crypto_generichash_update(): incorrect state length");
+    }
+    if (crypto_generichash_update((void *) state, msg,
+                                  (unsigned long long) msg_len) != 0) {
+        zend_error(E_ERROR, "crypto_generichash_update()");
+    }
+    RETURN_TRUE;
+}
+
+PHP_FUNCTION(crypto_generichash_final)
+{
+    zval          *state_zv;
+    unsigned char *hash;
+    unsigned char *state;
+    long           hash_len = crypto_generichash_BYTES;
+    int            state_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|l",
+                              &state_zv, &hash_len) == FAILURE ||
+        Z_TYPE_P(state_zv) != IS_STRING) {
+        zend_error(E_ERROR, "crypto_generichash_final: a reference to a state is required");
+    }
+    state = (unsigned char *) Z_STRVAL(*state_zv);
+    state_len = Z_STRLEN(*state_zv);
+    if (state_len != sizeof (crypto_generichash_state)) {
+        zend_error(E_ERROR, "crypto_generichash_final(): incorrect state length");
+    }
+    if (hash_len < crypto_generichash_BYTES_MIN ||
+        hash_len > crypto_generichash_BYTES_MAX) {
+        zend_error(E_ERROR, "crypto_generichash_final(): unsupported output length");
+    }
+    hash = safe_emalloc((size_t) hash_len + 1U, 1U, 0U);
+    if (crypto_generichash_final((void *) state, hash, (size_t) hash_len) != 0) {
+        efree(hash);
+        zend_error(E_ERROR, "crypto_generichash_final()");
+    }
+    hash[hash_len] = 0U;
+    convert_to_null(state_zv);
 
     RETURN_STRINGL((char *) hash, (int) hash_len, 0);
 }
