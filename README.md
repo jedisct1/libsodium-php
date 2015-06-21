@@ -29,7 +29,7 @@ Secret-key authenticated encryption
 
 ```php
 $nonce = Sodium::randombytes_buf(Sodium::CRYPTO_SECRETBOX_NONCEBYTES);
-$key = [a binary string that must be CRYPTO_SECRETBOX_KEYBYTES long];
+$key = [a binary string that must be Sodium::CRYPTO_SECRETBOX_KEYBYTES long];
 $ciphertext = Sodium::crypto_secretbox('test', $nonce, $key);
 $plaintext = Sodium::crypto_secretbox_open($ciphertext, $nonce, $key);
 ```
@@ -47,7 +47,7 @@ Authenticated encryption with additional data (AEAD)
 
 ```php
 $nonce = Sodium::randombytes_buf(Sodium::CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES);
-$key = [a binary string that must be CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES long];
+$key = [a binary string that must be Sodium::CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES long];
 $ad = 'Additional (public) data';
 $ciphertext =
     Sodium::crypto_aead_chacha20poly1305_encrypt('test', $ad, $nonce, $key);
@@ -85,7 +85,7 @@ if ($msg_orig === FALSE) {
 The key pair can also be derived from a single seed, using
 `crypto_sign_seed_keypair()`:
 ```php
-// $seed must be CRYPTO_SIGN_SEEDBYTES long
+// $seed must be Sodium::CRYPTO_SIGN_SEEDBYTES long
 $seed = Sodium::randombytes_buf(Sodium::CRYPTO_SIGN_SEEDBYTES);
 $alice_kp = Sodium::crypto_sign_seed_keypair($seed);
 ```
@@ -199,7 +199,7 @@ Very fast, short (64 bits), keyed hash function
 -----------------------------------------------
 
 ```php
-// $key must be CRYPTO_SHORTHASH_KEYBYTES (16 byes, 128 bits) long
+// $key must be Sodium::CRYPTO_SHORTHASH_KEYBYTES (16 byes, 128 bits) long
 $h = Sodium::crypto_shorthash('message', $key);
 ```
 
@@ -349,7 +349,7 @@ Unauthenticated secret-key encryption
 
 ```php
 $nonce = Sodium::randombytes_buf(Sodium::CRYPTO_STREAM_NONCEBYTES);
-$key = [a binary string that must be CRYPTO_STREAM_KEYBYTES long];
+$key = [a binary string that must be Sodium::CRYPTO_STREAM_KEYBYTES long];
 $ciphertext = Sodium::crypto_stream_xor('test', $nonce, $key);
 $plaintext = Sodium::crypto_stream_xor($ciphertext, $nonce, $key);
 ```
