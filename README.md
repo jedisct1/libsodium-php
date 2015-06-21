@@ -245,7 +245,7 @@ The maximum possible value for `$n` is `2 147 483 647`.
 Stream cipher
 =============
 
-``` php
+```php
 $nonce = Sodium::randombytes_buf(Sodium::CRYPTO_STREAM_NONCEBYTES);
 $key = Sodium::randombytes_buf(Sodium::CRYPTO_STREAM_KEYBYTES);
 
