@@ -195,6 +195,29 @@ $h = \Sodium\crypto_generichash('msg', $key);
 $h = \Sodium\crypto_generichash('msg', $key, 64);
 ```
 
+Generic hash function (multi-part)
+----------------------------------
+
+```php
+// Deterministic hash function, multi-part message
+$state = \Sodium\crypto_generichash_init();
+\Sodium\crypto_generichash_update($state, 'message part 1');
+\Sodium\crypto_generichash_update($state, 'message part 2');
+$h = \Sodium\crypto_generichash_final();
+
+// Keyed hash function, multi-part message
+$state = \Sodium\crypto_generichash_init($key);
+\Sodium\crypto_generichash_update($state, 'message part 1');
+\Sodium\crypto_generichash_update($state, 'message part 2');
+$h = \Sodium\crypto_generichash_final();
+
+// Keyed hash function, multi-part message with user-chosen output length
+$state = \Sodium\crypto_generichash_init($key, 64);
+\Sodium\crypto_generichash_update($state, 'message part 1');
+\Sodium\crypto_generichash_update($state, 'message part 2');
+$h = \Sodium\crypto_generichash_final(64);
+```
+
 Very fast, short (64 bits), keyed hash function
 -----------------------------------------------
 
