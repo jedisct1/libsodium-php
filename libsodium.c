@@ -1478,7 +1478,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt)
          ciphertext, (unsigned long long) ciphertext_len,
          ad, (unsigned long long) ad_len, npub, secretkey) != 0) {
         efree(msg);
-        zend_error(E_ERROR, "crypto_aead_chacha20poly1305_decrypt()");
+        RETURN_FALSE;
     }
     if (msg_real_len >= INT_MAX || msg_real_len > msg_len) {
         efree(msg);
