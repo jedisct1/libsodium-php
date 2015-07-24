@@ -1579,6 +1579,7 @@ PHP_FUNCTION(hex2bin)
     if (sodium_hex2bin((unsigned char *) ZSTR_VAL(bin), bin_len, hex, hex_len,
                        ignore, &bin_real_len, NULL) != 0 ||
         bin_real_len >= STRSIZE_MAX || bin_real_len > bin_len) {
+        zend_string_free(bin);
         zend_error(E_ERROR, "arithmetic overflow");
     }
     ZSTR_TRUNCATE(bin, (strsize_t) bin_real_len);
@@ -1606,6 +1607,7 @@ PHP_FUNCTION(crypto_scalarmult)
     }
     q = zend_string_alloc(crypto_scalarmult_BYTES, 0);
     if (crypto_scalarmult((unsigned char *) ZSTR_VAL(q), n, p) != 0) {
+        zend_string_free(q);
         zend_error(E_ERROR, "crypto_scalarmult(): internal error");
     }
     ZSTR_VAL(q)[ZSTR_LEN(q)] = 0;
