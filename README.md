@@ -419,3 +419,14 @@ $anonymous_message_to_alice = \Sodium\crypto_box_seal("Anonymous message",
 $decrypted_message = \Sodium\crypto_box_seal_open($anonymous_message_to_alice,
                                                   $alice_kp);
 ```
+
+Key exchange
+------------
+
+```php
+$shared_key_computed_by_client = \Sodium\crypto_dh($client_secretkey, $server_publickey,
+                                                   $client_publickey, $server_publickey);
+
+$shared_key_computed_by_server = \Sodium\crypto_dh($server_secretkey, $client_publickey,
+                                                   $client_publickey, $server_publickey);
+```

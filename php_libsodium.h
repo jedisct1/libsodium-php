@@ -36,6 +36,7 @@ PHP_FUNCTION(crypto_box_publickey_from_secretkey);
 PHP_FUNCTION(crypto_box_seal);
 PHP_FUNCTION(crypto_box_seal_open);
 PHP_FUNCTION(crypto_box_secretkey);
+PHP_FUNCTION(crypto_kx);
 PHP_FUNCTION(crypto_generichash);
 PHP_FUNCTION(crypto_generichash_init);
 PHP_FUNCTION(crypto_generichash_update);
@@ -75,6 +76,10 @@ PHP_FUNCTION(version_string);
 #else
 #define LIBSODIUM_G(v) (libsodium_globals.v)
 #endif
+
+#define crypto_kx_BYTES crypto_scalarmult_BYTES
+#define crypto_kx_PUBLICKEYBYTES crypto_scalarmult_SCALARBYTES
+#define crypto_kx_SECRETKEYBYTES crypto_scalarmult_SCALARBYTES
 
 #endif  /* PHP_LIBSODIUM_H */
 
