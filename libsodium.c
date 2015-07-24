@@ -1415,7 +1415,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_encrypt)
         zend_error(E_ERROR,
                    "crypto_aead_chacha20poly1305_encrypt(): "
                    "secret key size should be "
-                   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
+                   "CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES bytes");
     }
     if (INT_MAX - msg_len <= crypto_aead_chacha20poly1305_ABYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
@@ -1469,7 +1469,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt)
         zend_error(E_ERROR,
                    "crypto_aead_chacha20poly1305_decrypt(): "
                    "secret key size should be "
-                   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
+                   "CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES bytes");
     }
     msg_len = ciphertext_len;
     if (msg_len >= INT_MAX) {
@@ -1481,7 +1481,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt)
          ciphertext, (unsigned long long) ciphertext_len,
          ad, (unsigned long long) ad_len, npub, secretkey) != 0) {
         efree(msg);
-        zend_error(E_ERROR, "crypto_aead_chacha20poly1305_decrypt()");
+        RETURN_FALSE;
     }
     if (msg_real_len >= INT_MAX || msg_real_len > msg_len) {
         efree(msg);

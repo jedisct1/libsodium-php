@@ -13,7 +13,9 @@ $ciphertext = \Sodium\crypto_aead_chacha20poly1305_encrypt($msg, $ad, $nonce, $k
 $msg2 = \Sodium\crypto_aead_chacha20poly1305_decrypt($ciphertext, $ad, $nonce, $key);
 var_dump($ciphertext !== $msg);
 var_dump($msg === $msg2);
+var_dump(\Sodium\crypto_aead_chacha20poly1305_decrypt($ciphertext, 'x' . $ad, $nonce, $key))
 ?>
 --EXPECT--
 bool(true)
 bool(true)
+bool(false)
