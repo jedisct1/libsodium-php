@@ -322,7 +322,7 @@ PHP_MINFO_FUNCTION(libsodium)
 
 PHP_FUNCTION(version_string)
 {
-    RETURN_STRING(sodium_version_string(), 1);
+    RETURN_STRING(sodium_version_string());
 }
 
 PHP_FUNCTION(library_version_major)
@@ -337,13 +337,16 @@ PHP_FUNCTION(library_version_minor)
 
 PHP_FUNCTION(memzero)
 {
-    zval *buf_zv;
-    char *buf;
-    int   buf_len;
+    zval      *buf_zv;
+    char      *buf;
+    strsize_t  buf_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-                              "z", &buf_zv) == FAILURE ||
-        Z_TYPE_P(buf_zv) != IS_STRING) {
+                              "z", &buf_zv) == FAILURE) {
+        return;
+    }
+    ZVAL_DEREF(buf_zv);
+    if (Z_TYPE_P(buf_zv) != IS_STRING) {
         zend_error(E_ERROR, "memzero: a PHP string is required");
     }
     buf = Z_STRVAL(*buf_zv);
@@ -356,10 +359,10 @@ PHP_FUNCTION(memzero)
 
 PHP_FUNCTION(memcmp)
 {
-    char *buf1;
-    char *buf2;
-    int   len1;
-    int   len2;
+    char      *buf1;
+    char      *buf2;
+    strsize_t  len1;
+    strsize_t  len2;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &buf1, &len1,
@@ -377,45 +380,46 @@ PHP_FUNCTION(memcmp)
 
 PHP_FUNCTION(randombytes_buf)
 {
-    char *buf;
-    long  len;
+    zend_string *buf;
+    zend_long    len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &len) == FAILURE ||
-        len <= 0 || len >= INT_MAX) {
+        len <= 0 || len >= STRSIZE_MAX) {
         zend_error(E_ERROR, "randombytes_buf(): invalid length");
     }
-    buf = safe_emalloc((size_t) len + 1U, 1U, 0U);
-    randombytes_buf(buf, (size_t) len);
-    buf[len] = 0U;
+    buf = zend_string_alloc((size_t) len, 0);
+    randombytes_buf(ZSTR_VAL(buf), (size_t) ZSTR_LEN(buf));
+    ZSTR_VAL(buf)[ZSTR_LEN(buf)] = 0;
 
-    RETURN_STRINGL(buf, (int) len, 0);
+    RETURN_STR(buf);
 }
 
 PHP_FUNCTION(randombytes_random16)
 {
-    RETURN_LONG((long) (randombytes_random() & (uint32_t) 0xffff));
+    RETURN_LONG((zend_long) (randombytes_random() & (uint32_t) 0xffff));
 }
 
 PHP_FUNCTION(randombytes_uniform)
 {
-    long upper_bound;
+    zend_long upper_bound;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &upper_bound) == FAILURE ||
         upper_bound <= 0 || upper_bound > INT32_MAX) {
         zend_error(E_ERROR, "randombytes_uniform(): invalid upper bound");
     }
-    RETURN_LONG((long) randombytes_uniform((uint32_t) upper_bound));
+
+    RETURN_LONG((zend_long) randombytes_uniform((uint32_t) upper_bound));
 }
 
 PHP_FUNCTION(crypto_shorthash)
 {
-    unsigned char *hash;
+    zend_string   *hash;
     unsigned char *key;
     unsigned char *msg;
-    int            key_len;
-    int            msg_len;
+    strsize_t      key_len;
+    strsize_t      msg_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &msg, &msg_len,
@@ -427,25 +431,25 @@ PHP_FUNCTION(crypto_shorthash)
                    "crypto_shorthash(): key size should be "
                    "CRYPTO_SHORTHASH_KEYBYTES bytes");
     }
-    hash = safe_emalloc(crypto_shorthash_BYTES + 1U, 1U, 0U);
-    if (crypto_shorthash(hash, msg, (unsigned long long) msg_len, key) != 0) {
-        efree(hash);
+    hash = zend_string_alloc(crypto_shorthash_BYTES, 0);
+    if (crypto_shorthash(ZSTR_VAL(hash), msg, (unsigned long long) msg_len, key) != 0) {
+        zend_string_free(hash);
         zend_error(E_ERROR, "crypto_shorthash()");
     }
-    hash[crypto_shorthash_BYTES] = 0U;
+    ZSTR_VAL(hash)[ZSTR_LEN(hash)] = 0;
 
-    RETURN_STRINGL((char *) hash, crypto_shorthash_BYTES, 0);
+    RETURN_STR(hash);
 }
 
 PHP_FUNCTION(crypto_secretbox)
 {
-    unsigned char *ciphertext;
+    zend_string   *ciphertext;
     unsigned char *key;
     unsigned char *msg;
     unsigned char *nonce;
-    int            key_len;
-    int            msg_len;
-    int            nonce_len;
+    strsize_t      key_len;
+    strsize_t      msg_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &msg, &msg_len,
@@ -463,30 +467,30 @@ PHP_FUNCTION(crypto_secretbox)
                    "crypto_secretbox(): key size should be "
                    "CRYPTO_SECRETBOX_KEYBYTES bytes");
     }
-    if (INT_MAX - msg_len <= crypto_secretbox_MACBYTES) {
+    if (STRSIZE_MAX - msg_len <= crypto_secretbox_MACBYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    ciphertext = safe_emalloc((size_t) msg_len + crypto_secretbox_MACBYTES + 1U,
-                              1U, 0U);
-    if (crypto_secretbox_easy(ciphertext, msg, (unsigned long long) msg_len,
+    ciphertext = zend_string_alloc((size_t) msg_len + crypto_secretbox_MACBYTES, 0);
+    if (crypto_secretbox_easy(ZSTR_VAL(ciphertext),
+                              msg, (unsigned long long) msg_len,
                               nonce, key) != 0) {
-        efree(ciphertext);
+        zend_string_free(ciphertext);
         zend_error(E_ERROR, "crypto_secretbox()");
     }
-    ciphertext[msg_len + crypto_secretbox_MACBYTES] = 0U;
+    ZSTR_VAL(ciphertext)[ZSTR_LEN(ciphertext)] = 0;
 
-    RETURN_STRINGL((char *) ciphertext, msg_len + crypto_secretbox_MACBYTES, 0);
+    RETURN_STR(ciphertext);
 }
 
 PHP_FUNCTION(crypto_secretbox_open)
 {
+    zend_string   *msg;
     unsigned char *key;
     unsigned char *ciphertext;
-    unsigned char *msg;
     unsigned char *nonce;
-    int            key_len;
-    int            ciphertext_len;
-    int            nonce_len;
+    strsize_t      key_len;
+    strsize_t      ciphertext_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &ciphertext, &ciphertext_len,
@@ -508,28 +512,27 @@ PHP_FUNCTION(crypto_secretbox_open)
         zend_error(E_ERROR,
                    "crypto_secretbox_open(): short ciphertext");
     }
-    msg = safe_emalloc((size_t) ciphertext_len - crypto_secretbox_MACBYTES + 1U,
-                       1U, 0U);
-    if (crypto_secretbox_open_easy(msg, ciphertext,
+    msg = zend_string_alloc
+        ((size_t) ciphertext_len - crypto_secretbox_MACBYTES, 0);
+    if (crypto_secretbox_open_easy(ZSTR_VAL(msg), ciphertext,
                                    (unsigned long long) ciphertext_len,
                                    nonce, key) != 0) {
-        efree(msg);
+        zend_string_free(msg);
         RETURN_FALSE;
     } else {
-        msg[ciphertext_len - crypto_secretbox_MACBYTES] = 0U;
-        RETURN_STRINGL((char *) msg,
-                       ciphertext_len - crypto_secretbox_MACBYTES, 0);
+        ZSTR_VAL(msg)[ZSTR_LEN(msg)] = 0;
+        RETURN_STR(msg);
     }
 }
 
 PHP_FUNCTION(crypto_generichash)
 {
-    unsigned char *hash;
+    zend_string   *hash;
     unsigned char *key = NULL;
     unsigned char *msg;
-    long           hash_len = crypto_generichash_BYTES;
-    int            key_len = 0;
-    int            msg_len;
+    zend_long      hash_len = crypto_generichash_BYTES;
+    strsize_t      key_len = 0;
+    strsize_t      msg_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sl",
                               &msg, &msg_len,
@@ -546,25 +549,26 @@ PHP_FUNCTION(crypto_generichash)
          key_len > crypto_generichash_KEYBYTES_MAX)) {
         zend_error(E_ERROR, "crypto_generichash(): unsupported key length");
     }
-    hash = safe_emalloc((size_t) hash_len + 1U, 1U, 0U);
-    if (crypto_generichash(hash, (size_t) hash_len,
+    hash = zend_string_alloc(hash_len, 0);
+    if (crypto_generichash(ZSTR_VAL(hash), (size_t) hash_len,
                            msg, (unsigned long long) msg_len,
                            key, (size_t) key_len) != 0) {
-        efree(hash);
+        zend_string_free(hash);
         zend_error(E_ERROR, "crypto_generichash()");
     }
-    hash[hash_len] = 0U;
+    ZSTR_VAL(hash)[ZSTR_LEN(hash)] = 0;
 
-    RETURN_STRINGL((char *) hash, (int) hash_len, 0);
+    RETURN_STR(hash);
 }
 
 PHP_FUNCTION(crypto_generichash_init)
 {
-    unsigned char *state;
-    unsigned char *key = NULL;
-    size_t         state_len = sizeof (crypto_generichash_state);
-    long           hash_len = crypto_generichash_BYTES;
-    int            key_len = 0;
+    crypto_generichash_state  state_tmp;
+    zend_string              *state;
+    unsigned char            *key = NULL;
+    size_t                    state_len = sizeof (crypto_generichash_state);
+    zend_long                 hash_len = crypto_generichash_BYTES;
+    strsize_t                 key_len = 0;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|sl",
                               &key, &key_len,
@@ -580,29 +584,33 @@ PHP_FUNCTION(crypto_generichash_init)
          key_len > crypto_generichash_KEYBYTES_MAX)) {
         zend_error(E_ERROR, "crypto_generichash_init(): unsupported key length");
     }
-    state = safe_emalloc((state_len + (size_t) 1U + (size_t) 63U)
-                         & ~(size_t) 63U, 1U, 0U);
-    if (crypto_generichash_init((void *) state, key, (size_t) key_len,
+    if (crypto_generichash_init((void *) &state_tmp, key, (size_t) key_len,
                                 (size_t) hash_len) != 0) {
-        efree(state);
         zend_error(E_ERROR, "crypto_generichash_init()");
     }
-    state[state_len] = 0;
+    state = zend_string_alloc(state_len, 0);
+    memcpy(ZSTR_VAL(state), &state_tmp, state_len);
+    sodium_memzero(&state_tmp, sizeof state_tmp);
+    ZSTR_VAL(state)[ZSTR_LEN(state)] = 0;
 
-    RETURN_STRINGL((char *) state, (int) state_len, 0);
+    RETURN_STR(state);
 }
 
 PHP_FUNCTION(crypto_generichash_update)
 {
-    zval          *state_zv;
-    unsigned char *msg;
-    unsigned char *state;
-    int            msg_len;
-    int            state_len;
+    crypto_generichash_state  state_tmp;
+    zval                     *state_zv;
+    unsigned char            *msg;
+    unsigned char            *state;
+    strsize_t                 msg_len;
+    strsize_t                 state_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zs",
-                              &state_zv, &msg, &msg_len) == FAILURE ||
-        Z_TYPE_P(state_zv) != IS_STRING) {
+                              &state_zv, &msg, &msg_len) == FAILURE) {
+        return;
+    }
+    ZVAL_DEREF(state_zv);
+    if (Z_TYPE_P(state_zv) != IS_STRING) {
         zend_error(E_ERROR, "crypto_generichash_update: a reference to a state is required");
     }
     state = (unsigned char *) Z_STRVAL(*state_zv);
@@ -610,24 +618,32 @@ PHP_FUNCTION(crypto_generichash_update)
     if (state_len != sizeof (crypto_generichash_state)) {
         zend_error(E_ERROR, "crypto_generichash_update(): incorrect state length");
     }
-    if (crypto_generichash_update((void *) state, msg,
+    memcpy(&state_tmp, state, sizeof state_tmp);
+    if (crypto_generichash_update((void *) &state_tmp, msg,
                                   (unsigned long long) msg_len) != 0) {
         zend_error(E_ERROR, "crypto_generichash_update()");
     }
+    memcpy(state, &state_tmp, state_len);
+    sodium_memzero(&state_tmp, sizeof state_tmp);
+
     RETURN_TRUE;
 }
 
 PHP_FUNCTION(crypto_generichash_final)
 {
-    zval          *state_zv;
-    unsigned char *hash;
-    unsigned char *state;
-    long           hash_len = crypto_generichash_BYTES;
-    int            state_len;
+    crypto_generichash_state  state_tmp;
+    zend_string              *hash;
+    zval                     *state_zv;
+    unsigned char            *state;
+    strsize_t                 state_len;
+    zend_long                 hash_len = crypto_generichash_BYTES;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|l",
-                              &state_zv, &hash_len) == FAILURE ||
-        Z_TYPE_P(state_zv) != IS_STRING) {
+                              &state_zv, &hash_len) == FAILURE) {
+        return;
+    }
+    ZVAL_DEREF(state_zv);
+    if (Z_TYPE_P(state_zv) != IS_STRING) {
         zend_error(E_ERROR, "crypto_generichash_final: a reference to a state is required");
     }
     state = (unsigned char *) Z_STRVAL(*state_zv);
@@ -639,42 +655,45 @@ PHP_FUNCTION(crypto_generichash_final)
         hash_len > crypto_generichash_BYTES_MAX) {
         zend_error(E_ERROR, "crypto_generichash_final(): unsupported output length");
     }
-    hash = safe_emalloc((size_t) hash_len + 1U, 1U, 0U);
-    if (crypto_generichash_final((void *) state, hash, (size_t) hash_len) != 0) {
-        efree(hash);
+    hash = zend_string_alloc(hash_len, 0);
+    memcpy(&state_tmp, state, sizeof state_tmp);
+    if (crypto_generichash_final((void *) &state_tmp, ZSTR_VAL(hash),
+                                 (size_t) hash_len) != 0) {
+        zend_string_free(hash);
         zend_error(E_ERROR, "crypto_generichash_final()");
     }
-    hash[hash_len] = 0U;
+    sodium_memzero(state, state_len);
     convert_to_null(state_zv);
+    ZSTR_VAL(hash)[ZSTR_LEN(hash)] = 0;
 
-    RETURN_STRINGL((char *) hash, (int) hash_len, 0);
+    RETURN_STR(hash);
 }
 
 PHP_FUNCTION(crypto_box_keypair)
 {
-    unsigned char *keypair;
-    size_t         keypair_len;
+    zend_string *keypair;
+    size_t       keypair_len;
 
     keypair_len = crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES;
-    keypair = safe_emalloc(keypair_len + 1U, 1U, 0U);
-    if (crypto_box_keypair(keypair + crypto_box_SECRETKEYBYTES,
-                           keypair) != 0) {
-        efree(keypair);
+    keypair = zend_string_alloc(keypair_len, 0);
+    if (crypto_box_keypair(ZSTR_VAL(keypair) + crypto_box_SECRETKEYBYTES,
+                           ZSTR_VAL(keypair)) != 0) {
+        zend_string_free(keypair);
         zend_error(E_ERROR, "crypto_box_keypair()");
     }
-    keypair[keypair_len] = 0U;
+    ZSTR_VAL(keypair)[ZSTR_LEN(keypair)] = 0;
 
-    RETURN_STRINGL((char *) keypair, (int) keypair_len, 0);
+    RETURN_STR(keypair);
 }
 
 PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey)
 {
-    char   *keypair;
-    char   *publickey;
-    char   *secretkey;
-    size_t  keypair_len;
-    int     publickey_len;
-    int     secretkey_len;
+    zend_string *keypair;
+    char        *publickey;
+    char        *secretkey;
+    size_t       keypair_len;
+    strsize_t    publickey_len;
+    strsize_t    secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &secretkey, &secretkey_len,
@@ -692,20 +711,20 @@ PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey)
                    "publickey should be CRYPTO_BOX_PUBLICKEYBYTES long");
     }
     keypair_len = crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES;
-    keypair = safe_emalloc(keypair_len + 1U, 1U, 0U);
-    memcpy(keypair, secretkey, crypto_box_SECRETKEYBYTES);
-    memcpy(keypair + crypto_box_SECRETKEYBYTES, publickey,
+    keypair = zend_string_alloc(keypair_len, 0);
+    memcpy(ZSTR_VAL(keypair), secretkey, crypto_box_SECRETKEYBYTES);
+    memcpy(ZSTR_VAL(keypair) + crypto_box_SECRETKEYBYTES, publickey,
            crypto_box_PUBLICKEYBYTES);
-    keypair[keypair_len] = 0U;
+    ZSTR_VAL(keypair)[ZSTR_LEN(keypair)] = 0;
 
-    RETURN_STRINGL(keypair, (int) keypair_len, 0);
+    RETURN_STR(keypair);
 }
 
 PHP_FUNCTION(crypto_box_secretkey)
 {
+    zend_string   *secretkey;
     unsigned char *keypair;
-    char          *secretkey;
-    int            keypair_len;
+    strsize_t      keypair_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &keypair, &keypair_len) == FAILURE) {
@@ -717,18 +736,18 @@ PHP_FUNCTION(crypto_box_secretkey)
                    "crypto_box_secretkey(): keypair should be "
                    "CRYPTO_BOX_KEYPAIRBYTES long");
     }
-    secretkey = safe_emalloc(crypto_box_SECRETKEYBYTES + 1U, 1U, 0U);
-    memcpy(secretkey, keypair, crypto_box_SECRETKEYBYTES);
-    secretkey[crypto_box_SECRETKEYBYTES] = 0U;
+    secretkey = zend_string_alloc(crypto_box_SECRETKEYBYTES, 0);
+    memcpy(ZSTR_VAL(secretkey), keypair, crypto_box_SECRETKEYBYTES);
+    ZSTR_VAL(secretkey)[ZSTR_LEN(secretkey)] = 0;
 
-    RETURN_STRINGL((char *) secretkey, crypto_box_SECRETKEYBYTES, 0);
+    RETURN_STR(secretkey);
 }
 
 PHP_FUNCTION(crypto_box_publickey)
 {
+    zend_string   *publickey;
     unsigned char *keypair;
-    char          *publickey;
-    int            keypair_len;
+    strsize_t      keypair_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &keypair, &keypair_len) == FAILURE) {
@@ -740,19 +759,19 @@ PHP_FUNCTION(crypto_box_publickey)
                    "crypto_box_publickey(): keypair should be "
                    "CRYPTO_BOX_KEYPAIRBYTES long");
     }
-    publickey = safe_emalloc(crypto_box_PUBLICKEYBYTES + 1U, 1U, 0U);
-    memcpy(publickey, keypair + crypto_box_SECRETKEYBYTES,
+    publickey = zend_string_alloc(crypto_box_PUBLICKEYBYTES, 0);
+    memcpy(ZSTR_VAL(publickey), keypair + crypto_box_SECRETKEYBYTES,
            crypto_box_PUBLICKEYBYTES);
-    publickey[crypto_box_PUBLICKEYBYTES] = 0U;
+    ZSTR_VAL(publickey)[ZSTR_LEN(publickey)] = 0;
 
-    RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
+    RETURN_STR(publickey);
 }
 
 PHP_FUNCTION(crypto_box_publickey_from_secretkey)
 {
-    unsigned char *publickey;
+    zend_string   *publickey;
     unsigned char *secretkey;
-    int            secretkey_len;
+    strsize_t      secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &secretkey, &secretkey_len) == FAILURE) {
@@ -763,28 +782,28 @@ PHP_FUNCTION(crypto_box_publickey_from_secretkey)
                    "crypto_box_publickey_from_secretkey(): key should be "
                    "CRYPTO_BOX_SECRETKEYBYTES long");
     }
-    publickey = safe_emalloc(crypto_box_PUBLICKEYBYTES + 1U, 1U, 0U);
+    publickey = zend_string_alloc(crypto_box_PUBLICKEYBYTES, 0);
     (void) sizeof(int[crypto_scalarmult_BYTES ==
                       crypto_box_PUBLICKEYBYTES ? 1 : -1]);
     (void) sizeof(int[crypto_scalarmult_SCALARBYTES ==
                       crypto_box_SECRETKEYBYTES ? 1 : -1]);
-    crypto_scalarmult_base(publickey, secretkey);
-    publickey[crypto_box_PUBLICKEYBYTES] = 0U;
+    crypto_scalarmult_base(ZSTR_VAL(publickey), secretkey);
+    ZSTR_VAL(publickey)[ZSTR_LEN(publickey)] = 0;
 
-    RETURN_STRINGL((char *) publickey, crypto_box_PUBLICKEYBYTES, 0);
+    RETURN_STR(publickey);
 }
 
 PHP_FUNCTION(crypto_box)
 {
-    unsigned char *ciphertext;
+    zend_string   *ciphertext;
     unsigned char *keypair;
     unsigned char *msg;
     unsigned char *nonce;
     unsigned char *publickey;
     unsigned char *secretkey;
-    int            keypair_len;
-    int            msg_len;
-    int            nonce_len;
+    strsize_t      keypair_len;
+    strsize_t      msg_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &msg, &msg_len,
@@ -804,31 +823,31 @@ PHP_FUNCTION(crypto_box)
     }
     secretkey = keypair;
     publickey = keypair + crypto_box_SECRETKEYBYTES;
-    if (INT_MAX - msg_len <= crypto_box_MACBYTES) {
+    if (STRSIZE_MAX - msg_len <= crypto_box_MACBYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    ciphertext = safe_emalloc((size_t) msg_len + crypto_box_MACBYTES + 1U, 1U, 0U);
-    if (crypto_box_easy(ciphertext, msg, (unsigned long long) msg_len,
+    ciphertext = zend_string_alloc((size_t) msg_len + crypto_box_MACBYTES, 0);
+    if (crypto_box_easy(ZSTR_VAL(ciphertext), msg, (unsigned long long) msg_len,
                         nonce, publickey, secretkey) != 0) {
-        efree(ciphertext);
+        zend_string_free(ciphertext);
         zend_error(E_ERROR, "crypto_box()");
     }
-    ciphertext[msg_len + crypto_box_MACBYTES] = 0U;
+    ZSTR_VAL(ciphertext)[ZSTR_LEN(ciphertext)] = 0;
 
-    RETURN_STRINGL((char *) ciphertext, msg_len + crypto_box_MACBYTES, 0);
+    RETURN_STR(ciphertext);
 }
 
 PHP_FUNCTION(crypto_box_open)
 {
+    zend_string   *msg;
     unsigned char *ciphertext;
     unsigned char *keypair;
-    unsigned char *msg;
     unsigned char *nonce;
     unsigned char *publickey;
     unsigned char *secretkey;
-    int            ciphertext_len;
-    int            keypair_len;
-    int            nonce_len;
+    strsize_t      ciphertext_len;
+    strsize_t      keypair_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &ciphertext, &ciphertext_len,
@@ -852,17 +871,15 @@ PHP_FUNCTION(crypto_box_open)
         zend_error(E_ERROR,
                    "crypto_box_open(): short ciphertext");
     }
-    msg = safe_emalloc((size_t) ciphertext_len - crypto_box_MACBYTES + 1U,
-                       1U, 0U);
-    if (crypto_box_open_easy(msg, ciphertext,
+    msg = zend_string_alloc((size_t) ciphertext_len - crypto_box_MACBYTES, 0);
+    if (crypto_box_open_easy(ZSTR_VAL(msg), ciphertext,
                              (unsigned long long) ciphertext_len,
                              nonce, publickey, secretkey) != 0) {
-        efree(msg);
+        zend_string_free(msg);
         RETURN_FALSE;
     } else {
-        msg[ciphertext_len - crypto_box_MACBYTES] = 0U;
-        RETURN_STRINGL((char *) msg,
-                       ciphertext_len - crypto_box_MACBYTES, 0);
+        ZSTR_VAL(msg)[ZSTR_LEN(msg)] = 0;
+        RETURN_STR(msg);
     }
 }
 
@@ -870,11 +887,11 @@ PHP_FUNCTION(crypto_box_open)
     (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 5)
 PHP_FUNCTION(crypto_box_seal)
 {
-    unsigned char *ciphertext;
+    zend_string   *ciphertext;
     unsigned char *msg;
     unsigned char *publickey;
-    int            msg_len;
-    int            publickey_len;
+    strsize_t      msg_len;
+    strsize_t      publickey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &msg, &msg_len,
@@ -886,29 +903,29 @@ PHP_FUNCTION(crypto_box_seal)
                    "crypto_box_seal(): public key size should be "
                    "CRYPTO_BOX_PUBLICKEYBYTES bytes");
     }
-    if (INT_MAX - msg_len <= crypto_box_SEALBYTES) {
+    if (STRSIZE_MAX - msg_len <= crypto_box_SEALBYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    ciphertext = safe_emalloc((size_t) msg_len + crypto_box_SEALBYTES + 1U, 1U, 0U);
-    if (crypto_box_seal(ciphertext, msg, (unsigned long long) msg_len,
+    ciphertext = zend_string_alloc((size_t) msg_len + crypto_box_SEALBYTES, 0);
+    if (crypto_box_seal(ZSTR_VAL(ciphertext), msg, (unsigned long long) msg_len,
                         publickey) != 0) {
-        efree(ciphertext);
+        zend_string_free(ciphertext);
         zend_error(E_ERROR, "crypto_box_seal()");
     }
-    ciphertext[msg_len + crypto_box_SEALBYTES] = 0U;
+    ZSTR_VAL(ciphertext)[ZSTR_LEN(ciphertext)] = 0;
 
-    RETURN_STRINGL((char *) ciphertext, msg_len + crypto_box_SEALBYTES, 0);
+    RETURN_STR(ciphertext);
 }
 
 PHP_FUNCTION(crypto_box_seal_open)
 {
+    zend_string   *msg;
     unsigned char *ciphertext;
     unsigned char *keypair;
-    unsigned char *msg;
     unsigned char *publickey;
     unsigned char *secretkey;
-    int            ciphertext_len;
-    int            keypair_len;
+    strsize_t      ciphertext_len;
+    strsize_t      keypair_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &ciphertext, &ciphertext_len,
@@ -926,44 +943,42 @@ PHP_FUNCTION(crypto_box_seal_open)
         zend_error(E_ERROR,
                    "crypto_box_seal_open(): short ciphertext");
     }
-    msg = safe_emalloc((size_t) ciphertext_len - crypto_box_SEALBYTES + 1U,
-                       1U, 0U);
-    if (crypto_box_seal_open(msg, ciphertext,
+    msg = zend_string_alloc((size_t) ciphertext_len - crypto_box_SEALBYTES, 0);
+    if (crypto_box_seal_open(ZSTR_VAL(msg), ciphertext,
                              (unsigned long long) ciphertext_len,
                              publickey, secretkey) != 0) {
-        efree(msg);
+        zend_string_free(msg);
         RETURN_FALSE;
     } else {
-        msg[ciphertext_len - crypto_box_SEALBYTES] = 0U;
-        RETURN_STRINGL((char *) msg,
-                       ciphertext_len - crypto_box_SEALBYTES, 0);
+        ZSTR_VAL(msg)[ZSTR_LEN(msg)] = 0;
+        RETURN_STR(msg);
     }
 }
 #endif
 
 PHP_FUNCTION(crypto_sign_keypair)
 {
-    unsigned char *keypair;
-    size_t         keypair_len;
+    zend_string *keypair;
+    size_t       keypair_len;
 
     keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
-    keypair = safe_emalloc(keypair_len + 1U, 1U, 0U);
-    if (crypto_sign_keypair(keypair + crypto_sign_SECRETKEYBYTES,
-                            keypair) != 0) {
-        efree(keypair);
+    keypair = zend_string_alloc(keypair_len, 0);
+    if (crypto_sign_keypair(ZSTR_VAL(keypair) + crypto_sign_SECRETKEYBYTES,
+                            ZSTR_VAL(keypair)) != 0) {
+        zend_string_free(keypair);
         zend_error(E_ERROR, "crypto_sign_keypair()");
     }
-    keypair[keypair_len] = 0U;
+    ZSTR_VAL(keypair)[ZSTR_LEN(keypair)] = 0;
 
-    RETURN_STRINGL((char *) keypair, keypair_len, 0);
+    RETURN_STR(keypair);
 }
 
 PHP_FUNCTION(crypto_sign_seed_keypair)
 {
-    unsigned char *keypair;
+    zend_string   *keypair;
     unsigned char *seed;
     size_t         keypair_len;
-    int            seed_len;
+    strsize_t      seed_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &seed, &seed_len) == FAILURE) {
@@ -975,25 +990,25 @@ PHP_FUNCTION(crypto_sign_seed_keypair)
                    "seed should be crypto_sign_SEEDBYTES long");
     }
     keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
-    keypair = safe_emalloc(keypair_len + 1U, 1U, 0U);
-    if (crypto_sign_seed_keypair(keypair + crypto_sign_SECRETKEYBYTES,
-                                 keypair, seed) != 0) {
-        efree(keypair);
+    keypair = zend_string_alloc(keypair_len, 0);
+    if (crypto_sign_seed_keypair(ZSTR_VAL(keypair) + crypto_sign_SECRETKEYBYTES,
+                                 ZSTR_VAL(keypair), seed) != 0) {
+        zend_string_free(keypair);
         zend_error(E_ERROR, "crypto_sign_seed_keypair()");
     }
-    keypair[keypair_len] = 0U;
+    ZSTR_VAL(keypair)[ZSTR_LEN(keypair)] = 0;
 
-    RETURN_STRINGL((char *) keypair, keypair_len, 0);
+    RETURN_STR(keypair);
 }
 
 PHP_FUNCTION(crypto_sign_keypair_from_secretkey_and_publickey)
 {
-    char   *keypair;
-    char   *publickey;
-    char   *secretkey;
-    size_t  keypair_len;
-    int     publickey_len;
-    int     secretkey_len;
+    zend_string *keypair;
+    char        *publickey;
+    char        *secretkey;
+    size_t       keypair_len;
+    strsize_t    publickey_len;
+    strsize_t    secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &secretkey, &secretkey_len,
@@ -1011,20 +1026,20 @@ PHP_FUNCTION(crypto_sign_keypair_from_secretkey_and_publickey)
                    "publickey should be CRYPTO_SIGN_PUBLICKEYBYTES long");
     }
     keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
-    keypair = safe_emalloc(keypair_len + 1U, 1U, 0U);
-    memcpy(keypair, secretkey, crypto_sign_SECRETKEYBYTES);
-    memcpy(keypair + crypto_sign_SECRETKEYBYTES, publickey,
+    keypair = zend_string_alloc(keypair_len, 0);
+    memcpy(ZSTR_VAL(keypair), secretkey, crypto_sign_SECRETKEYBYTES);
+    memcpy(ZSTR_VAL(keypair) + crypto_sign_SECRETKEYBYTES, publickey,
            crypto_sign_PUBLICKEYBYTES);
-    keypair[keypair_len] = 0U;
+    ZSTR_VAL(keypair)[ZSTR_LEN(keypair)] = 0;
 
-    RETURN_STRINGL(keypair, keypair_len, 0);
+    RETURN_STR(keypair);
 }
 
 PHP_FUNCTION(crypto_sign_secretkey)
 {
+    zend_string   *secretkey;
     unsigned char *keypair;
-    char          *secretkey;
-    int            keypair_len;
+    strsize_t      keypair_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &keypair, &keypair_len) == FAILURE) {
@@ -1036,18 +1051,18 @@ PHP_FUNCTION(crypto_sign_secretkey)
                    "crypto_sign_secretkey(): keypair should be "
                    "CRYPTO_SIGN_KEYPAIRBYTES long");
     }
-    secretkey = safe_emalloc(crypto_sign_SECRETKEYBYTES + 1U, 1U, 0U);
-    memcpy(secretkey, keypair, crypto_sign_SECRETKEYBYTES);
-    secretkey[crypto_sign_SECRETKEYBYTES] = 0U;
+    secretkey = zend_string_alloc(crypto_sign_SECRETKEYBYTES, 0);
+    memcpy(ZSTR_VAL(secretkey), keypair, crypto_sign_SECRETKEYBYTES);
+    ZSTR_VAL(secretkey)[ZSTR_LEN(secretkey)] = 0;
 
-    RETURN_STRINGL((char *) secretkey, crypto_sign_SECRETKEYBYTES, 0);
+    RETURN_STR(secretkey);
 }
 
 PHP_FUNCTION(crypto_sign_publickey)
 {
+    zend_string   *publickey;
     unsigned char *keypair;
-    char          *publickey;
-    int            keypair_len;
+    strsize_t      keypair_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &keypair, &keypair_len) == FAILURE) {
@@ -1059,23 +1074,23 @@ PHP_FUNCTION(crypto_sign_publickey)
                    "crypto_sign_publickey(): keypair should be "
                    "CRYPTO_SIGN_KEYPAIRBYTES long");
     }
-    publickey = safe_emalloc(crypto_sign_PUBLICKEYBYTES + 1U, 1U, 0U);
-    memcpy(publickey, keypair + crypto_sign_SECRETKEYBYTES,
+    publickey = zend_string_alloc(crypto_sign_PUBLICKEYBYTES, 0);
+    memcpy(ZSTR_VAL(publickey), keypair + crypto_sign_SECRETKEYBYTES,
            crypto_sign_PUBLICKEYBYTES);
-    publickey[crypto_sign_PUBLICKEYBYTES] = 0U;
+    ZSTR_VAL(publickey)[ZSTR_LEN(publickey)] = 0;
 
-    RETURN_STRINGL((char *) publickey, crypto_sign_PUBLICKEYBYTES, 0);
+    RETURN_STR(publickey);
 }
 
 PHP_FUNCTION(crypto_sign)
 {
+    zend_string        *msg_signed;
     unsigned char      *msg;
-    unsigned char      *msg_signed;
     unsigned char      *secretkey;
     unsigned long long  msg_signed_real_len;
-    int                 msg_len;
-    int                 msg_signed_len;
-    int                 secretkey_len;
+    strsize_t           msg_len;
+    strsize_t           msg_signed_len;
+    strsize_t           secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &msg, &msg_len,
@@ -1087,35 +1102,36 @@ PHP_FUNCTION(crypto_sign)
                    "crypto_sign(): secret key size should be "
                    "CRYPTO_SIGN_SECRETKEYBYTES bytes");
     }
-    if (INT_MAX - msg_len <= crypto_sign_BYTES) {
+    if (STRSIZE_MAX - msg_len <= crypto_sign_BYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
     msg_signed_len = msg_len + crypto_sign_BYTES;
-    msg_signed = safe_emalloc((size_t) msg_signed_len + 1U, 1U, 0U);
-    if (crypto_sign(msg_signed, &msg_signed_real_len, msg,
+    msg_signed = zend_string_alloc((size_t) msg_signed_len, 0);
+    if (crypto_sign(ZSTR_VAL(msg_signed), &msg_signed_real_len, msg,
                     (unsigned long long) msg_len, secretkey) != 0) {
-        efree(msg_signed);
+        zend_string_free(msg_signed);
         zend_error(E_ERROR, "crypto_sign()");
     }
-    if (msg_signed_real_len <= 0U || msg_signed_real_len >= INT_MAX ||
+    if (msg_signed_real_len <= 0U || msg_signed_real_len >= STRSIZE_MAX ||
         msg_signed_real_len > msg_signed_len) {
-        efree(msg_signed);
+        zend_string_free(msg_signed);
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    msg_signed[msg_signed_real_len] = 0U;
+    ZSTR_LEN(msg_signed) = (strsize_t) msg_signed_real_len;
+    ZSTR_VAL(msg_signed)[ZSTR_LEN(msg_signed)] = 0;
 
-    RETURN_STRINGL((char *) msg_signed, (int) msg_signed_real_len, 0);
+    RETURN_STR(msg_signed);
 }
 
 PHP_FUNCTION(crypto_sign_open)
 {
-    unsigned char      *msg;
+    zend_string        *msg;
     unsigned char      *msg_signed;
     unsigned char      *publickey;
     unsigned long long  msg_real_len;
-    int                 msg_len;
-    int                 msg_signed_len;
-    int                 publickey_len;
+    strsize_t           msg_len;
+    strsize_t           msg_signed_len;
+    strsize_t           publickey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &msg_signed, &msg_signed_len,
@@ -1128,34 +1144,35 @@ PHP_FUNCTION(crypto_sign_open)
                    "CRYPTO_SIGN_PUBLICKEYBYTES bytes");
     }
     msg_len = msg_signed_len;
-    if (msg_len >= INT_MAX) {
+    if (msg_len >= STRSIZE_MAX) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    msg = safe_emalloc((size_t) msg_len + 1U, 1U, 0U);
-    if (crypto_sign_open(msg, &msg_real_len, msg_signed,
+    msg = zend_string_alloc((size_t) msg_len, 0);
+    if (crypto_sign_open(ZSTR_VAL(msg), &msg_real_len, msg_signed,
                          (unsigned long long) msg_signed_len,
                          publickey) != 0) {
         sodium_memzero(msg, (size_t) msg_len);
-        efree(msg);
+        zend_string_free(msg);
         RETURN_FALSE;
     }
-    if (msg_real_len >= INT_MAX || msg_real_len > msg_signed_len) {
-        efree(msg);
+    if (msg_real_len >= STRSIZE_MAX || msg_real_len > msg_signed_len) {
+        zend_string_free(msg);
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    msg[msg_real_len] = 0U;
+    ZSTR_LEN(msg) = (strsize_t) msg_real_len;
+    ZSTR_VAL(msg)[ZSTR_LEN(msg)] = 0;
 
-    RETURN_STRINGL((char *) msg, (int) msg_real_len, 0);
+    RETURN_STR(msg);
 }
 
 PHP_FUNCTION(crypto_sign_detached)
 {
+    zend_string        *signature;
     unsigned char      *msg;
-    unsigned char      *signature;
     unsigned char      *secretkey;
     unsigned long long  signature_real_len;
-    int                 msg_len;
-    int                 secretkey_len;
+    strsize_t           msg_len;
+    strsize_t           secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &msg, &msg_len,
@@ -1167,19 +1184,20 @@ PHP_FUNCTION(crypto_sign_detached)
                    "crypto_sign_detached(): secret key size should be "
                    "CRYPTO_SIGN_SECRETKEYBYTES bytes");
     }
-    signature = safe_emalloc((size_t) crypto_sign_BYTES + 1U, 1U, 0U);
-    if (crypto_sign_detached(signature, &signature_real_len, msg,
+    signature = zend_string_alloc((size_t) crypto_sign_BYTES, 0);
+    if (crypto_sign_detached(ZSTR_VAL(signature), &signature_real_len, msg,
                              (unsigned long long) msg_len, secretkey) != 0) {
-        efree(signature);
+        zend_string_free(signature);
         zend_error(E_ERROR, "crypto_sign_detached()");
     }
     if (signature_real_len <= 0U || signature_real_len > crypto_sign_BYTES) {
-        efree(signature);
+        zend_string_free(signature);
         zend_error(E_ERROR, "signature has a bogus size");
     }
-    signature[signature_real_len] = 0U;
+    ZSTR_LEN(signature) = (strsize_t) signature_real_len;
+    ZSTR_VAL(signature)[ZSTR_LEN(signature)] = 0;
 
-    RETURN_STRINGL((char *) signature, (int) signature_real_len, 0);
+    RETURN_STR(signature);
 }
 
 PHP_FUNCTION(crypto_sign_verify_detached)
@@ -1187,9 +1205,9 @@ PHP_FUNCTION(crypto_sign_verify_detached)
     unsigned char *msg;
     unsigned char *publickey;
     unsigned char *signature;
-    int            msg_len;
-    int            publickey_len;
-    int            signature_len;
+    strsize_t      msg_len;
+    strsize_t      publickey_len;
+    strsize_t      signature_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &signature, &signature_len,
@@ -1217,12 +1235,12 @@ PHP_FUNCTION(crypto_sign_verify_detached)
 
 PHP_FUNCTION(crypto_stream)
 {
-    unsigned char *ciphertext;
+    zend_string   *ciphertext;
     unsigned char *key;
     unsigned char *nonce;
-    long           ciphertext_len;
-    int            key_len;
-    int            nonce_len;
+    zend_long      ciphertext_len;
+    strsize_t      key_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lss",
                               &ciphertext_len,
@@ -1230,7 +1248,7 @@ PHP_FUNCTION(crypto_stream)
                               &key, &key_len) == FAILURE) {
         return;
     }
-    if (ciphertext_len <= 0 || ciphertext_len >= INT_MAX) {
+    if (ciphertext_len <= 0 || ciphertext_len >= STRSIZE_MAX) {
         zend_error(E_ERROR, "crypto_stream(): invalid length");
     }
     if (nonce_len != crypto_stream_NONCEBYTES) {
@@ -1239,26 +1257,27 @@ PHP_FUNCTION(crypto_stream)
     if (key_len != crypto_stream_KEYBYTES) {
         zend_error(E_ERROR, "key should be CRYPTO_STREAM_KEYBYTES bytes");
     }
-    ciphertext = safe_emalloc((size_t) ciphertext_len + 1U, 1U, 0U);
-    if (crypto_stream(ciphertext, (unsigned long long) ciphertext_len, nonce,
-                      key) != 0) {
-        efree(ciphertext);
+    ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
+    if (crypto_stream(ZSTR_VAL(ciphertext), (unsigned long long) ciphertext_len,
+                      nonce, key) != 0) {
+        zend_string_free(ciphertext);
         zend_error(E_ERROR, "crypto_stream()");
     }
-    ciphertext[ciphertext_len] = 0U;
+    ZSTR_VAL(ciphertext)[ZSTR_LEN(ciphertext)] = 0;
 
-    RETURN_STRINGL((char *) ciphertext, ciphertext_len, 0);
+    RETURN_STR(ciphertext);
 }
 
 PHP_FUNCTION(crypto_stream_xor)
 {
-    unsigned char *ciphertext;
+    zend_string   *ciphertext;
     unsigned char *key;
     unsigned char *msg;
     unsigned char *nonce;
-    int            key_len;
-    int            msg_len;
-    int            nonce_len;
+    strsize_t      ciphertext_len;
+    strsize_t      key_len;
+    strsize_t      msg_len;
+    strsize_t      nonce_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &msg, &msg_len,
@@ -1272,34 +1291,35 @@ PHP_FUNCTION(crypto_stream_xor)
     if (key_len != crypto_stream_KEYBYTES) {
         zend_error(E_ERROR, "key should be CRYPTO_STREAM_KEYBYTES bytes");
     }
-    ciphertext = safe_emalloc((size_t) msg_len + 1U, 1U, 0U);
-    if (crypto_stream_xor(ciphertext, msg, (unsigned long long) msg_len,
-                          nonce, key) != 0) {
-        efree(ciphertext);
+    ciphertext_len = msg_len;
+    ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
+    if (crypto_stream_xor(ZSTR_VAL(ciphertext), msg,
+                          (unsigned long long) msg_len, nonce, key) != 0) {
+        zend_string_free(ciphertext);
         zend_error(E_ERROR, "crypto_stream_xor()");
     }
-    ciphertext[msg_len] = 0U;
+    ZSTR_VAL(ciphertext)[ZSTR_LEN(ciphertext)] = 0;
 
-    RETURN_STRINGL((char *) ciphertext, msg_len, 0);
+    RETURN_STR(ciphertext);
 }
 
 PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256)
 {
-    unsigned char *hash;
+    zend_string   *hash;
     unsigned char *salt;
     char          *passwd;
-    long           hash_len;
-    long           memlimit;
-    long           opslimit;
-    int            passwd_len;
-    int            salt_len;
+    zend_long      hash_len;
+    zend_long      memlimit;
+    zend_long      opslimit;
+    strsize_t      passwd_len;
+    strsize_t      salt_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lssll",
                               &hash_len,
                               &passwd, &passwd_len,
                               &salt, &salt_len,
                               &opslimit, &memlimit) == FAILURE ||
-        hash_len <= 0 || hash_len >= INT_MAX ||
+        hash_len <= 0 || hash_len >= STRSIZE_MAX ||
         opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
         zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256(): invalid parameters");
     }
@@ -1318,26 +1338,26 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256)
         zend_error(E_WARNING,
                    "maximum memory for the scrypt function is low");
     }
-    hash = safe_emalloc((size_t) hash_len + 1U, 1U, 0U);
+    hash = zend_string_alloc((size_t) hash_len, 0);
     if (crypto_pwhash_scryptsalsa208sha256
-        (hash, (unsigned long long) hash_len,
+        (ZSTR_VAL(hash), (unsigned long long) hash_len,
          passwd, (unsigned long long) passwd_len, salt,
          (unsigned long long) opslimit, (size_t) memlimit) != 0) {
-        efree(hash);
+        zend_string_free(hash);
         zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256()");
     }
-    hash[hash_len] = 0U;
+    ZSTR_VAL(hash)[ZSTR_LEN(hash)] = 0;
 
-    RETURN_STRINGL((char *) hash, hash_len, 0);
+    RETURN_STR(hash);
 }
 
 PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str)
 {
-    char *hash_str;
-    char *passwd;
-    long  memlimit;
-    long  opslimit;
-    int   passwd_len;
+    zend_string *hash_str;
+    char        *passwd;
+    zend_long    memlimit;
+    zend_long    opslimit;
+    strsize_t    passwd_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sll",
                               &passwd, &passwd_len,
@@ -1357,26 +1377,25 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str)
         zend_error(E_WARNING,
                    "maximum memory for the scrypt function is low");
     }
-    hash_str = safe_emalloc(crypto_pwhash_scryptsalsa208sha256_STRBYTES + 1U,
-                       1U, 0U);
+    hash_str = zend_string_alloc
+        (crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1, 0);
     if (crypto_pwhash_scryptsalsa208sha256_str
-        (hash_str, passwd, (unsigned long long) passwd_len,
+        (ZSTR_VAL(hash_str), passwd, (unsigned long long) passwd_len,
          (unsigned long long) opslimit, (size_t) memlimit) != 0) {
-        efree(hash_str);
+        zend_string_free(hash_str);
         zend_error(E_ERROR, "crypto_pwhash_scryptsalsa208sha256_str()");
     }
-    hash_str[crypto_pwhash_scryptsalsa208sha256_STRBYTES] = 0U;
+    ZSTR_VAL(hash_str)[ZSTR_LEN(hash_str)] = 0;
 
-    RETURN_STRINGL((char *) hash_str,
-                   crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1, 0);
+    RETURN_STR(hash_str);
 }
 
 PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify)
 {
-    char *hash_str;
-    char *passwd;
-    int   hash_str_len;
-    int   passwd_len;
+    char      *hash_str;
+    char      *passwd;
+    strsize_t  hash_str_len;
+    strsize_t  passwd_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &hash_str, &hash_str_len,
@@ -1400,17 +1419,17 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify)
 
 PHP_FUNCTION(crypto_aead_chacha20poly1305_encrypt)
 {
+    zend_string        *ciphertext;
     unsigned char      *ad;
-    unsigned char      *ciphertext;
     unsigned char      *msg;
     unsigned char      *npub;
     unsigned char      *secretkey;
     unsigned long long  ciphertext_real_len;
-    int                 ad_len;
-    int                 ciphertext_len;
-    int                 msg_len;
-    int                 npub_len;
-    int                 secretkey_len;
+    strsize_t           ad_len;
+    strsize_t           ciphertext_len;
+    strsize_t           msg_len;
+    strsize_t           npub_len;
+    strsize_t           secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss",
                               &msg, &msg_len,
@@ -1431,40 +1450,42 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_encrypt)
                    "secret key size should be "
                    "CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES bytes");
     }
-    if (INT_MAX - msg_len <= crypto_aead_chacha20poly1305_ABYTES) {
+    if (STRSIZE_MAX - msg_len <= crypto_aead_chacha20poly1305_ABYTES) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
     ciphertext_len = msg_len + crypto_aead_chacha20poly1305_ABYTES;
-    ciphertext = safe_emalloc((size_t) ciphertext_len + 1U, 1U, 0U);
+    ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
     if (crypto_aead_chacha20poly1305_encrypt
-        (ciphertext, &ciphertext_real_len, msg, (unsigned long long) msg_len,
+        (ZSTR_VAL(ciphertext), &ciphertext_real_len, msg,
+         (unsigned long long) msg_len,
          ad, (unsigned long long) ad_len, NULL, npub, secretkey) != 0) {
-        efree(ciphertext);
+        zend_string_free(ciphertext);
         zend_error(E_ERROR, "crypto_aead_chacha20poly1305_encrypt()");
     }
-    if (ciphertext_real_len <= 0U || ciphertext_real_len >= INT_MAX ||
+    if (ciphertext_real_len <= 0U || ciphertext_real_len >= STRSIZE_MAX ||
         ciphertext_real_len > ciphertext_len) {
-        efree(ciphertext);
+        zend_string_free(ciphertext);
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    ciphertext[ciphertext_real_len] = 0U;
+    ZSTR_LEN(ciphertext) = (strsize_t) ciphertext_real_len;
+    ZSTR_VAL(ciphertext)[ZSTR_LEN(ciphertext)] = 0;
 
-    RETURN_STRINGL((char *) ciphertext, (int) ciphertext_real_len, 0);
+    RETURN_STR(ciphertext);
 }
 
 PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt)
 {
+    zend_string        *msg;
     unsigned char      *ad;
     unsigned char      *ciphertext;
-    unsigned char      *msg;
     unsigned char      *npub;
     unsigned char      *secretkey;
     unsigned long long  msg_real_len;
-    int                 ad_len;
-    int                 ciphertext_len;
-    int                 msg_len;
-    int                 npub_len;
-    int                 secretkey_len;
+    strsize_t           ad_len;
+    strsize_t           ciphertext_len;
+    strsize_t           msg_len;
+    strsize_t           npub_len;
+    strsize_t           secretkey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss",
                               &ciphertext, &ciphertext_len,
@@ -1486,56 +1507,58 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt)
                    "CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES bytes");
     }
     msg_len = ciphertext_len;
-    if (msg_len >= INT_MAX) {
+    if (msg_len >= STRSIZE_MAX) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    msg = safe_emalloc((size_t) msg_len + 1U, 1U, 0U);
+    msg = zend_string_alloc((size_t) msg_len, 0);
     if (crypto_aead_chacha20poly1305_decrypt
-        (msg, &msg_real_len, NULL,
+        (ZSTR_VAL(msg), &msg_real_len, NULL,
          ciphertext, (unsigned long long) ciphertext_len,
          ad, (unsigned long long) ad_len, npub, secretkey) != 0) {
-        efree(msg);
+        zend_string_free(msg);
         RETURN_FALSE;
     }
-    if (msg_real_len >= INT_MAX || msg_real_len > msg_len) {
-        efree(msg);
+    if (msg_real_len >= STRSIZE_MAX || msg_real_len > msg_len) {
+        zend_string_free(msg);
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    msg[msg_real_len] = 0U;
+    ZSTR_LEN(msg) = (strsize_t) msg_real_len;
+    ZSTR_VAL(msg)[ZSTR_LEN(msg)] = 0;
 
-    RETURN_STRINGL((char *) msg, (int) msg_real_len, 0);
+    RETURN_STR(msg);
 }
 
 PHP_FUNCTION(bin2hex)
 {
+    zend_string   *hex;
     unsigned char *bin;
-    char          *hex;
-    int            bin_len;
-    int            hex_len;
+    strsize_t      bin_len;
+    strsize_t      hex_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                               &bin, &bin_len) == FAILURE) {
         return;
     }
-    if (bin_len >= INT_MAX / 2U) {
+    if (bin_len >= STRSIZE_MAX / 2U) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
     hex_len = bin_len * 2U;
-    hex = safe_emalloc((size_t) hex_len + 1U, 1U, 0U);
-    sodium_bin2hex(hex, hex_len + 1U, bin, bin_len);
+    hex = zend_string_alloc((size_t) hex_len, 0);
+    sodium_bin2hex(ZSTR_VAL(hex), hex_len + 1U, bin, bin_len);
+    ZSTR_VAL(hex)[ZSTR_LEN(hex)] = 0;
 
-    RETURN_STRINGL(hex, hex_len, 0);
+    RETURN_STR(hex);
 }
 
 PHP_FUNCTION(hex2bin)
 {
-    unsigned char *bin;
+    zend_string   *bin;
     char          *hex;
     char          *ignore = NULL;
     size_t         bin_real_len;
     size_t         bin_len;
-    int            hex_len;
-    int            ignore_len = 0;
+    strsize_t      hex_len;
+    strsize_t      ignore_len = 0;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s",
                               &hex, &hex_len,
@@ -1543,24 +1566,25 @@ PHP_FUNCTION(hex2bin)
         return;
     }
     bin_len = hex_len / 2;
-    bin = safe_emalloc(bin_len + 1U, 1U, 0U);
-    if (sodium_hex2bin(bin, bin_len, hex, hex_len, ignore,
+    bin = zend_string_alloc(bin_len, 0);
+    if (sodium_hex2bin(ZSTR_VAL(bin), bin_len, hex, hex_len, ignore,
                        &bin_real_len, NULL) != 0 ||
-        bin_real_len >= INT_MAX || bin_real_len > bin_len) {
+        bin_real_len >= STRSIZE_MAX || bin_real_len > bin_len) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    bin[bin_real_len] = 0U;
+    ZSTR_LEN(bin) = bin_real_len;
+    ZSTR_VAL(bin)[ZSTR_LEN(bin)] = 0;
 
-    RETURN_STRINGL((char *) bin, (int) bin_real_len, 0);
+    RETURN_STR(bin);
 }
 
 PHP_FUNCTION(crypto_scalarmult)
 {
+    zend_string   *q;
     unsigned char *n;
     unsigned char *p;
-    unsigned char *q;
-    int            n_len;
-    int            p_len;
+    strsize_t      n_len;
+    strsize_t      p_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &n, &n_len, &p, &p_len) == FAILURE) {
@@ -1571,28 +1595,28 @@ PHP_FUNCTION(crypto_scalarmult)
         zend_error(E_ERROR, "crypto_scalarmult(): scalar and point must be "
                    "CRYPTO_SCALARMULT_SCALARBYTES bytes");
     }
-    q = safe_emalloc(crypto_scalarmult_BYTES + 1U, 1U, 0U);
-    if (crypto_scalarmult(q, n, p) != 0) {
+    q = zend_string_alloc(crypto_scalarmult_BYTES, 0);
+    if (crypto_scalarmult(ZSTR_VAL(q), n, p) != 0) {
         zend_error(E_ERROR, "crypto_scalarmult(): internal error");
     }
-    q[crypto_scalarmult_BYTES] = 0;
+    ZSTR_VAL(q)[ZSTR_LEN(q)] = 0;
 
-    RETURN_STRINGL((char *) q, crypto_scalarmult_BYTES, 0);
+    RETURN_STR(q);
 }
 
 PHP_FUNCTION(crypto_kx)
 {
     crypto_generichash_state h;
     unsigned char            q[crypto_scalarmult_BYTES];
+    zend_string             *sharedkey;
     unsigned char           *client_publickey;
     unsigned char           *publickey;
     unsigned char           *secretkey;
     unsigned char           *server_publickey;
-    unsigned char           *sharedkey;
-    int                      client_publickey_len;
-    int                      publickey_len;
-    int                      secretkey_len;
-    int                      server_publickey_len;
+    strsize_t                client_publickey_len;
+    strsize_t                publickey_len;
+    strsize_t                secretkey_len;
+    strsize_t                server_publickey_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss",
                               &secretkey, &secretkey_len,
@@ -1616,14 +1640,14 @@ PHP_FUNCTION(crypto_kx)
     if (crypto_scalarmult(q, secretkey, publickey) != 0) {
         zend_error(E_ERROR, "crypto_kx(): internal error");
     }
-    sharedkey = safe_emalloc(crypto_kx_BYTES + 1U, 1U, 0U);
+    sharedkey = zend_string_alloc(crypto_kx_BYTES, 0);
     crypto_generichash_init(&h, NULL, 0U, crypto_generichash_BYTES);
     crypto_generichash_update(&h, q, sizeof q);
     sodium_memzero(q, sizeof q);
     crypto_generichash_update(&h, client_publickey, client_publickey_len);
     crypto_generichash_update(&h, server_publickey, server_publickey_len);
-    crypto_generichash_final(&h, sharedkey, crypto_kx_BYTES);
-    sharedkey[crypto_kx_BYTES] = 0;
+    crypto_generichash_final(&h, ZSTR_VAL(sharedkey), crypto_kx_BYTES);
+    ZSTR_VAL(sharedkey)[ZSTR_LEN(sharedkey)] = 0;
 
-    RETURN_STRINGL((char *) sharedkey, crypto_kx_BYTES, 0);
+    RETURN_STR(sharedkey);
 }
