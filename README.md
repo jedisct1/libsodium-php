@@ -42,6 +42,9 @@ Do not use the same `(key, nonce)` pair twice.
 
 The nonce can be public as long as the key isn't.
 
+`crypto_secretbox_open()` returns FALSE if the ciphertext couldn't be
+verified and decrypted.
+
 Authenticated encryption with additional data (AEAD)
 ----------------------------------------------------
 
@@ -54,6 +57,9 @@ $ciphertext =
 $plaintext =
     \Sodium\crypto_aead_chacha20poly1305_decrypt($ciphertext, $ad, $nonce, $key);
 ```
+
+`crypto_aead_chacha20poly1305_decrypt()` returns `FALSE` if the
+ciphertext couldn't be verified and decrypted.
 
 Public-key cryptography
 =======================
@@ -81,6 +87,9 @@ if ($msg_orig === FALSE) {
   // $msg_orig contains the original message, without the signature
 }
 ```
+
+`crypto_sign_open()` returns FALSE if the signature is not valid for
+the given message.
 
 The key pair can also be derived from a single seed, using
 `crypto_sign_seed_keypair()`:
@@ -121,6 +130,9 @@ if ($verifies === FALSE) {
   // The signature is valid, the message is very likely to be from Alice
 }
 ```
+
+`crypto_sign_verify_detached()` returns FALSE if the signature is not valid for
+the given message.
 
 Public-key authenticated encryption
 -----------------------------------
@@ -167,9 +179,16 @@ Alice only needs Bob's public key, the nonce and the ciphertext.
 Bob should never disclose his secret key. Unless someone drugs him and
 hits him with a $5 wrench.
 
+`crypto_box_open()` returns FALSE if the ciphertext couldn't be
+verified and decrypted.
+
 If you don't want to store public keys, the
 `crypto_box_publickey_from_secretkey()` function can be used to
-compute a public key given a secret key.
+compute a public key given a secret key:
+
+```php
+$public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
+```
 
 Hash functions
 ==============
@@ -366,6 +385,9 @@ Scalar multiplication
 ```php
 $shared_key = \Sodium\crypto_scalarmult($alice_key, $bob_key);
 ```
+
+Multiplication of the base point by a scalar is accessible as
+`crypto_box_publickey_from_secretkey()`.
 
 Unauthenticated secret-key encryption
 -------------------------------------
