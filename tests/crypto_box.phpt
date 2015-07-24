@@ -76,6 +76,7 @@ bool(true)
 bool(true)
 bool(true)
 bool(true)
+bool(true)
 string(17) "Hi, this is Alice"
 string(21) "Hi Alice! This is Bob"
 string(17) "Anonymous message"
