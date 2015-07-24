@@ -15,6 +15,12 @@ typedef char zend_string;
 typedef int  strsize_t;
 typedef long zend_long;
 
+# if ZEND_DEBUG
+#  define STRING_VAL_FILLER 0xd0
+# else
+#  define STRING_VAL_FILLER 0x00
+# endif
+
 # define ZVAL_DEREF(zv) (void) (zv)
 
 # define ZEND_SIZE_MAX INT_MAX
@@ -55,10 +61,13 @@ ZSTR_VAL(const zend_string *zs)
 static void
 ZSTR_TRUNCATE(zend_string *zs, strsize_t new_len)
 {
-    if (new_len >= (strsize_t) (zs - ZSTR_VAL(zs))) {
+    char *zsx = ZSTR_VAL(zs);
+
+    if (new_len >= (strsize_t) (zs - zsx)) {
         zend_error_noreturn(E_ERROR,
                             "ZSTR_TRUNCATE() truncating beyond maximum buffer size");
     }
+    zsx[new_len] = STRING_VAL_FILLER;
     memcpy(zs + sizeof (char *), &new_len, sizeof new_len);
 }
 
@@ -77,7 +86,7 @@ zend_string_alloc(strsize_t len, int persistent)
                             "Possible integer overflow in memory allocation");
     }
     zsx = safe_emalloc(len + 1U + (sizeof zsx) + (sizeof len), 1U, 0U);
-    memset(zsx, 0, (size_t) len + (size_t) 1U);
+    memset(zsx, STRING_VAL_FILLER, (size_t) len + (size_t) 1U);
     zs = zsx + len + 1U;
     memcpy(zs, &zsx, sizeof zsx);
     memcpy(zs + sizeof zsx, &len, sizeof len);
@@ -94,7 +103,8 @@ zend_string_free(zend_string *zs)
         return;
     }
     memcpy(&zsx, zs, sizeof zsx);
-    memset(zsx, 0, ZSTR_LEN(zs) + 1U + (sizeof zsx) + sizeof (strsize_t));
+    memset(zsx, STRING_VAL_FILLER,
+           ZSTR_LEN(zs) + 1U + (sizeof zsx) + sizeof (strsize_t));
     efree(zsx);
 }
 
