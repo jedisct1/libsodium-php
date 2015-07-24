@@ -424,9 +424,9 @@ Key exchange
 ------------
 
 ```php
-$shared_key_computed_by_client = \Sodium\crypto_dh($client_secretkey, $server_publickey,
+$shared_key_computed_by_client = \Sodium\crypto_kx($client_secretkey, $server_publickey,
                                                    $client_publickey, $server_publickey);
 
-$shared_key_computed_by_server = \Sodium\crypto_dh($server_secretkey, $client_publickey,
+$shared_key_computed_by_server = \Sodium\crypto_kx($server_secretkey, $client_publickey,
                                                    $client_publickey, $server_publickey);
 ```
