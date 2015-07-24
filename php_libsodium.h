@@ -81,9 +81,6 @@ PHP_FUNCTION(version_string);
 #define crypto_kx_PUBLICKEYBYTES crypto_scalarmult_SCALARBYTES
 #define crypto_kx_SECRETKEYBYTES crypto_scalarmult_SCALARBYTES
 
-typedef size_t strsize_t;
-#define STRSIZE_MAX ZEND_SIZE_MAX
-
 #endif  /* PHP_LIBSODIUM_H */
 
 /*

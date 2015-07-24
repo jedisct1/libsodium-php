@@ -7,6 +7,7 @@
 #include "php_ini.h"
 #include "ext/standard/info.h"
 #include "php_libsodium.h"
+#include "compat.h"
 
 #include <sodium.h>
 #include <stdint.h>
@@ -432,7 +433,8 @@ PHP_FUNCTION(crypto_shorthash)
                    "CRYPTO_SHORTHASH_KEYBYTES bytes");
     }
     hash = zend_string_alloc(crypto_shorthash_BYTES, 0);
-    if (crypto_shorthash(ZSTR_VAL(hash), msg, (unsigned long long) msg_len, key) != 0) {
+    if (crypto_shorthash((unsigned char *) ZSTR_VAL(hash), msg,
+                         (unsigned long long) msg_len, key) != 0) {
         zend_string_free(hash);
         zend_error(E_ERROR, "crypto_shorthash()");
     }
@@ -471,7 +473,7 @@ PHP_FUNCTION(crypto_secretbox)
         zend_error(E_ERROR, "arithmetic overflow");
     }
     ciphertext = zend_string_alloc((size_t) msg_len + crypto_secretbox_MACBYTES, 0);
-    if (crypto_secretbox_easy(ZSTR_VAL(ciphertext),
+    if (crypto_secretbox_easy((unsigned char *) ZSTR_VAL(ciphertext),
                               msg, (unsigned long long) msg_len,
                               nonce, key) != 0) {
         zend_string_free(ciphertext);
@@ -514,7 +516,7 @@ PHP_FUNCTION(crypto_secretbox_open)
     }
     msg = zend_string_alloc
         ((size_t) ciphertext_len - crypto_secretbox_MACBYTES, 0);
-    if (crypto_secretbox_open_easy(ZSTR_VAL(msg), ciphertext,
+    if (crypto_secretbox_open_easy((unsigned char *) ZSTR_VAL(msg), ciphertext,
                                    (unsigned long long) ciphertext_len,
                                    nonce, key) != 0) {
         zend_string_free(msg);
@@ -550,7 +552,7 @@ PHP_FUNCTION(crypto_generichash)
         zend_error(E_ERROR, "crypto_generichash(): unsupported key length");
     }
     hash = zend_string_alloc(hash_len, 0);
-    if (crypto_generichash(ZSTR_VAL(hash), (size_t) hash_len,
+    if (crypto_generichash((unsigned char *) ZSTR_VAL(hash), (size_t) hash_len,
                            msg, (unsigned long long) msg_len,
                            key, (size_t) key_len) != 0) {
         zend_string_free(hash);
@@ -657,7 +659,8 @@ PHP_FUNCTION(crypto_generichash_final)
     }
     hash = zend_string_alloc(hash_len, 0);
     memcpy(&state_tmp, state, sizeof state_tmp);
-    if (crypto_generichash_final((void *) &state_tmp, ZSTR_VAL(hash),
+    if (crypto_generichash_final((void *) &state_tmp,
+                                 (unsigned char *) ZSTR_VAL(hash),
                                  (size_t) hash_len) != 0) {
         zend_string_free(hash);
         zend_error(E_ERROR, "crypto_generichash_final()");
@@ -676,8 +679,9 @@ PHP_FUNCTION(crypto_box_keypair)
 
     keypair_len = crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES;
     keypair = zend_string_alloc(keypair_len, 0);
-    if (crypto_box_keypair(ZSTR_VAL(keypair) + crypto_box_SECRETKEYBYTES,
-                           ZSTR_VAL(keypair)) != 0) {
+    if (crypto_box_keypair((unsigned char *) ZSTR_VAL(keypair) +
+                           crypto_box_SECRETKEYBYTES,
+                           (unsigned char *) ZSTR_VAL(keypair)) != 0) {
         zend_string_free(keypair);
         zend_error(E_ERROR, "crypto_box_keypair()");
     }
@@ -787,7 +791,7 @@ PHP_FUNCTION(crypto_box_publickey_from_secretkey)
                       crypto_box_PUBLICKEYBYTES ? 1 : -1]);
     (void) sizeof(int[crypto_scalarmult_SCALARBYTES ==
                       crypto_box_SECRETKEYBYTES ? 1 : -1]);
-    crypto_scalarmult_base(ZSTR_VAL(publickey), secretkey);
+    crypto_scalarmult_base((unsigned char *) ZSTR_VAL(publickey), secretkey);
     ZSTR_VAL(publickey)[ZSTR_LEN(publickey)] = 0;
 
     RETURN_STR(publickey);
@@ -827,7 +831,8 @@ PHP_FUNCTION(crypto_box)
         zend_error(E_ERROR, "arithmetic overflow");
     }
     ciphertext = zend_string_alloc((size_t) msg_len + crypto_box_MACBYTES, 0);
-    if (crypto_box_easy(ZSTR_VAL(ciphertext), msg, (unsigned long long) msg_len,
+    if (crypto_box_easy((unsigned char *) ZSTR_VAL(ciphertext), msg,
+                        (unsigned long long) msg_len,
                         nonce, publickey, secretkey) != 0) {
         zend_string_free(ciphertext);
         zend_error(E_ERROR, "crypto_box()");
@@ -872,7 +877,7 @@ PHP_FUNCTION(crypto_box_open)
                    "crypto_box_open(): short ciphertext");
     }
     msg = zend_string_alloc((size_t) ciphertext_len - crypto_box_MACBYTES, 0);
-    if (crypto_box_open_easy(ZSTR_VAL(msg), ciphertext,
+    if (crypto_box_open_easy((unsigned char *) ZSTR_VAL(msg), ciphertext,
                              (unsigned long long) ciphertext_len,
                              nonce, publickey, secretkey) != 0) {
         zend_string_free(msg);
@@ -907,8 +912,8 @@ PHP_FUNCTION(crypto_box_seal)
         zend_error(E_ERROR, "arithmetic overflow");
     }
     ciphertext = zend_string_alloc((size_t) msg_len + crypto_box_SEALBYTES, 0);
-    if (crypto_box_seal(ZSTR_VAL(ciphertext), msg, (unsigned long long) msg_len,
-                        publickey) != 0) {
+    if (crypto_box_seal((unsigned char *) ZSTR_VAL(ciphertext), msg,
+                        (unsigned long long) msg_len, publickey) != 0) {
         zend_string_free(ciphertext);
         zend_error(E_ERROR, "crypto_box_seal()");
     }
@@ -944,7 +949,7 @@ PHP_FUNCTION(crypto_box_seal_open)
                    "crypto_box_seal_open(): short ciphertext");
     }
     msg = zend_string_alloc((size_t) ciphertext_len - crypto_box_SEALBYTES, 0);
-    if (crypto_box_seal_open(ZSTR_VAL(msg), ciphertext,
+    if (crypto_box_seal_open((unsigned char *) ZSTR_VAL(msg), ciphertext,
                              (unsigned long long) ciphertext_len,
                              publickey, secretkey) != 0) {
         zend_string_free(msg);
@@ -963,8 +968,9 @@ PHP_FUNCTION(crypto_sign_keypair)
 
     keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
     keypair = zend_string_alloc(keypair_len, 0);
-    if (crypto_sign_keypair(ZSTR_VAL(keypair) + crypto_sign_SECRETKEYBYTES,
-                            ZSTR_VAL(keypair)) != 0) {
+    if (crypto_sign_keypair((unsigned char *) ZSTR_VAL(keypair) +
+                            crypto_sign_SECRETKEYBYTES,
+                            (unsigned char *) ZSTR_VAL(keypair)) != 0) {
         zend_string_free(keypair);
         zend_error(E_ERROR, "crypto_sign_keypair()");
     }
@@ -991,8 +997,10 @@ PHP_FUNCTION(crypto_sign_seed_keypair)
     }
     keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
     keypair = zend_string_alloc(keypair_len, 0);
-    if (crypto_sign_seed_keypair(ZSTR_VAL(keypair) + crypto_sign_SECRETKEYBYTES,
-                                 ZSTR_VAL(keypair), seed) != 0) {
+    if (crypto_sign_seed_keypair((unsigned char *) ZSTR_VAL(keypair) +
+                                 crypto_sign_SECRETKEYBYTES,
+                                 (unsigned char *) ZSTR_VAL(keypair),
+                                 seed) != 0) {
         zend_string_free(keypair);
         zend_error(E_ERROR, "crypto_sign_seed_keypair()");
     }
@@ -1107,7 +1115,8 @@ PHP_FUNCTION(crypto_sign)
     }
     msg_signed_len = msg_len + crypto_sign_BYTES;
     msg_signed = zend_string_alloc((size_t) msg_signed_len, 0);
-    if (crypto_sign(ZSTR_VAL(msg_signed), &msg_signed_real_len, msg,
+    if (crypto_sign((unsigned char *) ZSTR_VAL(msg_signed),
+                    &msg_signed_real_len, msg,
                     (unsigned long long) msg_len, secretkey) != 0) {
         zend_string_free(msg_signed);
         zend_error(E_ERROR, "crypto_sign()");
@@ -1117,7 +1126,7 @@ PHP_FUNCTION(crypto_sign)
         zend_string_free(msg_signed);
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    ZSTR_LEN(msg_signed) = (strsize_t) msg_signed_real_len;
+    ZSTR_TRUNCATE(msg_signed, (strsize_t) msg_signed_real_len);
     ZSTR_VAL(msg_signed)[ZSTR_LEN(msg_signed)] = 0;
 
     RETURN_STR(msg_signed);
@@ -1148,10 +1157,9 @@ PHP_FUNCTION(crypto_sign_open)
         zend_error(E_ERROR, "arithmetic overflow");
     }
     msg = zend_string_alloc((size_t) msg_len, 0);
-    if (crypto_sign_open(ZSTR_VAL(msg), &msg_real_len, msg_signed,
-                         (unsigned long long) msg_signed_len,
+    if (crypto_sign_open((unsigned char *) ZSTR_VAL(msg), &msg_real_len,
+                         msg_signed, (unsigned long long) msg_signed_len,
                          publickey) != 0) {
-        sodium_memzero(msg, (size_t) msg_len);
         zend_string_free(msg);
         RETURN_FALSE;
     }
@@ -1159,7 +1167,7 @@ PHP_FUNCTION(crypto_sign_open)
         zend_string_free(msg);
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    ZSTR_LEN(msg) = (strsize_t) msg_real_len;
+    ZSTR_TRUNCATE(msg, (strsize_t) msg_real_len);
     ZSTR_VAL(msg)[ZSTR_LEN(msg)] = 0;
 
     RETURN_STR(msg);
@@ -1185,7 +1193,8 @@ PHP_FUNCTION(crypto_sign_detached)
                    "CRYPTO_SIGN_SECRETKEYBYTES bytes");
     }
     signature = zend_string_alloc((size_t) crypto_sign_BYTES, 0);
-    if (crypto_sign_detached(ZSTR_VAL(signature), &signature_real_len, msg,
+    if (crypto_sign_detached((unsigned char *) ZSTR_VAL(signature),
+                             &signature_real_len, msg,
                              (unsigned long long) msg_len, secretkey) != 0) {
         zend_string_free(signature);
         zend_error(E_ERROR, "crypto_sign_detached()");
@@ -1194,7 +1203,7 @@ PHP_FUNCTION(crypto_sign_detached)
         zend_string_free(signature);
         zend_error(E_ERROR, "signature has a bogus size");
     }
-    ZSTR_LEN(signature) = (strsize_t) signature_real_len;
+    ZSTR_TRUNCATE(signature, (strsize_t) signature_real_len);
     ZSTR_VAL(signature)[ZSTR_LEN(signature)] = 0;
 
     RETURN_STR(signature);
@@ -1258,8 +1267,8 @@ PHP_FUNCTION(crypto_stream)
         zend_error(E_ERROR, "key should be CRYPTO_STREAM_KEYBYTES bytes");
     }
     ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
-    if (crypto_stream(ZSTR_VAL(ciphertext), (unsigned long long) ciphertext_len,
-                      nonce, key) != 0) {
+    if (crypto_stream((unsigned char *) ZSTR_VAL(ciphertext),
+                      (unsigned long long) ciphertext_len, nonce, key) != 0) {
         zend_string_free(ciphertext);
         zend_error(E_ERROR, "crypto_stream()");
     }
@@ -1293,7 +1302,7 @@ PHP_FUNCTION(crypto_stream_xor)
     }
     ciphertext_len = msg_len;
     ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
-    if (crypto_stream_xor(ZSTR_VAL(ciphertext), msg,
+    if (crypto_stream_xor((unsigned char *) ZSTR_VAL(ciphertext), msg,
                           (unsigned long long) msg_len, nonce, key) != 0) {
         zend_string_free(ciphertext);
         zend_error(E_ERROR, "crypto_stream_xor()");
@@ -1340,7 +1349,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256)
     }
     hash = zend_string_alloc((size_t) hash_len, 0);
     if (crypto_pwhash_scryptsalsa208sha256
-        (ZSTR_VAL(hash), (unsigned long long) hash_len,
+        ((unsigned char *) ZSTR_VAL(hash), (unsigned long long) hash_len,
          passwd, (unsigned long long) passwd_len, salt,
          (unsigned long long) opslimit, (size_t) memlimit) != 0) {
         zend_string_free(hash);
@@ -1456,7 +1465,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_encrypt)
     ciphertext_len = msg_len + crypto_aead_chacha20poly1305_ABYTES;
     ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
     if (crypto_aead_chacha20poly1305_encrypt
-        (ZSTR_VAL(ciphertext), &ciphertext_real_len, msg,
+        ((unsigned char *) ZSTR_VAL(ciphertext), &ciphertext_real_len, msg,
          (unsigned long long) msg_len,
          ad, (unsigned long long) ad_len, NULL, npub, secretkey) != 0) {
         zend_string_free(ciphertext);
@@ -1467,7 +1476,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_encrypt)
         zend_string_free(ciphertext);
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    ZSTR_LEN(ciphertext) = (strsize_t) ciphertext_real_len;
+    ZSTR_TRUNCATE(ciphertext, (strsize_t) ciphertext_real_len);
     ZSTR_VAL(ciphertext)[ZSTR_LEN(ciphertext)] = 0;
 
     RETURN_STR(ciphertext);
@@ -1512,7 +1521,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt)
     }
     msg = zend_string_alloc((size_t) msg_len, 0);
     if (crypto_aead_chacha20poly1305_decrypt
-        (ZSTR_VAL(msg), &msg_real_len, NULL,
+        ((unsigned char *) ZSTR_VAL(msg), &msg_real_len, NULL,
          ciphertext, (unsigned long long) ciphertext_len,
          ad, (unsigned long long) ad_len, npub, secretkey) != 0) {
         zend_string_free(msg);
@@ -1522,7 +1531,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt)
         zend_string_free(msg);
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    ZSTR_LEN(msg) = (strsize_t) msg_real_len;
+    ZSTR_TRUNCATE(msg, (strsize_t) msg_real_len);
     ZSTR_VAL(msg)[ZSTR_LEN(msg)] = 0;
 
     RETURN_STR(msg);
@@ -1567,12 +1576,12 @@ PHP_FUNCTION(hex2bin)
     }
     bin_len = hex_len / 2;
     bin = zend_string_alloc(bin_len, 0);
-    if (sodium_hex2bin(ZSTR_VAL(bin), bin_len, hex, hex_len, ignore,
-                       &bin_real_len, NULL) != 0 ||
+    if (sodium_hex2bin((unsigned char *) ZSTR_VAL(bin), bin_len, hex, hex_len,
+                       ignore, &bin_real_len, NULL) != 0 ||
         bin_real_len >= STRSIZE_MAX || bin_real_len > bin_len) {
         zend_error(E_ERROR, "arithmetic overflow");
     }
-    ZSTR_LEN(bin) = bin_real_len;
+    ZSTR_TRUNCATE(bin, (strsize_t) bin_real_len);
     ZSTR_VAL(bin)[ZSTR_LEN(bin)] = 0;
 
     RETURN_STR(bin);
@@ -1596,7 +1605,7 @@ PHP_FUNCTION(crypto_scalarmult)
                    "CRYPTO_SCALARMULT_SCALARBYTES bytes");
     }
     q = zend_string_alloc(crypto_scalarmult_BYTES, 0);
-    if (crypto_scalarmult(ZSTR_VAL(q), n, p) != 0) {
+    if (crypto_scalarmult((unsigned char *) ZSTR_VAL(q), n, p) != 0) {
         zend_error(E_ERROR, "crypto_scalarmult(): internal error");
     }
     ZSTR_VAL(q)[ZSTR_LEN(q)] = 0;
@@ -1646,7 +1655,8 @@ PHP_FUNCTION(crypto_kx)
     sodium_memzero(q, sizeof q);
     crypto_generichash_update(&h, client_publickey, client_publickey_len);
     crypto_generichash_update(&h, server_publickey, server_publickey_len);
-    crypto_generichash_final(&h, ZSTR_VAL(sharedkey), crypto_kx_BYTES);
+    crypto_generichash_final(&h, (unsigned char *) ZSTR_VAL(sharedkey),
+                             crypto_kx_BYTES);
     ZSTR_VAL(sharedkey)[ZSTR_LEN(sharedkey)] = 0;
 
     RETURN_STR(sharedkey);
