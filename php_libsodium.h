@@ -44,6 +44,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256);
 PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str);
 PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify);
 PHP_FUNCTION(crypto_scalarmult);
+PHP_FUNCTION(crypto_scalarmult_base);
 PHP_FUNCTION(crypto_secretbox);
 PHP_FUNCTION(crypto_secretbox_open);
 PHP_FUNCTION(crypto_shorthash);

@@ -184,6 +184,9 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", memcmp, ZEND_FN(memcmp), AI_TwoStrings)
     ZEND_NS_NAMED_FE("Sodium", memzero, ZEND_FN(memzero), AI_FirstArgByReferenceSecondLength)
     ZEND_NS_NAMED_FE("Sodium", version_string, ZEND_FN(version_string), AI_None)
+
+    ZEND_NS_FALIAS("Sodium", crypto_scalarmult_base, crypto_box_publickey_from_secretkey, AI_TwoStrings)
+
     PHP_FE_END
 };
 

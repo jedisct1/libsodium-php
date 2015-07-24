@@ -13,6 +13,8 @@ var_dump(strlen($pk) === \Sodium\CRYPTO_BOX_PUBLICKEYBYTES);
 var_dump($pk !== $sk);
 $pk2 = \Sodium\crypto_box_publickey_from_secretkey($sk);
 var_dump($pk === $pk2);
+$pk2 = \Sodium\crypto_scalarmult_base($sk);
+var_dump($pk === $pk2);
 $keypair2 = \Sodium\crypto_box_keypair_from_secretkey_and_publickey($sk, $pk);
 var_dump($keypair === $keypair2);
 
