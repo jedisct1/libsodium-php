@@ -6,7 +6,7 @@ libsodium-php
 A simple, low-level PHP extension for
 [libsodium](https://github.com/jedisct1/libsodium).
 
-Requires libsodium >= 0.6.0 and PHP >= 5.4.0
+Requires libsodium >= 0.6.0 and PHP >= 5.6.0
 PHP 7 is also supported.
 
 On Debian >= 8 and Ubuntu >= 15.04, libsodium can be installed with:
