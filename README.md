@@ -367,18 +367,18 @@ if (\Sodium\memcmp($a, $b) === 0) {
 Constant-time binary/hexadecimal conversions
 --------------------------------------------
 
-// Binary to hexadecimal
 ```php
+// Binary to hexadecimal
 $hex = \Sodium\bin2hex($bin);
 ```
 
-// Hexadecimal to binary
 ```php
+// Hexadecimal to binary
 $bin = \Sodium\hex2bin($hex);
 ```
 
-// Hexadecimal to binary, ignoring a set of characters
 ```php
+// Hexadecimal to binary, ignoring a set of characters
 $bin = \Sodium\hex2bin($hex, $string_of_characters_to_ignore);
 ```
 
