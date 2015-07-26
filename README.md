@@ -18,6 +18,14 @@ On OSX, libsodium can be installed with
 
     brew install libsodium
 
+On Fedora, libsodium can be installed with: 
+
+    dnf install libsodium-devel
+    
+On RHEL, CentOS,  libsodium can be installed from EPEL repository with: 
+
+    yum install libsodium-devel
+
 Installation
 ============
 
