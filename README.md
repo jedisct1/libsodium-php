@@ -13,6 +13,8 @@ On Debian >= 8 and Ubuntu >= 15.04, libsodium can be installed with:
 
     apt-get install libsodium-dev
 
+This extension is currently not compatible with Fedora PHP packages.
+
 Secret-key cryptography
 =======================
 
