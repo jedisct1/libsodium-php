@@ -82,8 +82,8 @@ zend_string_alloc(strsize_t len, int persistent)
                    "zend_string_alloc() called with persistency");
     }
     if (ZEND_SIZE_MAX - 1U - (sizeof zsx) - (sizeof len) <= len) {
-        zend_error_(E_ERROR,
-                    "Possible integer overflow in memory allocation");
+        zend_error(E_ERROR,
+                   "Possible integer overflow in memory allocation");
     }
     zsx = safe_emalloc(len + 1U + (sizeof zsx) + (sizeof len), 1U, 0U);
     memset(zsx, STRING_VAL_FILLER, (size_t) len + (size_t) 1U);
