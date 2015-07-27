@@ -157,8 +157,11 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", crypto_box_open, ZEND_FN(crypto_box_open), AI_StringAndNonceAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_publickey, ZEND_FN(crypto_box_publickey), AI_Key)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_publickey_from_secretkey, ZEND_FN(crypto_box_publickey_from_secretkey), AI_Key)
+#if SODIUM_LIBRARY_VERSION_MAJOR > 7 || \
+    (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 5)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_seal, ZEND_FN(crypto_box_seal), AI_StringAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_seal_open, ZEND_FN(crypto_box_seal_open), AI_StringAndKey)
+#endif
     ZEND_NS_NAMED_FE("Sodium", crypto_box_secretkey, ZEND_FN(crypto_box_secretkey), AI_Key)
     ZEND_NS_NAMED_FE("Sodium", crypto_kx, ZEND_FN(crypto_kx), AI_FourStrings)
     ZEND_NS_NAMED_FE("Sodium", crypto_generichash, ZEND_FN(crypto_generichash), AI_StringAndMaybeKeyAndLength)
