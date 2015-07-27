@@ -191,6 +191,7 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", randombytes_uniform, ZEND_FN(randombytes_uniform), AI_Integer)
     ZEND_NS_NAMED_FE("Sodium", bin2hex, ZEND_FN(bin2hex), AI_String)
     ZEND_NS_NAMED_FE("Sodium", hex2bin, ZEND_FN(hex2bin), AI_TwoStrings)
+    ZEND_NS_NAMED_FE("Sodium", increment, ZEND_FN(increment), AI_String)
     ZEND_NS_NAMED_FE("Sodium", library_version_major, ZEND_FN(library_version_major), AI_None)
     ZEND_NS_NAMED_FE("Sodium", library_version_minor, ZEND_FN(library_version_minor), AI_None)
     ZEND_NS_NAMED_FE("Sodium", memcmp, ZEND_FN(memcmp), AI_TwoStrings)
@@ -1589,6 +1590,32 @@ PHP_FUNCTION(hex2bin)
     ZSTR_VAL(bin)[bin_real_len] = 0;
 
     RETURN_STR(bin);
+}
+
+PHP_FUNCTION(increment)
+{
+    zval          *val_zv;
+    unsigned char *val;
+    strsize_t      i;
+    strsize_t      val_len;
+    unsigned int   c;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+                              "z", &val_zv) == FAILURE) {
+        return;
+    }
+    ZVAL_DEREF(val_zv);
+    if (Z_TYPE_P(val_zv) != IS_STRING) {
+        zend_error(E_ERROR, "increment: a PHP string is required");
+    }
+    val = (unsigned char *) Z_STRVAL(*val_zv);
+    val_len = Z_STRLEN(*val_zv);
+    c = 1U << 8;
+    for (i = (strsize_t) 0U; i < val_len; i++) {
+        c >>= 8;
+        c += val[i];
+        val[i] = (unsigned char) c;
+    }
 }
 
 PHP_FUNCTION(crypto_scalarmult)

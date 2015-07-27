@@ -390,6 +390,13 @@ $bin = \Sodium\hex2bin($hex);
 $bin = \Sodium\hex2bin($hex, $string_of_characters_to_ignore);
 ```
 
+Incrementing an arbitrary-long value
+------------------------------------
+
+```php
+\Sodium\increment($nonce);
+```
+
 Danger zone
 ===========
 

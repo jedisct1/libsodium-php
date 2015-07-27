@@ -65,6 +65,7 @@ PHP_FUNCTION(randombytes_random16);
 PHP_FUNCTION(randombytes_uniform);
 PHP_FUNCTION(bin2hex);
 PHP_FUNCTION(hex2bin);
+PHP_FUNCTION(increment);
 PHP_FUNCTION(library_version_major);
 PHP_FUNCTION(library_version_minor);
 PHP_FUNCTION(memcmp);
