@@ -515,8 +515,7 @@ PHP_FUNCTION(crypto_secretbox_open)
                    "CRYPTO_SECRETBOX_KEYBYTES bytes");
     }
     if (ciphertext_len < crypto_secretbox_MACBYTES) {
-        zend_error(E_ERROR,
-                   "crypto_secretbox_open(): short ciphertext");
+        RETURN_FALSE;
     }
     msg = zend_string_alloc
         ((size_t) ciphertext_len - crypto_secretbox_MACBYTES, 0);
@@ -877,8 +876,7 @@ PHP_FUNCTION(crypto_box_open)
     secretkey = keypair;
     publickey = keypair + crypto_box_SECRETKEYBYTES;
     if (ciphertext_len < crypto_box_MACBYTES) {
-        zend_error(E_ERROR,
-                   "crypto_box_open(): short ciphertext");
+        RETURN_FALSE;
     }
     msg = zend_string_alloc((size_t) ciphertext_len - crypto_box_MACBYTES, 0);
     if (crypto_box_open_easy((unsigned char *) ZSTR_VAL(msg), ciphertext,
@@ -949,8 +947,7 @@ PHP_FUNCTION(crypto_box_seal_open)
     secretkey = keypair;
     publickey = keypair + crypto_box_SECRETKEYBYTES;
     if (ciphertext_len < crypto_box_SEALBYTES) {
-        zend_error(E_ERROR,
-                   "crypto_box_seal_open(): short ciphertext");
+        RETURN_FALSE;
     }
     msg = zend_string_alloc((size_t) ciphertext_len - crypto_box_SEALBYTES, 0);
     if (crypto_box_seal_open((unsigned char *) ZSTR_VAL(msg), ciphertext,
