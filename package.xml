@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2015-07-26</date>
-  <time>19:05:44</time>
+  <date>2015-07-27</date>
+  <time>10:35:12</time>
   <version>
-    <release>0.2.0</release>
-    <api>0.2.0</api>
+    <release>0.2.1</release>
+    <api>0.2.1</api>
   </version>
   <stability>
     <release>beta</release>
@@ -22,11 +22,8 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- Methods were moved to functions in a \Sodium\ namespace.
-- PHP 7 is now fully supported.
-- crypto_aead_chacha20poly1305_decrypt() now returns FALSE instead of a PHP error if verification fails.
-- multi-part hashing was implemented (crypto_generichash_{init|update|final})
-- sealed boxes have been implemented (crypto_seal)
+- Fixed support for old versions of libsodium
+- New helper function: increment()
   </notes>
   <contents>
     <dir name="/">
