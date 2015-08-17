@@ -189,8 +189,8 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", randombytes_buf, ZEND_FN(randombytes_buf), AI_Length)
     ZEND_NS_NAMED_FE("Sodium", randombytes_random16, ZEND_FN(randombytes_random16), AI_None)
     ZEND_NS_NAMED_FE("Sodium", randombytes_uniform, ZEND_FN(randombytes_uniform), AI_Integer)
-    ZEND_NS_NAMED_FE("Sodium", bin2hex, ZEND_FN(bin2hex), AI_String)
-    ZEND_NS_NAMED_FE("Sodium", hex2bin, ZEND_FN(hex2bin), AI_TwoStrings)
+    ZEND_NS_NAMED_FE("Sodium", bin2hex, ZEND_FN(sodium_bin2hex), AI_String)
+    ZEND_NS_NAMED_FE("Sodium", hex2bin, ZEND_FN(sodium_hex2bin), AI_TwoStrings)
     ZEND_NS_NAMED_FE("Sodium", increment, ZEND_FN(increment), AI_String)
     ZEND_NS_NAMED_FE("Sodium", library_version_major, ZEND_FN(library_version_major), AI_None)
     ZEND_NS_NAMED_FE("Sodium", library_version_minor, ZEND_FN(library_version_minor), AI_None)
@@ -1546,7 +1546,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt)
     RETURN_STR(msg);
 }
 
-PHP_FUNCTION(bin2hex)
+PHP_FUNCTION(sodium_bin2hex)
 {
     zend_string   *hex;
     unsigned char *bin;
@@ -1568,7 +1568,7 @@ PHP_FUNCTION(bin2hex)
     RETURN_STR(hex);
 }
 
-PHP_FUNCTION(hex2bin)
+PHP_FUNCTION(sodium_hex2bin)
 {
     zend_string   *bin;
     char          *hex;
