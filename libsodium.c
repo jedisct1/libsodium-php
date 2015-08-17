@@ -191,12 +191,12 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", randombytes_uniform, ZEND_FN(randombytes_uniform), AI_Integer)
     ZEND_NS_NAMED_FE("Sodium", bin2hex, ZEND_FN(sodium_bin2hex), AI_String)
     ZEND_NS_NAMED_FE("Sodium", hex2bin, ZEND_FN(sodium_hex2bin), AI_TwoStrings)
-    ZEND_NS_NAMED_FE("Sodium", increment, ZEND_FN(increment), AI_String)
-    ZEND_NS_NAMED_FE("Sodium", library_version_major, ZEND_FN(library_version_major), AI_None)
-    ZEND_NS_NAMED_FE("Sodium", library_version_minor, ZEND_FN(library_version_minor), AI_None)
-    ZEND_NS_NAMED_FE("Sodium", memcmp, ZEND_FN(memcmp), AI_TwoStrings)
-    ZEND_NS_NAMED_FE("Sodium", memzero, ZEND_FN(memzero), AI_FirstArgByReferenceSecondLength)
-    ZEND_NS_NAMED_FE("Sodium", version_string, ZEND_FN(version_string), AI_None)
+    ZEND_NS_NAMED_FE("Sodium", increment, ZEND_FN(sodium_increment), AI_String)
+    ZEND_NS_NAMED_FE("Sodium", library_version_major, ZEND_FN(sodium_library_version_major), AI_None)
+    ZEND_NS_NAMED_FE("Sodium", library_version_minor, ZEND_FN(sodium_library_version_minor), AI_None)
+    ZEND_NS_NAMED_FE("Sodium", memcmp, ZEND_FN(sodium_memcmp), AI_TwoStrings)
+    ZEND_NS_NAMED_FE("Sodium", memzero, ZEND_FN(sodium_memzero), AI_FirstArgByReferenceSecondLength)
+    ZEND_NS_NAMED_FE("Sodium", version_string, ZEND_FN(sodium_version_string), AI_None)
 
     ZEND_NS_FALIAS("Sodium", crypto_scalarmult_base, crypto_box_publickey_from_secretkey, AI_TwoStrings)
 
@@ -333,22 +333,22 @@ PHP_MINFO_FUNCTION(libsodium)
     php_info_print_table_end();
 }
 
-PHP_FUNCTION(version_string)
+PHP_FUNCTION(sodium_version_string)
 {
     RETURN_STRING(sodium_version_string());
 }
 
-PHP_FUNCTION(library_version_major)
+PHP_FUNCTION(sodium_library_version_major)
 {
     RETURN_LONG(sodium_library_version_major());
 }
 
-PHP_FUNCTION(library_version_minor)
+PHP_FUNCTION(sodium_library_version_minor)
 {
     RETURN_LONG(sodium_library_version_minor());
 }
 
-PHP_FUNCTION(memzero)
+PHP_FUNCTION(sodium_memzero)
 {
     zval      *buf_zv;
     char      *buf;
@@ -370,7 +370,7 @@ PHP_FUNCTION(memzero)
     convert_to_null(buf_zv);
 }
 
-PHP_FUNCTION(memcmp)
+PHP_FUNCTION(sodium_memcmp)
 {
     char      *buf1;
     char      *buf2;
@@ -1597,7 +1597,7 @@ PHP_FUNCTION(sodium_hex2bin)
     RETURN_STR(bin);
 }
 
-PHP_FUNCTION(increment)
+PHP_FUNCTION(sodium_increment)
 {
     zval          *val_zv;
     unsigned char *val;

@@ -65,12 +65,12 @@ PHP_FUNCTION(randombytes_random16);
 PHP_FUNCTION(randombytes_uniform);
 PHP_FUNCTION(sodium_bin2hex);
 PHP_FUNCTION(sodium_hex2bin);
-PHP_FUNCTION(increment);
-PHP_FUNCTION(library_version_major);
-PHP_FUNCTION(library_version_minor);
-PHP_FUNCTION(memcmp);
-PHP_FUNCTION(memzero);
-PHP_FUNCTION(version_string);
+PHP_FUNCTION(sodium_increment);
+PHP_FUNCTION(sodium_library_version_major);
+PHP_FUNCTION(sodium_library_version_minor);
+PHP_FUNCTION(sodium_memcmp);
+PHP_FUNCTION(sodium_memzero);
+PHP_FUNCTION(sodium_version_string);
 
 #ifdef ZTS
 #define LIBSODIUM_G(v) TSRMG(libsodium_globals_id, zend_libsodium_globals *, v)
