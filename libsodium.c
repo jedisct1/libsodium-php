@@ -1707,11 +1707,11 @@ PHP_FUNCTION(crypto_kx)
 
 PHP_FUNCTION(crypto_auth)
 {
-    zend_string              *mac;
-    char                     *key;
-    char                     *msg;
-    strsize_t                msg_len;
-    strsize_t                key_len;
+    zend_string *mac;
+    char        *key;
+    char        *msg;
+    strsize_t    msg_len;
+    strsize_t    key_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &msg, &msg_len,
@@ -1732,12 +1732,12 @@ PHP_FUNCTION(crypto_auth)
 
 PHP_FUNCTION(crypto_auth_verify)
 {
-    char                     *mac;
-    char                     *key;
-    char                     *msg;
-    strsize_t                mac_len;
-    strsize_t                msg_len;
-    strsize_t                key_len;
+    char      *mac;
+    char      *key;
+    char      *msg;
+    strsize_t  mac_len;
+    strsize_t  msg_len;
+    strsize_t  key_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
                               &mac, &mac_len,
