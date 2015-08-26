@@ -5,12 +5,9 @@ php:
  - "5.5"
  - "5.4"
  - "5.3"
- - "hhvm"
 
 matrix:
  fast_finish: true
- allow_failures:
-  - php: "hhvm"
 
 os:
  - linux
