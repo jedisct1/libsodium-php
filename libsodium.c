@@ -1749,7 +1749,7 @@ PHP_FUNCTION(crypto_auth_verify)
         zend_error(E_ERROR, "crypto_auth_verify(): key must be CRYPTO_AUTH_KEYBYTES bytes");
     }
     if (mac_len != crypto_auth_BYTES) {
-        zend_error(E_ERROR, "crypto_auth_verify(): key must be CRYPTO_AUTH_BYTES bytes");
+        zend_error(E_ERROR, "crypto_auth_verify(): authentication tag must be CRYPTO_AUTH_BYTES bytes");
     }
     if (crypto_auth_verify(mac, msg, msg_len, key) != 0) {
         RETURN_FALSE;
