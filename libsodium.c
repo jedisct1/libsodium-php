@@ -151,6 +151,8 @@ ZEND_END_ARG_INFO()
 const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", crypto_aead_chacha20poly1305_decrypt, ZEND_FN(crypto_aead_chacha20poly1305_decrypt), AI_StringAndADAndNonceAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_aead_chacha20poly1305_encrypt, ZEND_FN(crypto_aead_chacha20poly1305_encrypt), AI_StringAndADAndNonceAndKey)
+    ZEND_NS_NAMED_FE("Sodium", crypto_auth, ZEND_FN(crypto_auth), AI_StringAndKey)
+    ZEND_NS_NAMED_FE("Sodium", crypto_auth_verify, ZEND_FN(crypto_auth_verify), AI_SignatureAndStringAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_box, ZEND_FN(crypto_box), AI_StringAndNonceAndKeyPair)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_keypair, ZEND_FN(crypto_box_keypair), AI_None)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_keypair_from_secretkey_and_publickey, ZEND_FN(crypto_box_keypair_from_secretkey_and_publickey), AI_SecretKeyAndPublicKey)
@@ -239,6 +241,10 @@ PHP_MINIT_FUNCTION(libsodium)
                         crypto_aead_chacha20poly1305_NPUBBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_ABYTES",
                         crypto_aead_chacha20poly1305_ABYTES, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AUTH_BYTES",
+                        crypto_auth_BYTES, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AUTH_KEYBYTES",
+                        crypto_auth_KEYBYTES, CONST_CS | CONST_PERSISTENT);
 #ifdef crypto_box_SEALBYTES
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_SEALBYTES",
                         crypto_box_SEALBYTES, CONST_CS | CONST_PERSISTENT);
@@ -1697,4 +1703,56 @@ PHP_FUNCTION(crypto_kx)
     ZSTR_VAL(sharedkey)[crypto_kx_BYTES] = 0;
 
     RETURN_STR(sharedkey);
+}
+
+PHP_FUNCTION(crypto_auth)
+{
+    zend_string              *mac;
+    char                     *key;
+    char                     *msg;
+    strsize_t                msg_len;
+    strsize_t                key_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &msg, &msg_len,
+                              &key, &key_len) == FAILURE) {
+        return;
+    }
+    if (key_len != crypto_auth_KEYBYTES) {
+        zend_error(E_ERROR, "crypto_auth(): key must be CRYPTO_AUTH_KEYBYTES bytes");
+    }
+    mac = zend_string_alloc(crypto_auth_BYTES, 0);
+    if (crypto_auth((unsigned char *) ZSTR_VAL(mac), msg, msg_len, key) != 0) {
+        zend_error(E_ERROR, "crypto_auth(): internal error");
+    }
+    ZSTR_VAL(mac)[crypto_auth_BYTES] = 0;
+
+    RETURN_STR(mac);
+}
+
+PHP_FUNCTION(crypto_auth_verify)
+{
+    char                     *mac;
+    char                     *key;
+    char                     *msg;
+    strsize_t                mac_len;
+    strsize_t                msg_len;
+    strsize_t                key_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss",
+                              &mac, &mac_len,
+                              &msg, &msg_len,
+                              &key, &key_len) == FAILURE) {
+        return;
+    }
+    if (key_len != crypto_auth_KEYBYTES) {
+        zend_error(E_ERROR, "crypto_auth_verify(): key must be CRYPTO_AUTH_KEYBYTES bytes");
+    }
+    if (mac_len != crypto_auth_BYTES) {
+        zend_error(E_ERROR, "crypto_auth_verify(): key must be CRYPTO_AUTH_BYTES bytes");
+    }
+    if (crypto_auth_verify(mac, msg, msg_len, key) != 0) {
+        RETURN_FALSE;
+    }
+    RETURN_TRUE;
 }

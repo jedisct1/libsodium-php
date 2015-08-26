@@ -27,6 +27,8 @@ PHP_MINFO_FUNCTION(libsodium);
 
 PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt);
 PHP_FUNCTION(crypto_aead_chacha20poly1305_encrypt);
+PHP_FUNCTION(crypto_auth);
+PHP_FUNCTION(crypto_auth_verify);
 PHP_FUNCTION(crypto_box);
 PHP_FUNCTION(crypto_box_keypair);
 PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey);
