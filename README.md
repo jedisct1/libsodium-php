@@ -410,6 +410,19 @@ $shared_key = \Sodium\crypto_scalarmult($alice_key, $bob_key);
 Multiplication of the base point by a scalar is accessible as
 `crypto_box_publickey_from_secretkey()`.
 
+```php
+$secret_key = [a binary string that must be \Sodium\CRYPTO_BOX_SECRETKEYBYTES long];
+$public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
+```
+
+For deriving EdDSA public keys from EdDSA secret keys (for `crypto_sign`), use
+`crypto_sign_publickey_from_secretkey()`.
+
+```php
+$secret_key = [a binary string that must be \Sodium\CRYPTO_SIGN_SECRETKEYBYTES long];
+$public_key = \Sodium\crypto_sign_publickey_from_secretkey($secret_key);
+```
+
 Unauthenticated secret-key encryption
 -------------------------------------
 
