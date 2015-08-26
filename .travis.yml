@@ -7,8 +7,6 @@ php:
  - "5.3"
  - "hhvm"
 
-sudo: false
-
 matrix:
  fast_finish: true
  allow_failures:
