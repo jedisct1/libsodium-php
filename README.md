@@ -13,16 +13,16 @@ PHP 7 is also supported.
 On Debian >= 8 and Ubuntu >= 15.04, libsodium can be installed with:
 
     apt-get install libsodium-dev
-    
+
 On OSX, libsodium can be installed with
 
     brew install libsodium
 
-On Fedora, libsodium can be installed with: 
+On Fedora, libsodium can be installed with:
 
     dnf install libsodium-devel
-    
-On RHEL, CentOS,  libsodium can be installed from EPEL repository with: 
+
+On RHEL, CentOS,  libsodium can be installed from EPEL repository with:
 
     yum install libsodium-devel
 
@@ -427,6 +427,29 @@ with.
 
 Unless you specifically need unauthenticated encryption, `\Sodium\crypto_secretbox()`
 is the operation you should use instead.
+
+
+Secret-key authentication
+-------------------------
+
+```php
+$key = [a binary string that must be \Sodium\CRYPTO_AUTH_KEYBYTES long];
+$mac = \Sodium\crypto_auth('test', $key);
+```
+
+This operation computes an authentication tag for a message and a secret key,
+and provides a way to verify that a given tag is valid for a given message and
+a key.
+
+Verifying this authentication tag is as simple as:
+
+```php
+if (\Sodium\crypto_auth_verify($mac, $msg, $key)) {
+    // Authentication successful
+} else {
+    // Your message has likely been tampered with
+}
+```
 
 Sealed boxes
 ------------
