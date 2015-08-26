@@ -31,11 +31,12 @@ $badmsg[mt_rand(0, 999)] = \chr(
 var_dump(\Sodium\crypto_auth_verify($mac, $badmsg, $key));
 
 // Now let's change a bit in the MAC
-$badmag = $mac;
-
-
+$badmac = $mac;
+$badmac[0] = \chr(\ord($badmsg[0]) ^ 0x80);
+var_dump(\Sodium\crypto_auth_verify($badmac, $msg, $key));
 ?>
 --EXPECT--
 bool(true)
+bool(false)
 bool(false)
 bool(false)
