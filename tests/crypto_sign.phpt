@@ -49,6 +49,9 @@ var_dump(\Sodium\crypto_sign_verify_detached($signature,
                                              $msg, $alice_publickey));
 var_dump(\Sodium\crypto_sign_verify_detached($signature,
                                              $msg . "\0", $alice_publickey));
+
+$calc_pubkey = \Sodium\crypto_sign_publickey_from_secretkey($alice_secretkey);
+var_dump(\Sodium\memcmp($calc_pubkey, $alice_publickey) === 0);
 ?>
 --EXPECT--
 bool(true)
@@ -63,3 +66,4 @@ bool(true)
 bool(true)
 bool(true)
 bool(false)
+bool(true)

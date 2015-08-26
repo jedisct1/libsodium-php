@@ -184,6 +184,7 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", crypto_sign_open, ZEND_FN(crypto_sign_open), AI_StringAndKeyPair)
     ZEND_NS_NAMED_FE("Sodium", crypto_sign_publickey, ZEND_FN(crypto_sign_publickey), AI_Key)
     ZEND_NS_NAMED_FE("Sodium", crypto_sign_secretkey, ZEND_FN(crypto_sign_secretkey), AI_Key)
+    ZEND_NS_NAMED_FE("Sodium", crypto_sign_publickey_from_secretkey, ZEND_FN(crypto_sign_publickey_from_secretkey), AI_Key)
     ZEND_NS_NAMED_FE("Sodium", crypto_sign_seed_keypair, ZEND_FN(crypto_sign_seed_keypair), AI_Key)
     ZEND_NS_NAMED_FE("Sodium", crypto_sign_verify_detached, ZEND_FN(crypto_sign_verify_detached), AI_SignatureAndStringAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_stream, ZEND_FN(crypto_stream), AI_LengthAndNonceAndKey)
@@ -1056,6 +1057,32 @@ PHP_FUNCTION(crypto_sign_keypair_from_secretkey_and_publickey)
     ZSTR_VAL(keypair)[keypair_len] = 0;
 
     RETURN_STR(keypair);
+}
+
+PHP_FUNCTION(crypto_sign_publickey_from_secretkey)
+{
+    zend_string *publickey;
+    char        *secretkey;
+    strsize_t    secretkey_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &secretkey, &secretkey_len) == FAILURE) {
+        return;
+    }
+    if (secretkey_len != crypto_sign_SECRETKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_publickey_from_secretkey(): "
+                   "secretkey should be CRYPTO_SIGN_SECRETKEYBYTES long");
+    }
+    publickey = zend_string_alloc(crypto_sign_PUBLICKEYBYTES, 0);
+
+    if (crypto_sign_ed25519_sk_to_pk((unsigned char *) ZSTR_VAL(publickey),
+                                     secretkey) != 0) {
+        zend_error(E_ERROR, "crypto_sign()");
+    }
+    ZSTR_VAL(publickey)[crypto_sign_PUBLICKEYBYTES] = 0;
+
+    RETURN_STR(publickey);
 }
 
 PHP_FUNCTION(crypto_sign_secretkey)
