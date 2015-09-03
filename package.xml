@@ -10,20 +10,21 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2015-07-27</date>
-  <time>10:35:12</time>
+  <date>2015-09-03</date>
+  <time>19:47:55</time>
   <version>
-    <release>0.2.1</release>
-    <api>0.2.1</api>
+    <release>1.0.0</release>
+    <api>1.0.0</api>
   </version>
   <stability>
-    <release>beta</release>
-    <api>beta</api>
+    <release>stable</release>
+    <api>stable</api>
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- Fixed support for old versions of libsodium
-- New helper function: increment()
+- The extension can now be statically compiled.
+- crypto_sign_publickey_from_secretkey(), and crypto_auth() have been added.
+- The extension and its API are now marked stable.
   </notes>
   <contents>
     <dir name="/">
@@ -42,6 +43,7 @@
       </dir>
       <dir name="tests">
         <file role="test" name="crypto_aead.phpt"/>
+        <file role="test" name="crypto_auth.phpt"/>
         <file role="test" name="crypto_box.phpt"/>
         <file role="test" name="crypto_generichash.phpt"/>
         <file role="test" name="crypto_hex.phpt"/>
