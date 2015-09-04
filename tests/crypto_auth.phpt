@@ -4,7 +4,7 @@ Check for libsodium auth
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
-$msg = \Sodium\randombytes_buf(\Sodium\randombytes_uniform(1000));
+$msg = \Sodium\randombytes_buf(1000);
 $key = \Sodium\randombytes_buf(\Sodium\CRYPTO_AUTH_KEYBYTES);
 $mac = \Sodium\crypto_auth($msg, $key);
 
