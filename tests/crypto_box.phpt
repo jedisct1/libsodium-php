@@ -101,7 +101,6 @@ $bob_message_decrypted_by_alice = \Sodium\crypto_box_open($bob_to_alice_cipherte
 var_dump($alice_message_decrypted_by_bob);
 var_dump($bob_message_decrypted_by_alice);
 
-
 if (\Sodium\library_version_major() > 7 ||
     (\Sodium\library_version_major() == 7 &&
      \Sodium\library_version_minor() >= 5)) {
