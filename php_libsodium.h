@@ -31,6 +31,7 @@ PHP_FUNCTION(crypto_auth);
 PHP_FUNCTION(crypto_auth_verify);
 PHP_FUNCTION(crypto_box);
 PHP_FUNCTION(crypto_box_keypair);
+PHP_FUNCTION(crypto_box_seed_keypair);
 PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey);
 PHP_FUNCTION(crypto_box_open);
 PHP_FUNCTION(crypto_box_publickey);
