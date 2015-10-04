@@ -18,6 +18,52 @@ var_dump($pk === $pk2);
 $keypair2 = \Sodium\crypto_box_keypair_from_secretkey_and_publickey($sk, $pk);
 var_dump($keypair === $keypair2);
 
+$seed_x = str_repeat('x', \Sodium\CRYPTO_BOX_SEEDBYTES);
+$seed_y = str_repeat('y', \Sodium\CRYPTO_BOX_SEEDBYTES);
+$alice_box_kp = \Sodium\crypto_box_seed_keypair($seed_x);
+$bob_box_kp = \Sodium\crypto_box_seed_keypair($seed_y);
+$message_nonce = \Sodium\randombytes_buf(\Sodium\CRYPTO_BOX_NONCEBYTES);
+
+$alice_box_secretkey = \Sodium\crypto_box_secretkey($alice_box_kp);
+$bob_box_publickey = \Sodium\crypto_box_publickey($bob_box_kp);
+
+$alice_to_bob_kp = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
+    $alice_box_secretkey,
+    $bob_box_publickey
+);
+
+$msg = "Here is another message, to be signed using Alice's secret key, and " .
+  "to be encrypted using Bob's public key. The keys will always be the same " .
+  "since they are derived from a fixed seeds";
+
+$ciphertext = \Sodium\crypto_box(
+    $msg,
+    $message_nonce,
+    $alice_to_bob_kp
+);
+
+\Sodium\memzero($alice_box_kp);
+\Sodium\memzero($bob_box_kp);
+
+$alice_box_kp = \Sodium\crypto_box_seed_keypair($seed_x);
+$bob_box_kp = \Sodium\crypto_box_seed_keypair($seed_y);
+
+$alice_box_publickey = \Sodium\crypto_box_publickey($alice_box_kp);
+$bob_box_secretkey = \Sodium\crypto_box_secretkey($bob_box_kp);
+
+$bob_to_alice_kp = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
+    $bob_box_secretkey,
+    $alice_box_publickey
+);
+
+$plaintext = \Sodium\crypto_box_open(
+    $ciphertext,
+    $message_nonce,
+    $bob_to_alice_kp
+);
+
+var_dump($msg === $plaintext);
+
 $alice_kp = \Sodium\crypto_box_keypair();
 $alice_secretkey = \Sodium\crypto_box_secretkey($alice_kp);
 $alice_publickey = \Sodium\crypto_box_publickey($alice_kp);
@@ -55,6 +101,7 @@ $bob_message_decrypted_by_alice = \Sodium\crypto_box_open($bob_to_alice_cipherte
 var_dump($alice_message_decrypted_by_bob);
 var_dump($bob_message_decrypted_by_alice);
 
+
 if (\Sodium\library_version_major() > 7 ||
     (\Sodium\library_version_major() == 7 &&
      \Sodium\library_version_minor() >= 5)) {
@@ -70,6 +117,7 @@ var_dump($decrypted_message);
 
 ?>
 --EXPECT--
+bool(true)
 bool(true)
 bool(true)
 bool(true)
