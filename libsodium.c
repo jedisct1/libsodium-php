@@ -155,6 +155,7 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", crypto_auth_verify, ZEND_FN(crypto_auth_verify), AI_SignatureAndStringAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_box, ZEND_FN(crypto_box), AI_StringAndNonceAndKeyPair)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_keypair, ZEND_FN(crypto_box_keypair), AI_None)
+    ZEND_NS_NAMED_FE("Sodium", crypto_box_seed_keypair, ZEND_FN(crypto_box_seed_keypair), AI_Key)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_keypair_from_secretkey_and_publickey, ZEND_FN(crypto_box_keypair_from_secretkey_and_publickey), AI_SecretKeyAndPublicKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_open, ZEND_FN(crypto_box_open), AI_StringAndNonceAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_publickey, ZEND_FN(crypto_box_publickey), AI_Key)
@@ -261,6 +262,8 @@ PHP_MINIT_FUNCTION(libsodium)
                         crypto_box_MACBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_NONCEBYTES",
                         crypto_box_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_SEEDBYTES",
+                        crypto_box_SEEDBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_KX_BYTES",
                         crypto_kx_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_KX_PUBLICKEYBYTES",
@@ -702,6 +705,36 @@ PHP_FUNCTION(crypto_box_keypair)
                            (unsigned char *) ZSTR_VAL(keypair)) != 0) {
         zend_string_free(keypair);
         zend_error(E_ERROR, "crypto_box_keypair()");
+    }
+    ZSTR_VAL(keypair)[keypair_len] = 0;
+
+    RETURN_STR(keypair);
+}
+
+PHP_FUNCTION(crypto_box_seed_keypair)
+{
+    zend_string   *keypair;
+    unsigned char *seed;
+    size_t         keypair_len;
+    strsize_t      seed_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &seed, &seed_len) == FAILURE) {
+        return;
+    }
+    if (seed_len != crypto_box_SEEDBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_box_seed_keypair(): "
+                   "seed should be crypto_box_SEEDBYTES long");
+    }
+    keypair_len = crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES;
+    keypair = zend_string_alloc(keypair_len, 0);
+    if (crypto_box_seed_keypair((unsigned char *) ZSTR_VAL(keypair) +
+                                 crypto_box_SECRETKEYBYTES,
+                                 (unsigned char *) ZSTR_VAL(keypair),
+                                 seed) != 0) {
+        zend_string_free(keypair);
+        zend_error(E_ERROR, "crypto_box_seed_keypair()");
     }
     ZSTR_VAL(keypair)[keypair_len] = 0;
 
