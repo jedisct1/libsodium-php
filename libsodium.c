@@ -1110,7 +1110,7 @@ PHP_FUNCTION(crypto_sign_publickey_from_secretkey)
     publickey = zend_string_alloc(crypto_sign_PUBLICKEYBYTES, 0);
 
     if (crypto_sign_ed25519_sk_to_pk((unsigned char *) ZSTR_VAL(publickey),
-                                     secretkey) != 0) {
+                                     (const unsigned char *) secretkey) != 0) {
         zend_error(E_ERROR, "crypto_sign()");
     }
     ZSTR_VAL(publickey)[crypto_sign_PUBLICKEYBYTES] = 0;
@@ -1782,7 +1782,9 @@ PHP_FUNCTION(crypto_auth)
         zend_error(E_ERROR, "crypto_auth(): key must be CRYPTO_AUTH_KEYBYTES bytes");
     }
     mac = zend_string_alloc(crypto_auth_BYTES, 0);
-    if (crypto_auth((unsigned char *) ZSTR_VAL(mac), msg, msg_len, key) != 0) {
+    if (crypto_auth((unsigned char *) ZSTR_VAL(mac),
+                    (const unsigned char *) msg, msg_len,
+                    (const unsigned char *) key) != 0) {
         zend_error(E_ERROR, "crypto_auth(): internal error");
     }
     ZSTR_VAL(mac)[crypto_auth_BYTES] = 0;
@@ -1811,7 +1813,9 @@ PHP_FUNCTION(crypto_auth_verify)
     if (mac_len != crypto_auth_BYTES) {
         zend_error(E_ERROR, "crypto_auth_verify(): authentication tag must be CRYPTO_AUTH_BYTES bytes");
     }
-    if (crypto_auth_verify(mac, msg, msg_len, key) != 0) {
+    if (crypto_auth_verify((const unsigned char *) mac,
+                           (const unsigned char *) msg, msg_len,
+                           (const unsigned char *) key) != 0) {
         RETURN_FALSE;
     }
     RETURN_TRUE;
