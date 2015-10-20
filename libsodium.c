@@ -1526,7 +1526,11 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify)
 
 PHP_FUNCTION(crypto_aead_aes256gcm_is_available)
 {
+#ifdef HAVE_AESGCM
     RETURN_BOOL(crypto_aead_aes256gcm_is_available());
+#else
+    RETURN_FALSE;
+#endif
 }
 
 #ifdef HAVE_AESGCM
