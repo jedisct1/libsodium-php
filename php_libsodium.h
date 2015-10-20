@@ -25,6 +25,9 @@ PHP_RINIT_FUNCTION(libsodium);
 PHP_RSHUTDOWN_FUNCTION(libsodium);
 PHP_MINFO_FUNCTION(libsodium);
 
+PHP_FUNCTION(crypto_aead_aes256gcm_is_available);
+PHP_FUNCTION(crypto_aead_aes256gcm_decrypt);
+PHP_FUNCTION(crypto_aead_aes256gcm_encrypt);
 PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt);
 PHP_FUNCTION(crypto_aead_chacha20poly1305_encrypt);
 PHP_FUNCTION(crypto_auth);
