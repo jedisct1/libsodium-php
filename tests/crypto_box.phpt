@@ -114,6 +114,15 @@ if (\Sodium\library_version_major() > 7 ||
 }
 var_dump($decrypted_message);
 
+$msg = \Sodium\hex2bin(
+    '7375f4094f1151640bd853cb13dbc1a0ee9e13b0287a89d34fa2f6732be9de13f88457553d'.
+    '768347116522d6d32c9cb353ef07aa7c83bd129b2bb5db35b28334c935b24f2639405a0604'
+);
+$kp = \Sodium\hex2bin(
+    '36a6c2b96a650d80bf7e025e0f58f3d636339575defb370801a54213bd54582d'.
+    '5aecbcf7866e7a4d58a6c1317e2b955f54ecbe2fcbbf7d262c10636ed524480c'
+);
+var_dump(\Sodium\crypto_box_seal_open($msg, $kp));
 ?>
 --EXPECT--
 bool(true)
@@ -127,3 +136,4 @@ bool(true)
 string(17) "Hi, this is Alice"
 string(21) "Hi Alice! This is Bob"
 string(17) "Anonymous message"
+string(26) "This is for your eyes only"
