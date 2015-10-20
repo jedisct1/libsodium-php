@@ -180,6 +180,8 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", crypto_shorthash, ZEND_FN(crypto_shorthash), AI_StringAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_sign, ZEND_FN(crypto_sign), AI_StringAndKeyPair)
     ZEND_NS_NAMED_FE("Sodium", crypto_sign_detached, ZEND_FN(crypto_sign_detached), AI_StringAndKeyPair)
+    ZEND_NS_NAMED_FE("Sodium", crypto_sign_ed25519_pk_to_curve25519, ZEND_FN(crypto_sign_ed25519_pk_to_curve25519), AI_Key)
+    ZEND_NS_NAMED_FE("Sodium", crypto_sign_ed25519_sk_to_curve25519, ZEND_FN(crypto_sign_ed25519_sk_to_curve25519), AI_Key)
     ZEND_NS_NAMED_FE("Sodium", crypto_sign_keypair, ZEND_FN(crypto_sign_keypair), AI_None)
     ZEND_NS_NAMED_FE("Sodium", crypto_sign_keypair_from_secretkey_and_publickey, ZEND_FN(crypto_sign_keypair_from_secretkey_and_publickey), AI_SecretKeyAndPublicKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_sign_open, ZEND_FN(crypto_sign_open), AI_StringAndKeyPair)
@@ -1819,4 +1821,56 @@ PHP_FUNCTION(crypto_auth_verify)
         RETURN_FALSE;
     }
     RETURN_TRUE;
+}
+
+PHP_FUNCTION(crypto_sign_ed25519_sk_to_curve25519)
+{
+    zend_string *ecdhkey;
+    char        *eddsakey;
+    strsize_t    eddsakey_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &eddsakey, &eddsakey_len) == FAILURE) {
+        return;
+    }
+    if (eddsakey_len != crypto_sign_SECRETKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_ed25519_pk_to_curve25519(): "
+                   "Ed25519 key should be CRYPTO_SIGN_PUBLICKEYBYTES long");
+    }
+    ecdhkey = zend_string_alloc(crypto_box_SECRETKEYBYTES, 0);
+
+    if (crypto_sign_ed25519_sk_to_curve25519((unsigned char *) ZSTR_VAL(ecdhkey),
+                                             (const unsigned char *) eddsakey) != 0) {
+        zend_error(E_ERROR, "crypto_sign()");
+    }
+    ZSTR_VAL(ecdhkey)[crypto_box_SECRETKEYBYTES] = 0;
+
+    RETURN_STR(ecdhkey);    
+}
+
+PHP_FUNCTION(crypto_sign_ed25519_pk_to_curve25519)
+{
+    zend_string *ecdhkey;
+    char        *eddsakey;
+    strsize_t    eddsakey_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                              &eddsakey, &eddsakey_len) == FAILURE) {
+        return;
+    }
+    if (eddsakey_len != crypto_sign_PUBLICKEYBYTES) {
+        zend_error(E_ERROR,
+                   "crypto_sign_ed25519_pk_to_curve25519(): "
+                   "Ed25519 key should be CRYPTO_SIGN_PUBLICKEYBYTES long");
+    }
+    ecdhkey = zend_string_alloc(crypto_sign_PUBLICKEYBYTES, 0);
+
+    if (crypto_sign_ed25519_pk_to_curve25519((unsigned char *) ZSTR_VAL(ecdhkey),
+                                             (const unsigned char *) eddsakey) != 0) {
+        zend_error(E_ERROR, "crypto_sign()");
+    }
+    ZSTR_VAL(ecdhkey)[crypto_box_PUBLICKEYBYTES] = 0;
+
+    RETURN_STR(ecdhkey);    
 }

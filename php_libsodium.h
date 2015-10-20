@@ -54,6 +54,8 @@ PHP_FUNCTION(crypto_secretbox_open);
 PHP_FUNCTION(crypto_shorthash);
 PHP_FUNCTION(crypto_sign);
 PHP_FUNCTION(crypto_sign_detached);
+PHP_FUNCTION(crypto_sign_ed25519_pk_to_curve25519);
+PHP_FUNCTION(crypto_sign_ed25519_sk_to_curve25519);
 PHP_FUNCTION(crypto_sign_keypair);
 PHP_FUNCTION(crypto_sign_keypair_from_secretkey_and_publickey);
 PHP_FUNCTION(crypto_sign_open);
