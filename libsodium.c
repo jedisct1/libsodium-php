@@ -148,8 +148,14 @@ ZEND_END_ARG_INFO()
 # define PHP_FE_END { NULL, NULL, NULL }
 #endif
 
+#if defined(crypto_aead_aes256gcm_KEYBYTES) && \
+    (defined(__amd64) || defined(__amd64__) || defined(__x86_64__) || defined(__i386__) || \
+     defined(_M_AMD64) || defined(_M_IX86))
+# define HAVE_AESGCM 1
+#endif
+
 const zend_function_entry libsodium_functions[] = {
-#ifdef crypto_aead_aes256gcm_KEYBYTES
+#ifdef HAVE_AESGCM
     ZEND_NS_NAMED_FE("Sodium", crypto_aead_aes256gcm_is_available, ZEND_FN(crypto_aead_aes256gcm_is_available), AI_None)
     ZEND_NS_NAMED_FE("Sodium", crypto_aead_aes256gcm_decrypt, ZEND_FN(crypto_aead_aes256gcm_decrypt), AI_StringAndADAndNonceAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_aead_aes256gcm_encrypt, ZEND_FN(crypto_aead_aes256gcm_encrypt), AI_StringAndADAndNonceAndKey)
@@ -242,7 +248,7 @@ PHP_MINIT_FUNCTION(libsodium)
         zend_error(E_ERROR, "sodium_init()");
     }
 
-#ifdef crypto_aead_aes256gcm_KEYBYTES
+#ifdef HAVE_AESGCM
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_AES256GCM_KEYBYTES",
                         crypto_aead_aes256gcm_KEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_AES256GCM_NSECBYTES",
@@ -1518,7 +1524,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify)
     RETURN_FALSE;
 }
 
-#ifdef crypto_aead_aes256gcm_KEYBYTES
+#ifdef HAVE_AESGCM
 PHP_FUNCTION(crypto_aead_aes256gcm_is_available)
 {
     RETURN_BOOL(crypto_aead_aes256gcm_is_available());
