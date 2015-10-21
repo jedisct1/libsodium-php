@@ -20,7 +20,7 @@ $v = hex2bin('FFFF800102030405060708');
 \Sodium\increment($v);
 var_dump(bin2hex($v));
 
-$str = 'stdclass';
+$str = 'stdClass';
 \Sodium\memzero($str);
 $obj = json_decode(json_encode(['foo' => 'bar']));
 var_dump($obj);
