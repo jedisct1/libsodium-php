@@ -19,9 +19,18 @@ var_dump(!\Sodium\memcmp($b, 'String'));
 $v = hex2bin('FFFF800102030405060708');
 \Sodium\increment($v);
 var_dump(bin2hex($v));
+
+$str = 'stdclass';
+\Sodium\memzero($str);
+$obj = json_decode(json_encode(['foo' => 'bar']));
+var_dump($obj);
 ?>
 --EXPECT--
 0
 bool(true)
 bool(false)
 string(22) "0000810102030405060708"
+object(stdClass)#1 (1) {
+  ["foo"]=>
+  string(3) "bar"
+}
