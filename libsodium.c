@@ -1827,6 +1827,11 @@ PHP_FUNCTION(sodium_increment)
         return;
     }
     ZVAL_DEREF(val_zv);
+#if PHP_MAJOR_VERSION >= 7
+    if (Z_REFCOUNTED_P(val_zv) == 0) {
+        return;
+    }
+#endif
     if (Z_TYPE_P(val_zv) != IS_STRING) {
         zend_error(E_ERROR, "increment: a PHP string is required");
     }
