@@ -391,6 +391,11 @@ PHP_FUNCTION(sodium_memzero)
                               "z", &buf_zv) == FAILURE) {
         return;
     }
+#if PHP_MAJOR_VERSION >= 7
+    if (Z_REFCOUNTED_P(buf_zv) == 0 || Z_REFCOUNT(*buf_zv) > 2) {
+        return;
+    }
+#endif
     ZVAL_DEREF(buf_zv);
 #if PHP_MAJOR_VERSION >= 7
     if (Z_REFCOUNTED_P(buf_zv) == 0 || Z_REFCOUNT(*buf_zv) > 1) {
