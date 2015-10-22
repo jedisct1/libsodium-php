@@ -392,6 +392,12 @@ PHP_FUNCTION(sodium_memzero)
         return;
     }
     ZVAL_DEREF(buf_zv);
+#if PHP_MAJOR_VERSION >= 7
+    if (Z_REFCOUNTED_P(buf_zv) == 0 || Z_REFCOUNT(*buf_zv) > 1) {
+        convert_to_null(buf_zv);
+        return;
+    }
+#endif
     if (Z_TYPE_P(buf_zv) != IS_STRING) {
         zend_error(E_ERROR, "memzero: a PHP string is required");
     }
@@ -1989,7 +1995,7 @@ PHP_FUNCTION(crypto_sign_ed25519_sk_to_curve25519)
     }
     ZSTR_VAL(ecdhkey)[crypto_box_SECRETKEYBYTES] = 0;
 
-    RETURN_STR(ecdhkey);    
+    RETURN_STR(ecdhkey);
 }
 
 PHP_FUNCTION(crypto_sign_ed25519_pk_to_curve25519)
@@ -2015,5 +2021,5 @@ PHP_FUNCTION(crypto_sign_ed25519_pk_to_curve25519)
     }
     ZSTR_VAL(ecdhkey)[crypto_box_PUBLICKEYBYTES] = 0;
 
-    RETURN_STR(ecdhkey);    
+    RETURN_STR(ecdhkey);
 }
