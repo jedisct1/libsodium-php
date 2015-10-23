@@ -207,6 +207,10 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", randombytes_random16, ZEND_FN(randombytes_random16), AI_None)
     ZEND_NS_NAMED_FE("Sodium", randombytes_uniform, ZEND_FN(randombytes_uniform), AI_Integer)
     ZEND_NS_NAMED_FE("Sodium", bin2hex, ZEND_FN(sodium_bin2hex), AI_String)
+#if SODIUM_LIBRARY_VERSION_MAJOR > 7 || \
+    (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 6)
+    ZEND_NS_NAMED_FE("Sodium", compare, ZEND_FN(sodium_compare), AI_String)
+#endif
     ZEND_NS_NAMED_FE("Sodium", hex2bin, ZEND_FN(sodium_hex2bin), AI_TwoStrings)
     ZEND_NS_NAMED_FE("Sodium", increment, ZEND_FN(sodium_increment), AI_String)
     ZEND_NS_NAMED_FE("Sodium", library_version_major, ZEND_FN(sodium_library_version_major), AI_None)
@@ -2027,4 +2031,26 @@ PHP_FUNCTION(crypto_sign_ed25519_pk_to_curve25519)
     ZSTR_VAL(ecdhkey)[crypto_box_PUBLICKEYBYTES] = 0;
 
     RETURN_STR(ecdhkey);
+}
+
+PHP_FUNCTION(sodium_compare)
+{
+    char      *buf1;
+    char      *buf2;
+    strsize_t  len1;
+    strsize_t  len2;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &buf1, &len1,
+                              &buf2, &len2) == FAILURE) {
+        return;
+    }
+    if (len1 != len2) {
+        RETURN_FALSE;
+    } else if (len1 > SIZE_MAX) {
+        zend_error(E_ERROR, "memcmp(): invalid length");
+    } else if (sodium_compare(buf1, buf2, (size_t) len1) == 0) {
+        RETURN_TRUE;
+    }
+    RETURN_FALSE;
 }
