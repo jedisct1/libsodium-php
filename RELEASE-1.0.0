@@ -1,0 +1,3 @@
+The extension can now be statically compiled.
+crypto_sign_publickey_from_secretkey(), and crypto_auth() have been added.
+The extension and its API are now marked stable.
