@@ -28,9 +28,11 @@ if (\Sodium\library_version_major() > 7 ||
     var_dump(\Sodium\compare($v_1, $v_2));
     \Sodium\increment($v_1);
     var_dump(\Sodium\compare($v_1, $v_2));
+    \Sodium\increment($v_1);
+    var_dump(\Sodium\compare($v_1, $v_2));
 } else {
     // Dummy test results for libsodium < 1.0.4
-    var_dump(false, true);
+    var_dump(-1, 0, 1);
 }
 $str = 'stdClass';
 \Sodium\memzero($str);

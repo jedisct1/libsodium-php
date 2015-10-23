@@ -2049,8 +2049,7 @@ PHP_FUNCTION(sodium_compare)
         RETURN_FALSE;
     } else if (len1 > SIZE_MAX) {
         zend_error(E_ERROR, "memcmp(): invalid length");
-    } else if (sodium_compare(buf1, buf2, (size_t) len1) == 0) {
-        RETURN_TRUE;
+    } else {
+        RETURN_LONG(sodium_compare(buf1, buf2, (size_t) len1));
     }
-    RETURN_FALSE;
 }
