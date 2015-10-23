@@ -44,8 +44,9 @@ var_dump($obj);
 bool(true)
 bool(false)
 string(22) "0000810102030405060708"
-bool(false)
-bool(true)
+int(-1)
+int(0)
+int(1)
 object(stdClass)#1 (1) {
   ["foo"]=>
   string(3) "bar"
