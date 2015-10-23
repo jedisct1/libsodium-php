@@ -73,6 +73,7 @@ PHP_FUNCTION(randombytes_buf);
 PHP_FUNCTION(randombytes_random16);
 PHP_FUNCTION(randombytes_uniform);
 PHP_FUNCTION(sodium_bin2hex);
+PHP_FUNCTION(sodium_compare);
 PHP_FUNCTION(sodium_hex2bin);
 PHP_FUNCTION(sodium_increment);
 PHP_FUNCTION(sodium_library_version_major);
