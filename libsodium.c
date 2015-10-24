@@ -2046,9 +2046,9 @@ PHP_FUNCTION(sodium_compare)
         return;
     }
     if (len1 != len2) {
-        RETURN_FALSE;
+        zend_error(E_ERROR, "compare(): arguments have different sizes");
     } else if (len1 > SIZE_MAX) {
-        zend_error(E_ERROR, "memcmp(): invalid length");
+        zend_error(E_ERROR, "compare(): invalid length");
     } else {
         RETURN_LONG(sodium_compare((const unsigned char *) buf1,
                                    (const unsigned char *) buf2, (size_t) len1));
