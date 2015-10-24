@@ -1993,14 +1993,14 @@ PHP_FUNCTION(crypto_sign_ed25519_sk_to_curve25519)
     }
     if (eddsakey_len != crypto_sign_SECRETKEYBYTES) {
         zend_error(E_ERROR,
-                   "crypto_sign_ed25519_pk_to_curve25519(): "
-                   "Ed25519 key should be CRYPTO_SIGN_PUBLICKEYBYTES long");
+                   "crypto_sign_ed25519_sk_to_curve25519(): "
+                   "Ed25519 key should be CRYPTO_SIGN_SECRETKEYBYTES long");
     }
     ecdhkey = zend_string_alloc(crypto_box_SECRETKEYBYTES, 0);
 
     if (crypto_sign_ed25519_sk_to_curve25519((unsigned char *) ZSTR_VAL(ecdhkey),
                                              (const unsigned char *) eddsakey) != 0) {
-        zend_error(E_ERROR, "crypto_sign()");
+        zend_error(E_ERROR, "crypto_sign_ed25519_sk_to_curve25519()");
     }
     ZSTR_VAL(ecdhkey)[crypto_box_SECRETKEYBYTES] = 0;
 
@@ -2026,7 +2026,7 @@ PHP_FUNCTION(crypto_sign_ed25519_pk_to_curve25519)
 
     if (crypto_sign_ed25519_pk_to_curve25519((unsigned char *) ZSTR_VAL(ecdhkey),
                                              (const unsigned char *) eddsakey) != 0) {
-        zend_error(E_ERROR, "crypto_sign()");
+        zend_error(E_ERROR, "crypto_sign_ed25519_pk_to_curve25519()");
     }
     ZSTR_VAL(ecdhkey)[crypto_box_PUBLICKEYBYTES] = 0;
 
