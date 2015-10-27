@@ -419,6 +419,37 @@ PHP_FUNCTION(sodium_memzero)
     convert_to_null(buf_zv);
 }
 
+PHP_FUNCTION(sodium_increment)
+{
+    zval          *val_zv;
+    unsigned char *val;
+    strsize_t      i;
+    strsize_t      val_len;
+    unsigned int   c;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+                              "z", &val_zv) == FAILURE) {
+        return;
+    }
+    ZVAL_DEREF(val_zv);
+#if PHP_MAJOR_VERSION >= 7
+    if (Z_REFCOUNTED_P(val_zv) == 0) {
+        return;
+    }
+#endif
+    if (Z_TYPE_P(val_zv) != IS_STRING) {
+        zend_error(E_ERROR, "increment: a PHP string is required");
+    }
+    val = (unsigned char *) Z_STRVAL(*val_zv);
+    val_len = Z_STRLEN(*val_zv);
+    c = 1U << 8;
+    for (i = (strsize_t) 0U; i < val_len; i++) {
+        c >>= 8;
+        c += val[i];
+        val[i] = (unsigned char) c;
+    }
+}
+
 PHP_FUNCTION(sodium_memcmp)
 {
     char      *buf1;
@@ -1822,37 +1853,6 @@ PHP_FUNCTION(sodium_hex2bin)
     ZSTR_VAL(bin)[bin_real_len] = 0;
 
     RETURN_STR(bin);
-}
-
-PHP_FUNCTION(sodium_increment)
-{
-    zval          *val_zv;
-    unsigned char *val;
-    strsize_t      i;
-    strsize_t      val_len;
-    unsigned int   c;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-                              "z", &val_zv) == FAILURE) {
-        return;
-    }
-    ZVAL_DEREF(val_zv);
-#if PHP_MAJOR_VERSION >= 7
-    if (Z_REFCOUNTED_P(val_zv) == 0) {
-        return;
-    }
-#endif
-    if (Z_TYPE_P(val_zv) != IS_STRING) {
-        zend_error(E_ERROR, "increment: a PHP string is required");
-    }
-    val = (unsigned char *) Z_STRVAL(*val_zv);
-    val_len = Z_STRLEN(*val_zv);
-    c = 1U << 8;
-    for (i = (strsize_t) 0U; i < val_len; i++) {
-        c >>= 8;
-        c += val[i];
-        val[i] = (unsigned char) c;
-    }
 }
 
 PHP_FUNCTION(crypto_scalarmult)
