@@ -38,7 +38,13 @@ if test "$PHP_LIBSODIUM" != "no"; then
   ],[
     -L$LIBSODIUM_DIR/$PHP_LIBDIR
   ])
-  
+  PHP_CHECK_LIBRARY($LIBNAME,crypto_aead_aes256gcm_encrypt,
+  [
+    AC_DEFINE(HAVE_CRYPTO_AEAD_AES256GCM,1,[ ])
+  ],[],[
+    -L$LIBSODIUM_DIR/$PHP_LIBDIR
+  ])
+
   PHP_SUBST(LIBSODIUM_SHARED_LIBADD)
 
   PHP_NEW_EXTENSION(libsodium, libsodium.c, $ext_shared)
