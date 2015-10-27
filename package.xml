@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2015-10-24</date>
-  <time>18:46:22</time>
+  <date>2015-10-27</date>
+  <time>10:17:59</time>
   <version>
-    <release>1.0.1</release>
-    <api>1.0.1</api>
+    <release>1.0.2</release>
+    <api>1.0.2</api>
   </version>
   <stability>
     <release>stable</release>
@@ -22,11 +22,7 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- Added crypto_aead_aes256gcm_*()
-- Added crypto_box_seed_keypair()
-- Added crypto_sign_ed25519_sk_to_curve25519() and crypto_sign_ed25519_pk_to_curve25519()
-- Added compare()
-- On PHP7, make memzero() and increment() avoid zeroing an object if it is not a reference or if its reference count is > 1
+- Compatibility with old distros and old versions of libsodium
   </notes>
   <contents>
     <dir name="/">

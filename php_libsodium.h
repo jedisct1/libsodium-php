@@ -5,7 +5,7 @@
 extern zend_module_entry libsodium_module_entry;
 #define phpext_libsodium_ptr &libsodium_module_entry
 
-#define PHP_LIBSODIUM_VERSION "1.0.1"
+#define PHP_LIBSODIUM_VERSION "1.0.2"
 
 #ifdef PHP_WIN32
 # define PHP_LIBSODIUM_API __declspec(dllexport)
