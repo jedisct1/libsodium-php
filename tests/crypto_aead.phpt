@@ -1,7 +1,10 @@
 --TEST--
 Check for libsodium AEAD
 --SKIPIF--
-<?php if (!extension_loaded("libsodium")) print "skip"; ?>
+<?php
+if (!extension_loaded("libsodium")) print "skip extension not loaded";
+if (!defined('Sodium\CRYPTO_AEAD_AES256GCM_NPUBBYTES')) print "skip libsodium without AESGCM";
+?>
 --FILE--
 <?php
 $msg = \Sodium\randombytes_buf(\Sodium\randombytes_uniform(1000));

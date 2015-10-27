@@ -148,7 +148,7 @@ ZEND_END_ARG_INFO()
 # define PHP_FE_END { NULL, NULL, NULL }
 #endif
 
-#if defined(crypto_aead_aes256gcm_KEYBYTES) && \
+#if defined(HAVE_CRYPTO_AEAD_AES256GCM) && defined(crypto_aead_aes256gcm_KEYBYTES) && \
     (defined(__amd64) || defined(__amd64__) || defined(__x86_64__) || defined(__i386__) || \
      defined(_M_AMD64) || defined(_M_IX86))
 # define HAVE_AESGCM 1
@@ -2033,6 +2033,8 @@ PHP_FUNCTION(crypto_sign_ed25519_pk_to_curve25519)
     RETURN_STR(ecdhkey);
 }
 
+#if SODIUM_LIBRARY_VERSION_MAJOR > 7 || \
+    (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 6)
 PHP_FUNCTION(sodium_compare)
 {
     char      *buf1;
@@ -2054,3 +2056,4 @@ PHP_FUNCTION(sodium_compare)
                                    (const unsigned char *) buf2, (size_t) len1));
     }
 }
+#endif
