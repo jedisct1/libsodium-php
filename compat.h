@@ -8,6 +8,8 @@ typedef size_t strsize_t;
 
 # define STRSIZE_MAX ZEND_SIZE_MAX
 # define ZSTR_TRUNCATE(zs, len) do { ZSTR_LEN(zs) = (len); } while(0)
+# define IS_IMMUTABLE(p) (IS_INTERNED(Z_STR(*(p))) || Z_REFCOUNTED_P(p) == 0)
+# define HAS_MORE_REFS(p) (IS_IMMUTABLE(p) || Z_REFCOUNT(*(p)) > 1)
 
 #else
 
@@ -22,6 +24,13 @@ typedef long zend_long;
 # endif
 
 # define ZVAL_DEREF(zv) (void) (zv)
+
+#ifdef IS_INTERNED
+# define IS_IMMUTABLE(p) IS_INTERNED(Z_STRVAL(*(p)))
+#else
+# define IS_IMMUTABLE(p) 0
+#endif
+#define HAS_MORE_REFS(p) IS_IMMUTABLE(p)
 
 # define ZEND_SIZE_MAX INT_MAX
 # define STRSIZE_MAX INT_MAX

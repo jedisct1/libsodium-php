@@ -399,18 +399,10 @@ PHP_FUNCTION(sodium_memzero)
     if (Z_TYPE_P(buf_zv) != IS_STRING) {
         zend_error(E_ERROR, "memzero: a PHP string is required");
     }
-#if PHP_MAJOR_VERSION >= 7
-    if (IS_INTERNED(Z_STR(*buf_zv)) || Z_REFCOUNTED_P(buf_zv) == 0 || Z_REFCOUNT(*buf_zv) > 1) {
+    if (HAS_MORE_REFS(buf_zv)) {
         convert_to_null(buf_zv);
         return;
     }
-#endif
-#if PHP_MAJOR_VERSION < 7 && defined(IS_INTERNED)
-    if (IS_INTERNED(Z_STRVAL(*buf_zv))) {
-        convert_to_null(buf_zv);
-        return;
-    }
-#endif
     buf = Z_STRVAL(*buf_zv);
     buf_len = Z_STRLEN(*buf_zv);
     if (buf_len > 0) {
@@ -432,13 +424,11 @@ PHP_FUNCTION(sodium_increment)
         return;
     }
     ZVAL_DEREF(val_zv);
-#if PHP_MAJOR_VERSION >= 7
-    if (Z_REFCOUNTED_P(val_zv) == 0) {
+    if (IS_IMMUTABLE(val_zv)) {
         return;
     }
-#endif
     if (Z_TYPE_P(val_zv) != IS_STRING) {
-        zend_error(E_ERROR, "increment: a PHP string is required");
+        zend_error(E_ERROR, "increment(): a PHP string is required");
     }
     val = (unsigned char *) Z_STRVAL(*val_zv);
     val_len = Z_STRLEN(*val_zv);
