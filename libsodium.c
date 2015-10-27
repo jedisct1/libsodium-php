@@ -396,15 +396,21 @@ PHP_FUNCTION(sodium_memzero)
         return;
     }
     ZVAL_DEREF(buf_zv);
+    if (Z_TYPE_P(buf_zv) != IS_STRING) {
+        zend_error(E_ERROR, "memzero: a PHP string is required");
+    }
 #if PHP_MAJOR_VERSION >= 7
-    if (Z_REFCOUNTED_P(buf_zv) == 0 || Z_REFCOUNT(*buf_zv) > 1) {
+    if (IS_INTERNED(Z_STR(*buf_zv)) || Z_REFCOUNTED_P(buf_zv) == 0 || Z_REFCOUNT(*buf_zv) > 1) {
         convert_to_null(buf_zv);
         return;
     }
 #endif
-    if (Z_TYPE_P(buf_zv) != IS_STRING) {
-        zend_error(E_ERROR, "memzero: a PHP string is required");
+#if PHP_MAJOR_VERSION < 7 && defined(IS_INTERNED)
+    if (IS_INTERNED(Z_STRVAL(*buf_zv))) {
+        convert_to_null(buf_zv);
+        return;
     }
+#endif
     buf = Z_STRVAL(*buf_zv);
     buf_len = Z_STRLEN(*buf_zv);
     if (buf_len > 0) {
