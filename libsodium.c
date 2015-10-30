@@ -1665,7 +1665,8 @@ PHP_FUNCTION(crypto_aead_aes256gcm_decrypt)
         zend_error(E_ERROR, "arithmetic overflow");
     }
     msg = zend_string_alloc((size_t) msg_len, 0);
-    if (crypto_aead_aes256gcm_decrypt
+    if (ciphertext_len < crypto_aead_aes256gcm_ABYTES ||
+        crypto_aead_aes256gcm_decrypt
         ((unsigned char *) ZSTR_VAL(msg), &msg_real_len, NULL,
          ciphertext, (unsigned long long) ciphertext_len,
          ad, (unsigned long long) ad_len, npub, secretkey) != 0) {
@@ -1777,7 +1778,8 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt)
         zend_error(E_ERROR, "arithmetic overflow");
     }
     msg = zend_string_alloc((size_t) msg_len, 0);
-    if (crypto_aead_chacha20poly1305_decrypt
+    if (ciphertext_len < crypto_aead_chacha20poly1305_ABYTES ||
+        crypto_aead_chacha20poly1305_decrypt
         ((unsigned char *) ZSTR_VAL(msg), &msg_real_len, NULL,
          ciphertext, (unsigned long long) ciphertext_len,
          ad, (unsigned long long) ad_len, npub, secretkey) != 0) {
