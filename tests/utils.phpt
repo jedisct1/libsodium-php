@@ -36,7 +36,7 @@ if (\Sodium\library_version_major() > 7 ||
 }
 $str = 'stdClass';
 \Sodium\memzero($str);
-$obj = json_decode(json_encode(['foo' => 'bar']));
+$obj = (object)['foo' => 'bar'];
 var_dump($obj);
 ?>
 --EXPECT--
