@@ -18,13 +18,9 @@ var_dump(\Sodium\crypto_auth_verify($mac, $badmsg, $key));
 
 // Let's flip a bit pseudo-randomly
 $badmsg = $msg;
-$badmsg[mt_rand(0, 999)] = \chr(
-    \ord($msg[0]) ^ (
-        // Mask out higher bits (thus 256 => 0)
-        0xFF & (
-            // 1, 2, 4, 8, 16, 32, 64, 128, 256
-            1 << mt_rand(0, 8)
-        )
+$badmsg[$i=mt_rand(0, 999)] = \chr(
+    \ord($msg[$i]) ^ (
+        1 << mt_rand(0, 7)
     )
 );
 
@@ -32,7 +28,7 @@ var_dump(\Sodium\crypto_auth_verify($mac, $badmsg, $key));
 
 // Now let's change a bit in the MAC
 $badmac = $mac;
-$badmac[0] = \chr(\ord($badmsg[0]) ^ 0x80);
+$badmac[0] = \chr(\ord($badmac[0]) ^ 0x80);
 var_dump(\Sodium\crypto_auth_verify($badmac, $msg, $key));
 ?>
 --EXPECT--
