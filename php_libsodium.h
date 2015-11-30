@@ -76,6 +76,7 @@ PHP_FUNCTION(sodium_bin2hex);
 PHP_FUNCTION(sodium_compare);
 PHP_FUNCTION(sodium_hex2bin);
 PHP_FUNCTION(sodium_increment);
+PHP_FUNCTION(sodium_add);
 PHP_FUNCTION(sodium_library_version_major);
 PHP_FUNCTION(sodium_library_version_minor);
 PHP_FUNCTION(sodium_memcmp);

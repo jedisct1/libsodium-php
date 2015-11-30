@@ -213,6 +213,7 @@ const zend_function_entry libsodium_functions[] = {
 #endif
     ZEND_NS_NAMED_FE("Sodium", hex2bin, ZEND_FN(sodium_hex2bin), AI_TwoStrings)
     ZEND_NS_NAMED_FE("Sodium", increment, ZEND_FN(sodium_increment), AI_String)
+    ZEND_NS_NAMED_FE("Sodium", add, ZEND_FN(sodium_add), AI_TwoStrings)
     ZEND_NS_NAMED_FE("Sodium", library_version_major, ZEND_FN(sodium_library_version_major), AI_None)
     ZEND_NS_NAMED_FE("Sodium", library_version_minor, ZEND_FN(sodium_library_version_minor), AI_None)
     ZEND_NS_NAMED_FE("Sodium", memcmp, ZEND_FN(sodium_memcmp), AI_TwoStrings)
@@ -437,6 +438,40 @@ PHP_FUNCTION(sodium_increment)
         c >>= 8;
         c += val[i];
         val[i] = (unsigned char) c;
+    }
+}
+
+PHP_FUNCTION(sodium_add)
+{
+    zval          *val_zv;
+    unsigned char *val;
+    unsigned char *addv;
+    strsize_t      i;
+    strsize_t      val_len;
+    strsize_t      addv_len;
+    unsigned int   c;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+                              "zs", &val_zv, &addv, &addv_len) == FAILURE) {
+        return;
+    }
+    ZVAL_DEREF(val_zv);
+    if (IS_IMMUTABLE(val_zv)) {
+        return;
+    }
+    if (Z_TYPE_P(val_zv) != IS_STRING) {
+        zend_error(E_ERROR, "add(): PHP strings are required");
+    }
+    val = (unsigned char *) Z_STRVAL(*val_zv);
+    val_len = Z_STRLEN(*val_zv);
+    if (val_len != addv_len) {
+        zend_error(E_ERROR, "add(): values must have the same length");
+    }
+    c = 0U;
+    for (i = (strsize_t) 0U; i < val_len; i++) {
+        c += val[i] + addv[i];
+        val[i] = (unsigned char) c;
+        c >>= 8;
     }
 }
 
