@@ -20,6 +20,10 @@ $v = hex2bin('FFFF800102030405060708');
 \Sodium\increment($v);
 var_dump(bin2hex($v));
 
+$w = hex2bin('0102030405060708FAFBFC');
+\Sodium\add($v, $w);
+var_dump(bin2hex($v));
+
 if (\Sodium\library_version_major() > 7 ||
     (\Sodium\library_version_major() == 7 &&
      \Sodium\library_version_minor() >= 6)) {
@@ -44,6 +48,7 @@ var_dump($obj);
 bool(true)
 bool(false)
 string(22) "0000810102030405060708"
+string(22) "0102840507090b0d000305"
 int(-1)
 int(0)
 int(1)
