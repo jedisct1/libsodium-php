@@ -182,6 +182,12 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", crypto_generichash_init, ZEND_FN(crypto_generichash_init), AI_MaybeKeyAndLength)
     ZEND_NS_NAMED_FE("Sodium", crypto_generichash_update, ZEND_FN(crypto_generichash_update), AI_StateByReferenceAndString)
     ZEND_NS_NAMED_FE("Sodium", crypto_generichash_final, ZEND_FN(crypto_generichash_final), AI_StateByReferenceAndMaybeLength)
+#if SODIUM_LIBRARY_VERSION_MAJOR > 9 || \
+    (SODIUM_LIBRARY_VERSION_MAJOR == 9 && SODIUM_LIBRARY_VERSION_MINOR >= 1)
+    ZEND_NS_NAMED_FE("Sodium", crypto_pwhash, ZEND_FN(crypto_pwhash), AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
+    ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_str, ZEND_FN(crypto_pwhash_str), AI_PasswordAndOpsLimitAndMemLimit)
+    ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_str_verify, ZEND_FN(crypto_pwhash_str_verify), AI_HashAndPassword)
+#endif
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256, ZEND_FN(crypto_pwhash_scryptsalsa208sha256), AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256_str, ZEND_FN(crypto_pwhash_scryptsalsa208sha256_str), AI_PasswordAndOpsLimitAndMemLimit)
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256_str_verify, ZEND_FN(crypto_pwhash_scryptsalsa208sha256_str_verify), AI_HashAndPassword)
@@ -310,6 +316,21 @@ PHP_MINIT_FUNCTION(libsodium)
                         crypto_generichash_KEYBYTES_MIN, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_KEYBYTES_MAX",
                         crypto_generichash_KEYBYTES_MAX, CONST_CS | CONST_PERSISTENT);
+#if SODIUM_LIBRARY_VERSION_MAJOR > 9 || \
+    (SODIUM_LIBRARY_VERSION_MAJOR == 9 && SODIUM_LIBRARY_VERSION_MINOR >= 1)
+    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SALTBYTES",
+                        crypto_pwhash_SALTBYTES, CONST_CS | CONST_PERSISTENT);
+    REGISTER_STRING_CONSTANT("Sodium\\CRYPTO_PWHASH_STRPREFIX",
+                          crypto_pwhash_STRPREFIX, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE",
+                        crypto_pwhash_OPSLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE",
+                        crypto_pwhash_MEMLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_OPSLIMIT_SENSITIVE",
+                        crypto_pwhash_OPSLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_SENSITIVE",
+                        crypto_pwhash_MEMLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
+#endif
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
                         crypto_pwhash_scryptsalsa208sha256_SALTBYTES, CONST_CS | CONST_PERSISTENT);
 #ifndef crypto_pwhash_scryptsalsa208sha256_STRPREFIX
@@ -1595,6 +1616,123 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify)
     }
     RETURN_FALSE;
 }
+
+#if SODIUM_LIBRARY_VERSION_MAJOR > 9 || \
+  (SODIUM_LIBRARY_VERSION_MAJOR == 9 && SODIUM_LIBRARY_VERSION_MINOR >= 1)
+PHP_FUNCTION(crypto_pwhash)
+{
+    zend_string   *hash;
+    unsigned char *salt;
+    char          *passwd;
+    zend_long      hash_len;
+    zend_long      memlimit;
+    zend_long      opslimit;
+    strsize_t      passwd_len;
+    strsize_t      salt_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lssll",
+                              &hash_len,
+                              &passwd, &passwd_len,
+                              &salt, &salt_len,
+                              &opslimit, &memlimit) == FAILURE ||
+        hash_len <= 0 || hash_len >= STRSIZE_MAX ||
+        opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
+        zend_error(E_ERROR, "crypto_pwhash(): invalid parameters");
+    }
+    if (passwd_len <= 0) {
+        zend_error(E_WARNING, "empty password");
+    }
+    if (salt_len != crypto_pwhash_SALTBYTES) {
+        zend_error(E_ERROR,
+                   "salt should be CRYPTO_PWHASH_SALTBYTES bytes");
+    }
+    if (opslimit < crypto_pwhash_OPSLIMIT_INTERACTIVE) {
+        zend_error(E_WARNING,
+                   "number of operations for the argon2i function is low");
+    }
+    if (memlimit < crypto_pwhash_MEMLIMIT_INTERACTIVE) {
+        zend_error(E_WARNING,
+                   "maximum memory for the argon2i function is low");
+    }
+    hash = zend_string_alloc((size_t) hash_len, 0);
+    if (crypto_pwhash
+        ((unsigned char *) ZSTR_VAL(hash), (unsigned long long) hash_len,
+         passwd, (unsigned long long) passwd_len, salt,
+         (unsigned long long) opslimit, (size_t) memlimit) != 0) {
+        zend_string_free(hash);
+        zend_error(E_ERROR, "crypto_pwhash()");
+    }
+    ZSTR_VAL(hash)[hash_len] = 0;
+
+    RETURN_STR(hash);
+}
+
+PHP_FUNCTION(crypto_pwhash_str)
+{
+    zend_string *hash_str;
+    char        *passwd;
+    zend_long    memlimit;
+    zend_long    opslimit;
+    strsize_t    passwd_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sll",
+                              &passwd, &passwd_len,
+                              &opslimit, &memlimit) == FAILURE ||
+        opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
+        zend_error(E_ERROR,
+                   "crypto_pwhash_str(): invalid parameters");
+    }
+    if (passwd_len <= 0) {
+        zend_error(E_WARNING, "empty password");
+    }
+    if (opslimit < crypto_pwhash_OPSLIMIT_INTERACTIVE) {
+        zend_error(E_WARNING,
+                   "number of operations for the argon2i function is low");
+    }
+    if (memlimit < crypto_pwhash_MEMLIMIT_INTERACTIVE) {
+        zend_error(E_WARNING,
+                   "maximum memory for the argon2i function is low");
+    }
+    hash_str = zend_string_alloc
+        (crypto_pwhash_STRBYTES - 1, 0);
+    if (crypto_pwhash_str
+        (ZSTR_VAL(hash_str), passwd, (unsigned long long) passwd_len,
+         (unsigned long long) opslimit, (size_t) memlimit) != 0) {
+        zend_string_free(hash_str);
+        zend_error(E_ERROR, "crypto_pwhash_str()");
+    }
+    ZSTR_VAL(hash_str)[crypto_pwhash_STRBYTES - 1] = 0;
+
+    RETURN_STR(hash_str);
+}
+
+PHP_FUNCTION(crypto_pwhash_str_verify)
+{
+    char      *hash_str;
+    char      *passwd;
+    strsize_t  hash_str_len;
+    strsize_t  passwd_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                              &hash_str, &hash_str_len,
+                              &passwd, &passwd_len) == FAILURE) {
+        zend_error(E_ERROR,
+                   "crypto_pwhash_str_verify(): invalid parameters");
+    }
+    if (passwd_len <= 0) {
+        zend_error(E_WARNING, "empty password");
+    }
+    if (hash_str_len != crypto_pwhash_STRBYTES - 1) {
+        zend_error(E_WARNING, "wrong size for the hashed password");
+        RETURN_FALSE;
+    }
+    if (crypto_pwhash_str_verify
+        (hash_str, passwd, (unsigned long long) passwd_len) == 0) {
+        RETURN_TRUE;
+    }
+    RETURN_FALSE;
+}
+#endif
 
 PHP_FUNCTION(crypto_aead_aes256gcm_is_available)
 {
