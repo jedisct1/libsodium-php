@@ -1670,7 +1670,6 @@ PHP_FUNCTION(crypto_pwhash)
 PHP_FUNCTION(crypto_pwhash_str)
 {
     zend_string *hash_str;
-    zend_string *hash_ret;
     char        *passwd;
     zend_long    memlimit;
     zend_long    opslimit;
@@ -1706,10 +1705,7 @@ PHP_FUNCTION(crypto_pwhash_str)
     ZSTR_VAL(hash_str)[crypto_pwhash_STRBYTES - 1] = 0;
 
     len = strlen(ZSTR_VAL(hash_str));
-    hash_ret = zend_string_alloc(len + 1, 0);
-    memcpy(ZSTR_VAL(hash_ret), ZSTR_VAL(hash_str), len);
-    zend_string_free(hash_str);
-    ZSTR_VAL(hash_ret)[len] = 0;
+    ZSTR_TRUNCATE(hash_str, len);
 
     RETURN_STR(hash_str);
 }
