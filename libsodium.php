@@ -11,11 +11,14 @@ foreach($functions as $func) {
     echo $func."$br\n";
 }
 echo "$br\n";
-$function = 'sodium_version_string';
+$function = '\Sodium\version_string';
+$exit = 0;
 if (extension_loaded($module)) {
         $str = $function($module);
 } else {
         $str = "Module $module is not compiled into PHP";
+        $exit = 255;
 }
 echo "$str\n";
+exit($exit);
 ?>
