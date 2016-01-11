@@ -171,8 +171,7 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", crypto_box_open, ZEND_FN(crypto_box_open), AI_StringAndNonceAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_publickey, ZEND_FN(crypto_box_publickey), AI_Key)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_publickey_from_secretkey, ZEND_FN(crypto_box_publickey_from_secretkey), AI_Key)
-#if SODIUM_LIBRARY_VERSION_MAJOR > 7 || \
-    (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 5)
+#ifdef crypto_box_SEALBYTES
     ZEND_NS_NAMED_FE("Sodium", crypto_box_seal, ZEND_FN(crypto_box_seal), AI_StringAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_box_seal_open, ZEND_FN(crypto_box_seal_open), AI_StringAndKey)
 #endif
@@ -182,8 +181,7 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", crypto_generichash_init, ZEND_FN(crypto_generichash_init), AI_MaybeKeyAndLength)
     ZEND_NS_NAMED_FE("Sodium", crypto_generichash_update, ZEND_FN(crypto_generichash_update), AI_StateByReferenceAndString)
     ZEND_NS_NAMED_FE("Sodium", crypto_generichash_final, ZEND_FN(crypto_generichash_final), AI_StateByReferenceAndMaybeLength)
-#if SODIUM_LIBRARY_VERSION_MAJOR > 9 || \
-    (SODIUM_LIBRARY_VERSION_MAJOR == 9 && SODIUM_LIBRARY_VERSION_MINOR >= 1)
+#ifdef crypto_pwhash_SALTBYTES
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash, ZEND_FN(crypto_pwhash), AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_str, ZEND_FN(crypto_pwhash_str), AI_PasswordAndOpsLimitAndMemLimit)
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_str_verify, ZEND_FN(crypto_pwhash_str_verify), AI_HashAndPassword)
@@ -1057,8 +1055,7 @@ PHP_FUNCTION(crypto_box_open)
     }
 }
 
-#if SODIUM_LIBRARY_VERSION_MAJOR > 7 || \
-    (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 5)
+#ifdef crypto_box_SEALBYTES
 PHP_FUNCTION(crypto_box_seal)
 {
     zend_string   *ciphertext;
@@ -1620,8 +1617,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify)
     RETURN_FALSE;
 }
 
-#if SODIUM_LIBRARY_VERSION_MAJOR > 9 || \
-  (SODIUM_LIBRARY_VERSION_MAJOR == 9 && SODIUM_LIBRARY_VERSION_MINOR >= 1)
+#ifdef crypto_pwhash_SALTBYTES
 PHP_FUNCTION(crypto_pwhash)
 {
     zend_string   *hash;
