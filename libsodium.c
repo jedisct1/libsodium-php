@@ -1642,16 +1642,14 @@ PHP_FUNCTION(crypto_pwhash)
         zend_error(E_WARNING, "empty password");
     }
     if (salt_len != crypto_pwhash_SALTBYTES) {
-        zend_error(E_ERROR,
-                   "salt should be CRYPTO_PWHASH_SALTBYTES bytes");
+        zend_error(E_ERROR, "salt should be CRYPTO_PWHASH_SALTBYTES bytes");
     }
     if (opslimit < crypto_pwhash_OPSLIMIT_INTERACTIVE) {
         zend_error(E_WARNING,
                    "number of operations for the argon2i function is low");
     }
     if (memlimit < crypto_pwhash_MEMLIMIT_INTERACTIVE) {
-        zend_error(E_WARNING,
-                   "maximum memory for the argon2i function is low");
+        zend_error(E_WARNING, "maximum memory for the argon2i function is low");
     }
     hash = zend_string_alloc((size_t) hash_len, 0);
     if (crypto_pwhash
@@ -1693,8 +1691,7 @@ PHP_FUNCTION(crypto_pwhash_str)
         zend_error(E_WARNING,
                    "maximum memory for the argon2i function is low");
     }
-    hash_str = zend_string_alloc
-        (crypto_pwhash_STRBYTES - 1, 0);
+    hash_str = zend_string_alloc(crypto_pwhash_STRBYTES - 1, 0);
     if (crypto_pwhash_str
         (ZSTR_VAL(hash_str), passwd, (unsigned long long) passwd_len,
          (unsigned long long) opslimit, (size_t) memlimit) != 0) {
