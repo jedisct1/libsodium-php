@@ -261,120 +261,120 @@ PHP_MINIT_FUNCTION(libsodium)
 
 #ifdef HAVE_AESGCM
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_AES256GCM_KEYBYTES",
-                        crypto_aead_aes256gcm_KEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_aead_aes256gcm_KEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_AES256GCM_NSECBYTES",
-                        crypto_aead_aes256gcm_NSECBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_aead_aes256gcm_NSECBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_AES256GCM_NPUBBYTES",
-                        crypto_aead_aes256gcm_NPUBBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_aead_aes256gcm_NPUBBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_AES256GCM_ABYTES",
-                        crypto_aead_aes256gcm_ABYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_aead_aes256gcm_ABYTES, CONST_CS | CONST_PERSISTENT);
 #endif
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES",
-                        crypto_aead_chacha20poly1305_KEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_aead_chacha20poly1305_KEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_NSECBYTES",
-                        crypto_aead_chacha20poly1305_NSECBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_aead_chacha20poly1305_NSECBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES",
-                        crypto_aead_chacha20poly1305_NPUBBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_aead_chacha20poly1305_NPUBBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_ABYTES",
-                        crypto_aead_chacha20poly1305_ABYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_aead_chacha20poly1305_ABYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AUTH_BYTES",
-                        crypto_auth_BYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_auth_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AUTH_KEYBYTES",
-                        crypto_auth_KEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_auth_KEYBYTES, CONST_CS | CONST_PERSISTENT);
 #ifdef crypto_box_SEALBYTES
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_SEALBYTES",
-                        crypto_box_SEALBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_box_SEALBYTES, CONST_CS | CONST_PERSISTENT);
 #endif
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_SECRETKEYBYTES",
-                        crypto_box_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_box_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_PUBLICKEYBYTES",
-                        crypto_box_PUBLICKEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_box_PUBLICKEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_KEYPAIRBYTES",
-                        crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES,
-                        CONST_CS | CONST_PERSISTENT);
+                           crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES,
+                           CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_MACBYTES",
-                        crypto_box_MACBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_box_MACBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_NONCEBYTES",
-                        crypto_box_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_box_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_SEEDBYTES",
-                        crypto_box_SEEDBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_box_SEEDBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_KX_BYTES",
-                        crypto_kx_BYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_kx_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_KX_PUBLICKEYBYTES",
-                        crypto_kx_PUBLICKEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_kx_PUBLICKEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_KX_SECRETKEYBYTES",
-                        crypto_kx_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_kx_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_BYTES",
-                        crypto_generichash_BYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_generichash_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_BYTES_MIN",
-                        crypto_generichash_BYTES_MIN, CONST_CS | CONST_PERSISTENT);
+                           crypto_generichash_BYTES_MIN, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_BYTES_MAX",
-                        crypto_generichash_BYTES_MAX, CONST_CS | CONST_PERSISTENT);
+                           crypto_generichash_BYTES_MAX, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_KEYBYTES",
-                        crypto_generichash_KEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_generichash_KEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_KEYBYTES_MIN",
-                        crypto_generichash_KEYBYTES_MIN, CONST_CS | CONST_PERSISTENT);
+                           crypto_generichash_KEYBYTES_MIN, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_KEYBYTES_MAX",
-                        crypto_generichash_KEYBYTES_MAX, CONST_CS | CONST_PERSISTENT);
+                           crypto_generichash_KEYBYTES_MAX, CONST_CS | CONST_PERSISTENT);
 #if SODIUM_LIBRARY_VERSION_MAJOR > 9 || \
     (SODIUM_LIBRARY_VERSION_MAJOR == 9 && SODIUM_LIBRARY_VERSION_MINOR >= 1)
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SALTBYTES",
-                        crypto_pwhash_SALTBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_SALTBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_STRING_CONSTANT("Sodium\\CRYPTO_PWHASH_STRPREFIX",
-                          crypto_pwhash_STRPREFIX, CONST_CS | CONST_PERSISTENT);
+                             crypto_pwhash_STRPREFIX, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE",
-                        crypto_pwhash_OPSLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_OPSLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE",
-                        crypto_pwhash_MEMLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_MEMLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_OPSLIMIT_SENSITIVE",
-                        crypto_pwhash_OPSLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_OPSLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_SENSITIVE",
-                        crypto_pwhash_MEMLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_MEMLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
 #endif
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
-                        crypto_pwhash_scryptsalsa208sha256_SALTBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_scryptsalsa208sha256_SALTBYTES, CONST_CS | CONST_PERSISTENT);
 #ifndef crypto_pwhash_scryptsalsa208sha256_STRPREFIX
 # define crypto_pwhash_scryptsalsa208sha256_STRPREFIX "$7$"
 #endif
     REGISTER_STRING_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX",
-                          crypto_pwhash_scryptsalsa208sha256_STRPREFIX, CONST_CS | CONST_PERSISTENT);
+                             crypto_pwhash_scryptsalsa208sha256_STRPREFIX, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE",
-                        crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE",
-                        crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE",
-                        crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
-                        crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SCALARMULT_BYTES",
-                        crypto_scalarmult_BYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_scalarmult_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SCALARMULT_SCALARBYTES",
-                        crypto_scalarmult_SCALARBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_scalarmult_SCALARBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SHORTHASH_BYTES",
-                        crypto_shorthash_BYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_shorthash_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SHORTHASH_KEYBYTES",
-                        crypto_shorthash_KEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_shorthash_KEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SECRETBOX_KEYBYTES",
-                        crypto_secretbox_KEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_secretbox_KEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SECRETBOX_MACBYTES",
-                        crypto_secretbox_MACBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_secretbox_MACBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SECRETBOX_NONCEBYTES",
-                        crypto_secretbox_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_secretbox_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SIGN_BYTES",
-                        crypto_sign_BYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_sign_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SIGN_SEEDBYTES",
-                        crypto_sign_SEEDBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_sign_SEEDBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SIGN_PUBLICKEYBYTES",
-                        crypto_sign_PUBLICKEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_sign_PUBLICKEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SIGN_SECRETKEYBYTES",
-                        crypto_sign_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_sign_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SIGN_KEYPAIRBYTES",
-                        crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES,
-                        CONST_CS | CONST_PERSISTENT);
+                           crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES,
+                           CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_STREAM_NONCEBYTES",
-                        crypto_stream_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_stream_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_STREAM_KEYBYTES",
-                        crypto_stream_KEYBYTES, CONST_CS | CONST_PERSISTENT);
+                           crypto_stream_KEYBYTES, CONST_CS | CONST_PERSISTENT);
     return SUCCESS;
 }
 
