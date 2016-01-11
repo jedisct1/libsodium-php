@@ -323,13 +323,13 @@ PHP_MINIT_FUNCTION(libsodium)
     REGISTER_STRING_CONSTANT("Sodium\\CRYPTO_PWHASH_STRPREFIX",
                              crypto_pwhash_STRPREFIX, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE",
-                           crypto_pwhash_OPSLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_opslimit_interactive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE",
-                           crypto_pwhash_MEMLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_memlimit_interactive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_OPSLIMIT_SENSITIVE",
-                           crypto_pwhash_OPSLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_opslimit_sensitive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_SENSITIVE",
-                           crypto_pwhash_MEMLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_opslimit_sensitive(), CONST_CS | CONST_PERSISTENT);
 #endif
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
                            crypto_pwhash_scryptsalsa208sha256_SALTBYTES, CONST_CS | CONST_PERSISTENT);
@@ -339,13 +339,13 @@ PHP_MINIT_FUNCTION(libsodium)
     REGISTER_STRING_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX",
                              crypto_pwhash_scryptsalsa208sha256_STRPREFIX, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE",
-                           crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_scryptsalsa208sha256_opslimit_interactive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE",
-                           crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_scryptsalsa208sha256_memlimit_interactive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE",
-                           crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
-                           crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE, CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SCALARMULT_BYTES",
                            crypto_scalarmult_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SCALARMULT_SCALARBYTES",
