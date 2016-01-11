@@ -1533,11 +1533,11 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256)
         zend_error(E_ERROR,
                    "salt should be CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES bytes");
     }
-    if (opslimit < crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE) {
+    if (opslimit < crypto_pwhash_scryptsalsa208sha256_opslimit_interactive()) {
         zend_error(E_WARNING,
                    "number of operations for the scrypt function is low");
     }
-    if (memlimit < crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) {
+    if (memlimit < crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()) {
         zend_error(E_WARNING,
                    "maximum memory for the scrypt function is low");
     }
@@ -1572,11 +1572,11 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str)
     if (passwd_len <= 0) {
         zend_error(E_WARNING, "empty password");
     }
-    if (opslimit < crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE) {
+    if (opslimit < crypto_pwhash_scryptsalsa208sha256_opslimit_interactive()) {
         zend_error(E_WARNING,
                    "number of operations for the scrypt function is low");
     }
-    if (memlimit < crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) {
+    if (memlimit < crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()) {
         zend_error(E_WARNING,
                    "maximum memory for the scrypt function is low");
     }
