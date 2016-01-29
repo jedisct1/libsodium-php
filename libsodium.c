@@ -480,6 +480,7 @@ PHP_FUNCTION(sodium_add)
     }
     ZVAL_DEREF(val_zv);
     if (IS_IMMUTABLE(val_zv)) {
+        zend_error(E_ERROR, "add(): value is immutable");        
         return;
     }
     if (Z_TYPE_P(val_zv) != IS_STRING) {
