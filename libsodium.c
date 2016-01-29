@@ -388,6 +388,7 @@ PHP_MINFO_FUNCTION(libsodium)
 {
     php_info_print_table_start();
     php_info_print_table_header(2, "libsodium support", "enabled");
+    php_info_print_table_header(2, "libsodium Compiled version", PHP_LIBSODIUM_VERSION);
     php_info_print_table_header(2, "libsodium headers version", SODIUM_VERSION_STRING);
     php_info_print_table_header(2, "libsodium library version", sodium_version_string());
     php_info_print_table_end();
@@ -479,7 +480,7 @@ PHP_FUNCTION(sodium_add)
     }
     ZVAL_DEREF(val_zv);
     if (IS_IMMUTABLE(val_zv)) {
-        zend_error(E_ERROR, "add(): value is immutable");        
+        zend_error(E_ERROR, "add(): value is immutable");
     }
     if (Z_TYPE_P(val_zv) != IS_STRING) {
         zend_error(E_ERROR, "add(): PHP strings are required");
