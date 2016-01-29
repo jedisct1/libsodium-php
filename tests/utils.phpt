@@ -38,6 +38,7 @@ if (\Sodium\library_version_major() > 7 ||
     // Dummy test results for libsodium < 1.0.4
     var_dump(-1, 0, 1);
 }
+
 $str = 'stdClass';
 \Sodium\memzero($str);
 $obj = (object)array('foo' => 'bar');
