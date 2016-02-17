@@ -5,7 +5,7 @@ Check for libsodium utils
 if (!defined('Sodium\CRYPTO_PWHASH_SALTBYTES')) print "skip libsodium without argon2i";
 --FILE--
 <?php
-$passwd = 'test';
+$passwd = 'password';
 
 $hash = \Sodium\crypto_pwhash_str
   ($passwd, \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
@@ -13,11 +13,11 @@ $hash = \Sodium\crypto_pwhash_str
 var_dump(substr($hash, 0, 9) ===
          \Sodium\CRYPTO_PWHASH_STRPREFIX);
 
-$testHash = '$argon2i$m=16384,t=4,p=1$RASWmfkrcH67Imu/jc5FkA$+9DuvsGgJAdVM5bQX6rc9lUGb0A9NF7sqxevXZPRKW8';
+$testHash = '$argon2i$m=4096,t=3,p=1$MzE4ODFiZWFlMjAzOWUAAA$FWUV6tsyJ32qThiLi1cCsLIbf3dIOG/RwXcTzt536KY';
 $c = \Sodium\crypto_pwhash_str_verify($testHash, $passwd);
 var_dump($c);
 
-$testHash = '$argon2i$m=16384,t=4,p=2$RASWmfkrcH67Imu/jc5FkA$+9DuvsGgJAdVM5bQX6rc9lUGb0A9NF7sqxevXZPRKW8';
+$testHash = '$argon2i$m=4096,t=2,p=1$c29tZXNhbHQAAAAAAAAAAA$JTBozgKQiCn5yKAm3Hz0vUSX/XgfqhZloNCxDWmeDr0';
 $c = \Sodium\crypto_pwhash_str_verify($testHash, $passwd);
 var_dump($c);
 
