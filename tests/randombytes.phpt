@@ -4,6 +4,9 @@ Check for libsodium randombytes
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
+$a = \Sodium\randombytes_buf(0);
+echo strlen($a);
+echo "\n";
 $a = \Sodium\randombytes_buf(100);
 echo strlen($a);
 echo "\n";
@@ -37,6 +40,7 @@ if ($d < 10) {
 }
 ?>
 --EXPECT--
+0
 100
 100
 OK
