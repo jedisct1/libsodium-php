@@ -526,7 +526,7 @@ PHP_FUNCTION(randombytes_buf)
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &len) == FAILURE ||
-        len <= 0 || len >= STRSIZE_MAX) {
+        len < 0 || len >= STRSIZE_MAX) {
         zend_error(E_RECOVERABLE_ERROR, "randombytes_buf(): invalid length");
     }
     buf = zend_string_alloc((size_t) len, 0);
