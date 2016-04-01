@@ -1656,7 +1656,8 @@ PHP_FUNCTION(crypto_pwhash)
     if (crypto_pwhash
         ((unsigned char *) ZSTR_VAL(hash), (unsigned long long) hash_len,
          passwd, (unsigned long long) passwd_len, salt,
-         (unsigned long long) opslimit, (size_t) memlimit, NULL) != 0) {
+         (unsigned long long) opslimit, (size_t) memlimit,
+         crypto_pwhash_alg_default()) != 0) {
         zend_string_free(hash);
         zend_error(E_RECOVERABLE_ERROR, "crypto_pwhash()");
     }
