@@ -1,8 +1,8 @@
 --TEST--
 Check for libsodium utils
 --SKIPIF--
-<?php if (!extension_loaded("libsodium")) print "skip"; ?>
-if (!defined('Sodium\CRYPTO_PWHASH_SALTBYTES')) print "skip libsodium without argon2i";
+<?php if (!extension_loaded("libsodium")) print "skip";
+if (!defined('Sodium\CRYPTO_PWHASH_SALTBYTES')) print "skip libsodium without argon2i"; ?>
 --FILE--
 <?php
 $passwd = 'password';
