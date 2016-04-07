@@ -30,6 +30,8 @@ PHP_FUNCTION(crypto_aead_aes256gcm_decrypt);
 PHP_FUNCTION(crypto_aead_aes256gcm_encrypt);
 PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt);
 PHP_FUNCTION(crypto_aead_chacha20poly1305_encrypt);
+PHP_FUNCTION(crypto_aead_chacha20poly1305_ietf_decrypt);
+PHP_FUNCTION(crypto_aead_chacha20poly1305_ietf_encrypt);
 PHP_FUNCTION(crypto_auth);
 PHP_FUNCTION(crypto_auth_verify);
 PHP_FUNCTION(crypto_box);
