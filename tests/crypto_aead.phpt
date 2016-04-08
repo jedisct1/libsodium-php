@@ -23,11 +23,19 @@ $nonce = \Sodium\randombytes_buf(\Sodium\CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBB
 $key = \Sodium\randombytes_buf(\Sodium\CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES);
 $ad = \Sodium\randombytes_buf(\Sodium\randombytes_uniform(1000));
 
-$ciphertext = \Sodium\crypto_aead_chacha20poly1305_ietf_encrypt($msg, $ad, $nonce, $key);
-$msg2 = \Sodium\crypto_aead_chacha20poly1305_ietf_decrypt($ciphertext, $ad, $nonce, $key);
-var_dump($ciphertext !== $msg);
-var_dump($msg === $msg2);
-var_dump(\Sodium\crypto_aead_chacha20poly1305_ietf_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
+if (\Sodium\library_version_major() > 7 ||
+    (\Sodium\library_version_major() == 7 &&
+     \Sodium\library_version_minor() >= 6)) {
+    $ciphertext = \Sodium\crypto_aead_chacha20poly1305_ietf_encrypt($msg, $ad, $nonce, $key);
+    $msg2 = \Sodium\crypto_aead_chacha20poly1305_ietf_decrypt($ciphertext, $ad, $nonce, $key);
+    var_dump($ciphertext !== $msg);
+    var_dump($msg === $msg2);
+    var_dump(\Sodium\crypto_aead_chacha20poly1305_ietf_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
+} else {
+    var_dump(true);
+    var_dump(true);
+    var_dump(false);
+}
 
 $msg = \Sodium\randombytes_buf(\Sodium\randombytes_uniform(1000));
 $nonce = \Sodium\randombytes_buf(\Sodium\CRYPTO_AEAD_AES256GCM_NPUBBYTES);
