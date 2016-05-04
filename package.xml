@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2016-04-08</date>
-  <time>09:51:33</time>
+  <date>2016-05-04</date>
+  <time>23:54:11</time>
   <version>
-    <release>1.0.5</release>
-    <api>1.0.5</api>
+    <release>1.0.6</release>
+    <api>1.0.6</api>
   </version>
   <stability>
     <release>stable</release>
@@ -22,7 +22,7 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- The IETF variant of the ChaCha20-Poly1305 construction has been added
+- The PWHASH_MEMLIMIT_{MODERATE,SENSITIVE} constants are correctly defined
   </notes>
   <contents>
     <dir name="/">
