@@ -340,11 +340,11 @@ PHP_MINIT_FUNCTION(libsodium)
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_OPSLIMIT_MODERATE",
                            crypto_pwhash_opslimit_moderate(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_MODERATE",
-                           crypto_pwhash_opslimit_moderate(), CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_memlimit_moderate(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_OPSLIMIT_SENSITIVE",
                            crypto_pwhash_opslimit_sensitive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_SENSITIVE",
-                           crypto_pwhash_opslimit_sensitive(), CONST_CS | CONST_PERSISTENT);
+                           crypto_pwhash_memlimit_sensitive(), CONST_CS | CONST_PERSISTENT);
 #endif
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
                            crypto_pwhash_scryptsalsa208sha256_SALTBYTES, CONST_CS | CONST_PERSISTENT);
