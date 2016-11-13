@@ -2018,6 +2018,9 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_ietf_encrypt)
     if (STRSIZE_MAX - msg_len <= crypto_aead_chacha20poly1305_ABYTES) {
         zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
     }
+    if ((unsigned long long) msg_len > 64ULL * (1ULL << 32) - 64ULL) {
+        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+    }
     ciphertext_len = msg_len + crypto_aead_chacha20poly1305_ABYTES;
     ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
     if (crypto_aead_chacha20poly1305_ietf_encrypt
@@ -2073,6 +2076,10 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_ietf_decrypt)
     }
     msg_len = ciphertext_len;
     if (msg_len >= STRSIZE_MAX) {
+        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+    }
+    if ((unsigned long long) ciphertext_len -
+        crypto_aead_chacha20poly1305_ABYTES > 64ULL * (1ULL << 32) - 64ULL) {
         zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
     }
     msg = zend_string_alloc((size_t) msg_len, 0);
