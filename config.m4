@@ -5,7 +5,7 @@ PHP_ARG_WITH(libsodium, for libsodium support,
 [  --with-libsodium             Include libsodium support])
 
 if test "$PHP_LIBSODIUM" != "no"; then
-  SEARCH_PATH="/usr/local /usr"     # you might want to change this
+  SEARCH_PATH="$prefix /usr/local /usr"     # you might want to change this
   SEARCH_FOR="/include/sodium.h"  # you most likely want to change this
   if test -r $PHP_LIBSODIUM/$SEARCH_FOR; then # path given as parameter
     LIBSODIUM_DIR=$PHP_LIBSODIUM
