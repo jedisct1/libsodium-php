@@ -2,7 +2,7 @@ dnl $Id$
 dnl config.m4 for extension libsodium
 
 PHP_ARG_WITH(libsodium, for libsodium support,
-[  --with-libsodium             Include libsodium support])
+[  --with-libsodium[=DIR]             Include libsodium support])
 
 if test "$PHP_LIBSODIUM" != "no"; then
   SEARCH_PATH="/usr/local /usr"     # you might want to change this
