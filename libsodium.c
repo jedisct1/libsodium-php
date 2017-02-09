@@ -217,7 +217,7 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", bin2hex, ZEND_FN(sodium_bin2hex), AI_String)
 #if SODIUM_LIBRARY_VERSION_MAJOR > 7 || \
     (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 6)
-    ZEND_NS_NAMED_FE("Sodium", compare, ZEND_FN(sodium_compare), AI_String)
+    ZEND_NS_NAMED_FE("Sodium", compare, ZEND_FN(sodium_compare), AI_TwoStrings)
 #endif
     ZEND_NS_NAMED_FE("Sodium", hex2bin, ZEND_FN(sodium_hex2bin), AI_TwoStrings)
     ZEND_NS_NAMED_FE("Sodium", increment, ZEND_FN(sodium_increment), AI_String)
