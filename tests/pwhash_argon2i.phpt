@@ -2,37 +2,37 @@
 Check for libsodium utils
 --SKIPIF--
 <?php if (!extension_loaded("libsodium")) print "skip";
-if (!defined('Sodium\CRYPTO_PWHASH_SALTBYTES')) print "skip libsodium without argon2i"; ?>
+if (!defined('SODIUM_CRYPTO_PWHASH_SALTBYTES')) print "skip libsodium without argon2i"; ?>
 --FILE--
 <?php
 $passwd = 'password';
 
-$hash = \Sodium\crypto_pwhash_str
-  ($passwd, \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-            \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE);
+$hash = sodium_crypto_pwhash_str
+  ($passwd, SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+            SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE);
 var_dump(substr($hash, 0, 9) ===
-         \Sodium\CRYPTO_PWHASH_STRPREFIX);
+         SODIUM_CRYPTO_PWHASH_STRPREFIX);
 
 $testHash = '$argon2i$v=19$m=4096,t=3,p=1$MzE4ODFiZWFlMjAzOWUAAA$FWUV6tsyJ32qThiLi1cCsLIbf3dIOG/RwXcTzt536KY';
-$c = \Sodium\crypto_pwhash_str_verify($testHash, $passwd);
+$c = sodium_crypto_pwhash_str_verify($testHash, $passwd);
 var_dump($c);
 
 $testHash = '$argon2i$v=19$m=4096,t=2,p=1$c29tZXNhbHQAAAAAAAAAAA$JTBozgKQiCn5yKAm3Hz0vUSX/XgfqhZloNCxDWmeDr0';
-$c = \Sodium\crypto_pwhash_str_verify($testHash, $passwd);
+$c = sodium_crypto_pwhash_str_verify($testHash, $passwd);
 var_dump($c);
 
-$c = \Sodium\crypto_pwhash_str_verify($hash, $passwd);
+$c = sodium_crypto_pwhash_str_verify($hash, $passwd);
 var_dump($c);
 
-$c = \Sodium\crypto_pwhash_str_verify($hash, 'passwd');
+$c = sodium_crypto_pwhash_str_verify($hash, 'passwd');
 var_dump($c);
 
-$salt = \Sodium\randombytes_buf(\Sodium\CRYPTO_PWHASH_SALTBYTES);
+$salt = sodium_randombytes_buf(SODIUM_CRYPTO_PWHASH_SALTBYTES);
 $out_len = 100;
-$key = \Sodium\crypto_pwhash
+$key = sodium_crypto_pwhash
   ($out_len, $passwd, $salt,
-   \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-   \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE);
+   SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+   SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE);
 var_dump(strlen($key) === $out_len);
 ?>
 --EXPECT--

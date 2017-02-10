@@ -4,39 +4,39 @@ Check for libsodium generichash
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
-$q = \Sodium\crypto_generichash('msg');
+$q = sodium_crypto_generichash('msg');
 var_dump(bin2hex($q));
-$q = \Sodium\crypto_generichash('msg', '0123456789abcdef');
+$q = sodium_crypto_generichash('msg', '0123456789abcdef');
 var_dump(bin2hex($q));
-$q = \Sodium\crypto_generichash('msg', '0123456789abcdef', 64);
+$q = sodium_crypto_generichash('msg', '0123456789abcdef', 64);
 var_dump(bin2hex($q));
-$q = \Sodium\crypto_generichash('msg', '0123456789abcdef0123456789abcdef', 64);
+$q = sodium_crypto_generichash('msg', '0123456789abcdef0123456789abcdef', 64);
 var_dump(bin2hex($q));
-$state = \Sodium\crypto_generichash_init();
-$q = \Sodium\crypto_generichash_final($state);
+$state = sodium_crypto_generichash_init();
+$q = sodium_crypto_generichash_final($state);
 var_dump(bin2hex($q));
-$state = \Sodium\crypto_generichash_init();
-\Sodium\crypto_generichash_update($state, 'm');
-\Sodium\crypto_generichash_update($state, 'sg');
-$q = \Sodium\crypto_generichash_final($state);
+$state = sodium_crypto_generichash_init();
+sodium_crypto_generichash_update($state, 'm');
+sodium_crypto_generichash_update($state, 'sg');
+$q = sodium_crypto_generichash_final($state);
 var_dump(bin2hex($q));
-$state = \Sodium\crypto_generichash_init('0123456789abcdef');
-\Sodium\crypto_generichash_update($state, 'm');
-\Sodium\crypto_generichash_update($state, 'sg');
-$q = \Sodium\crypto_generichash_final($state);
+$state = sodium_crypto_generichash_init('0123456789abcdef');
+sodium_crypto_generichash_update($state, 'm');
+sodium_crypto_generichash_update($state, 'sg');
+$q = sodium_crypto_generichash_final($state);
 var_dump(bin2hex($q));
-$state = \Sodium\crypto_generichash_init('0123456789abcdef', 64);
-\Sodium\crypto_generichash_update($state, 'm');
-\Sodium\crypto_generichash_update($state, 'sg');
+$state = sodium_crypto_generichash_init('0123456789abcdef', 64);
+sodium_crypto_generichash_update($state, 'm');
+sodium_crypto_generichash_update($state, 'sg');
 $state2 = '' . $state;
-$q = \Sodium\crypto_generichash_final($state, 64);
+$q = sodium_crypto_generichash_final($state, 64);
 var_dump(bin2hex($q));
-\Sodium\crypto_generichash_update($state2, '2');
-$q = \Sodium\crypto_generichash_final($state2, 64);
+sodium_crypto_generichash_update($state2, '2');
+$q = sodium_crypto_generichash_final($state2, 64);
 $exp = bin2hex($q);
 var_dump($exp);
 $act = bin2hex(
-    \Sodium\crypto_generichash('msg2', '0123456789abcdef', 64)
+    sodium_crypto_generichash('msg2', '0123456789abcdef', 64)
 );
 var_dump($act);
 var_dump($exp === $act);

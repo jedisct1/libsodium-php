@@ -155,80 +155,80 @@ ZEND_END_ARG_INFO()
 #endif
 
 const zend_function_entry libsodium_functions[] = {
-    ZEND_NS_NAMED_FE("Sodium", crypto_aead_aes256gcm_is_available, ZEND_FN(crypto_aead_aes256gcm_is_available), AI_None)
+    PHP_FE(sodium_crypto_aead_aes256gcm_is_available, AI_None)
 #ifdef HAVE_AESGCM
-    ZEND_NS_NAMED_FE("Sodium", crypto_aead_aes256gcm_decrypt, ZEND_FN(crypto_aead_aes256gcm_decrypt), AI_StringAndADAndNonceAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_aead_aes256gcm_encrypt, ZEND_FN(crypto_aead_aes256gcm_encrypt), AI_StringAndADAndNonceAndKey)
+    PHP_FE(sodium_crypto_aead_aes256gcm_decrypt, AI_StringAndADAndNonceAndKey)
+    PHP_FE(sodium_crypto_aead_aes256gcm_encrypt, AI_StringAndADAndNonceAndKey)
 #endif
-    ZEND_NS_NAMED_FE("Sodium", crypto_aead_chacha20poly1305_decrypt, ZEND_FN(crypto_aead_chacha20poly1305_decrypt), AI_StringAndADAndNonceAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_aead_chacha20poly1305_encrypt, ZEND_FN(crypto_aead_chacha20poly1305_encrypt), AI_StringAndADAndNonceAndKey)
+    PHP_FE(sodium_crypto_aead_chacha20poly1305_decrypt, AI_StringAndADAndNonceAndKey)
+    PHP_FE(sodium_crypto_aead_chacha20poly1305_encrypt, AI_StringAndADAndNonceAndKey)
 #ifdef crypto_aead_chacha20poly1305_IETF_NPUBBYTES
-    ZEND_NS_NAMED_FE("Sodium", crypto_aead_chacha20poly1305_ietf_decrypt, ZEND_FN(crypto_aead_chacha20poly1305_ietf_decrypt), AI_StringAndADAndNonceAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_aead_chacha20poly1305_ietf_encrypt, ZEND_FN(crypto_aead_chacha20poly1305_ietf_encrypt), AI_StringAndADAndNonceAndKey)
+    PHP_FE(sodium_crypto_aead_chacha20poly1305_ietf_decrypt, AI_StringAndADAndNonceAndKey)
+    PHP_FE(sodium_crypto_aead_chacha20poly1305_ietf_encrypt, AI_StringAndADAndNonceAndKey)
 #endif
-    ZEND_NS_NAMED_FE("Sodium", crypto_auth, ZEND_FN(crypto_auth), AI_StringAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_auth_verify, ZEND_FN(crypto_auth_verify), AI_SignatureAndStringAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_box, ZEND_FN(crypto_box), AI_StringAndNonceAndKeyPair)
-    ZEND_NS_NAMED_FE("Sodium", crypto_box_keypair, ZEND_FN(crypto_box_keypair), AI_None)
-    ZEND_NS_NAMED_FE("Sodium", crypto_box_seed_keypair, ZEND_FN(crypto_box_seed_keypair), AI_Key)
-    ZEND_NS_NAMED_FE("Sodium", crypto_box_keypair_from_secretkey_and_publickey, ZEND_FN(crypto_box_keypair_from_secretkey_and_publickey), AI_SecretKeyAndPublicKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_box_open, ZEND_FN(crypto_box_open), AI_StringAndNonceAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_box_publickey, ZEND_FN(crypto_box_publickey), AI_Key)
-    ZEND_NS_NAMED_FE("Sodium", crypto_box_publickey_from_secretkey, ZEND_FN(crypto_box_publickey_from_secretkey), AI_Key)
+    PHP_FE(sodium_crypto_auth, AI_StringAndKey)
+    PHP_FE(sodium_crypto_auth_verify, AI_SignatureAndStringAndKey)
+    PHP_FE(sodium_crypto_box, AI_StringAndNonceAndKeyPair)
+    PHP_FE(sodium_crypto_box_keypair, AI_None)
+    PHP_FE(sodium_crypto_box_seed_keypair, AI_Key)
+    PHP_FE(sodium_crypto_box_keypair_from_secretkey_and_publickey, AI_SecretKeyAndPublicKey)
+    PHP_FE(sodium_crypto_box_open, AI_StringAndNonceAndKey)
+    PHP_FE(sodium_crypto_box_publickey, AI_Key)
+    PHP_FE(sodium_crypto_box_publickey_from_secretkey, AI_Key)
 #ifdef crypto_box_SEALBYTES
-    ZEND_NS_NAMED_FE("Sodium", crypto_box_seal, ZEND_FN(crypto_box_seal), AI_StringAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_box_seal_open, ZEND_FN(crypto_box_seal_open), AI_StringAndKey)
+    PHP_FE(sodium_crypto_box_seal, AI_StringAndKey)
+    PHP_FE(sodium_crypto_box_seal_open, AI_StringAndKey)
 #endif
-    ZEND_NS_NAMED_FE("Sodium", crypto_box_secretkey, ZEND_FN(crypto_box_secretkey), AI_Key)
-    ZEND_NS_NAMED_FE("Sodium", crypto_kx, ZEND_FN(crypto_kx), AI_FourStrings)
-    ZEND_NS_NAMED_FE("Sodium", crypto_generichash, ZEND_FN(crypto_generichash), AI_StringAndMaybeKeyAndLength)
-    ZEND_NS_NAMED_FE("Sodium", crypto_generichash_init, ZEND_FN(crypto_generichash_init), AI_MaybeKeyAndLength)
-    ZEND_NS_NAMED_FE("Sodium", crypto_generichash_update, ZEND_FN(crypto_generichash_update), AI_StateByReferenceAndString)
-    ZEND_NS_NAMED_FE("Sodium", crypto_generichash_final, ZEND_FN(crypto_generichash_final), AI_StateByReferenceAndMaybeLength)
+    PHP_FE(sodium_crypto_box_secretkey, AI_Key)
+    PHP_FE(sodium_crypto_kx, AI_FourStrings)
+    PHP_FE(sodium_crypto_generichash, AI_StringAndMaybeKeyAndLength)
+    PHP_FE(sodium_crypto_generichash_init, AI_MaybeKeyAndLength)
+    PHP_FE(sodium_crypto_generichash_update, AI_StateByReferenceAndString)
+    PHP_FE(sodium_crypto_generichash_final, AI_StateByReferenceAndMaybeLength)
 #ifdef crypto_pwhash_SALTBYTES
-    ZEND_NS_NAMED_FE("Sodium", crypto_pwhash, ZEND_FN(crypto_pwhash), AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
-    ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_str, ZEND_FN(crypto_pwhash_str), AI_PasswordAndOpsLimitAndMemLimit)
-    ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_str_verify, ZEND_FN(crypto_pwhash_str_verify), AI_HashAndPassword)
+    PHP_FE(sodium_crypto_pwhash, AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
+    PHP_FE(sodium_crypto_pwhash_str, AI_PasswordAndOpsLimitAndMemLimit)
+    PHP_FE(sodium_crypto_pwhash_str_verify, AI_HashAndPassword)
 #endif
-    ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256, ZEND_FN(crypto_pwhash_scryptsalsa208sha256), AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
-    ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256_str, ZEND_FN(crypto_pwhash_scryptsalsa208sha256_str), AI_PasswordAndOpsLimitAndMemLimit)
-    ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256_str_verify, ZEND_FN(crypto_pwhash_scryptsalsa208sha256_str_verify), AI_HashAndPassword)
-    ZEND_NS_NAMED_FE("Sodium", crypto_scalarmult, ZEND_FN(crypto_scalarmult), AI_TwoStrings)
-    ZEND_NS_NAMED_FE("Sodium", crypto_secretbox, ZEND_FN(crypto_secretbox), AI_StringAndNonceAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_secretbox_open, ZEND_FN(crypto_secretbox_open), AI_StringAndNonceAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_shorthash, ZEND_FN(crypto_shorthash), AI_StringAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign, ZEND_FN(crypto_sign), AI_StringAndKeyPair)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign_detached, ZEND_FN(crypto_sign_detached), AI_StringAndKeyPair)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign_ed25519_pk_to_curve25519, ZEND_FN(crypto_sign_ed25519_pk_to_curve25519), AI_Key)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign_ed25519_sk_to_curve25519, ZEND_FN(crypto_sign_ed25519_sk_to_curve25519), AI_Key)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign_keypair, ZEND_FN(crypto_sign_keypair), AI_None)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign_keypair_from_secretkey_and_publickey, ZEND_FN(crypto_sign_keypair_from_secretkey_and_publickey), AI_SecretKeyAndPublicKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign_open, ZEND_FN(crypto_sign_open), AI_StringAndKeyPair)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign_publickey, ZEND_FN(crypto_sign_publickey), AI_Key)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign_secretkey, ZEND_FN(crypto_sign_secretkey), AI_Key)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign_publickey_from_secretkey, ZEND_FN(crypto_sign_publickey_from_secretkey), AI_Key)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign_seed_keypair, ZEND_FN(crypto_sign_seed_keypair), AI_Key)
-    ZEND_NS_NAMED_FE("Sodium", crypto_sign_verify_detached, ZEND_FN(crypto_sign_verify_detached), AI_SignatureAndStringAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_stream, ZEND_FN(crypto_stream), AI_LengthAndNonceAndKey)
-    ZEND_NS_NAMED_FE("Sodium", crypto_stream_xor, ZEND_FN(crypto_stream_xor), AI_StringAndNonceAndKey)
-    ZEND_NS_NAMED_FE("Sodium", randombytes_buf, ZEND_FN(randombytes_buf), AI_Length)
-    ZEND_NS_NAMED_FE("Sodium", randombytes_random16, ZEND_FN(randombytes_random16), AI_None)
-    ZEND_NS_NAMED_FE("Sodium", randombytes_uniform, ZEND_FN(randombytes_uniform), AI_Integer)
-    ZEND_NS_NAMED_FE("Sodium", bin2hex, ZEND_FN(sodium_bin2hex), AI_String)
+    PHP_FE(sodium_crypto_pwhash_scryptsalsa208sha256, AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
+    PHP_FE(sodium_crypto_pwhash_scryptsalsa208sha256_str, AI_PasswordAndOpsLimitAndMemLimit)
+    PHP_FE(sodium_crypto_pwhash_scryptsalsa208sha256_str_verify, AI_HashAndPassword)
+    PHP_FE(sodium_crypto_scalarmult, AI_TwoStrings)
+    PHP_FE(sodium_crypto_secretbox, AI_StringAndNonceAndKey)
+    PHP_FE(sodium_crypto_secretbox_open, AI_StringAndNonceAndKey)
+    PHP_FE(sodium_crypto_shorthash, AI_StringAndKey)
+    PHP_FE(sodium_crypto_sign, AI_StringAndKeyPair)
+    PHP_FE(sodium_crypto_sign_detached, AI_StringAndKeyPair)
+    PHP_FE(sodium_crypto_sign_ed25519_pk_to_curve25519, AI_Key)
+    PHP_FE(sodium_crypto_sign_ed25519_sk_to_curve25519, AI_Key)
+    PHP_FE(sodium_crypto_sign_keypair, AI_None)
+    PHP_FE(sodium_crypto_sign_keypair_from_secretkey_and_publickey, AI_SecretKeyAndPublicKey)
+    PHP_FE(sodium_crypto_sign_open, AI_StringAndKeyPair)
+    PHP_FE(sodium_crypto_sign_publickey, AI_Key)
+    PHP_FE(sodium_crypto_sign_secretkey, AI_Key)
+    PHP_FE(sodium_crypto_sign_publickey_from_secretkey, AI_Key)
+    PHP_FE(sodium_crypto_sign_seed_keypair, AI_Key)
+    PHP_FE(sodium_crypto_sign_verify_detached, AI_SignatureAndStringAndKey)
+    PHP_FE(sodium_crypto_stream, AI_LengthAndNonceAndKey)
+    PHP_FE(sodium_crypto_stream_xor, AI_StringAndNonceAndKey)
+    PHP_FE(sodium_randombytes_buf, AI_Length)
+    PHP_FE(sodium_randombytes_random16, AI_None)
+    PHP_FE(sodium_randombytes_uniform, AI_Integer)
+    PHP_FE(sodium_bin2hex, AI_String)
 #if SODIUM_LIBRARY_VERSION_MAJOR > 7 || \
     (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 6)
-    ZEND_NS_NAMED_FE("Sodium", compare, ZEND_FN(sodium_compare), AI_TwoStrings)
+    PHP_FE(sodium_compare, AI_TwoStrings)
 #endif
-    ZEND_NS_NAMED_FE("Sodium", hex2bin, ZEND_FN(sodium_hex2bin), AI_TwoStrings)
-    ZEND_NS_NAMED_FE("Sodium", increment, ZEND_FN(sodium_increment), AI_String)
-    ZEND_NS_NAMED_FE("Sodium", add, ZEND_FN(sodium_add), AI_TwoStrings)
-    ZEND_NS_NAMED_FE("Sodium", library_version_major, ZEND_FN(sodium_library_version_major), AI_None)
-    ZEND_NS_NAMED_FE("Sodium", library_version_minor, ZEND_FN(sodium_library_version_minor), AI_None)
-    ZEND_NS_NAMED_FE("Sodium", memcmp, ZEND_FN(sodium_memcmp), AI_TwoStrings)
-    ZEND_NS_NAMED_FE("Sodium", memzero, ZEND_FN(sodium_memzero), AI_FirstArgByReferenceSecondLength)
-    ZEND_NS_NAMED_FE("Sodium", version_string, ZEND_FN(sodium_version_string), AI_None)
+    PHP_FE(sodium_hex2bin, AI_TwoStrings)
+    PHP_FE(sodium_increment, AI_String)
+    PHP_FE(sodium_add, AI_TwoStrings)
+    PHP_FE(sodium_library_version_major, AI_None)
+    PHP_FE(sodium_library_version_minor, AI_None)
+    PHP_FE(sodium_memcmp, AI_TwoStrings)
+    PHP_FE(sodium_memzero, AI_FirstArgByReferenceSecondLength)
+    PHP_FE(sodium_version_string, AI_None)
 
-    ZEND_NS_FALIAS("Sodium", crypto_scalarmult_base, crypto_box_publickey_from_secretkey, AI_TwoStrings)
+    PHP_FALIAS(sodium_crypto_scalarmult_base, sodium_crypto_box_publickey_from_secretkey, AI_TwoStrings)
 
     PHP_FE_END
 };
@@ -262,133 +262,133 @@ PHP_MINIT_FUNCTION(libsodium)
     }
 
 #ifdef HAVE_AESGCM
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_AES256GCM_KEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES",
                            crypto_aead_aes256gcm_KEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_AES256GCM_NSECBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_AES256GCM_NSECBYTES",
                            crypto_aead_aes256gcm_NSECBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_AES256GCM_NPUBBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_AES256GCM_NPUBBYTES",
                            crypto_aead_aes256gcm_NPUBBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_AES256GCM_ABYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_AES256GCM_ABYTES",
                            crypto_aead_aes256gcm_ABYTES, CONST_CS | CONST_PERSISTENT);
 #endif
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES",
                            crypto_aead_chacha20poly1305_KEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_NSECBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_NSECBYTES",
                            crypto_aead_chacha20poly1305_NSECBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES",
                            crypto_aead_chacha20poly1305_NPUBBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_ABYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_ABYTES",
                            crypto_aead_chacha20poly1305_ABYTES, CONST_CS | CONST_PERSISTENT);
 #ifdef crypto_aead_chacha20poly1305_IETF_NPUBBYTES
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES",
                            crypto_aead_chacha20poly1305_KEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_IETF_NSECBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_NSECBYTES",
                            crypto_aead_chacha20poly1305_NSECBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES",
                            crypto_aead_chacha20poly1305_IETF_NPUBBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AEAD_CHACHA20POLY1305_IETF_ABYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_ABYTES",
                            crypto_aead_chacha20poly1305_ABYTES, CONST_CS | CONST_PERSISTENT);
 #endif
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AUTH_BYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AUTH_BYTES",
                            crypto_auth_BYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_AUTH_KEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AUTH_KEYBYTES",
                            crypto_auth_KEYBYTES, CONST_CS | CONST_PERSISTENT);
 #ifdef crypto_box_SEALBYTES
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_SEALBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_SEALBYTES",
                            crypto_box_SEALBYTES, CONST_CS | CONST_PERSISTENT);
 #endif
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_SECRETKEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_SECRETKEYBYTES",
                            crypto_box_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_PUBLICKEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_PUBLICKEYBYTES",
                            crypto_box_PUBLICKEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_KEYPAIRBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_KEYPAIRBYTES",
                            crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES,
                            CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_MACBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_MACBYTES",
                            crypto_box_MACBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_NONCEBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_NONCEBYTES",
                            crypto_box_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_BOX_SEEDBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_SEEDBYTES",
                            crypto_box_SEEDBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_KX_BYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_BYTES",
                            crypto_kx_BYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_KX_PUBLICKEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_PUBLICKEYBYTES",
                            crypto_kx_PUBLICKEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_KX_SECRETKEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_SECRETKEYBYTES",
                            crypto_kx_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_BYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_BYTES",
                            crypto_generichash_BYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_BYTES_MIN",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_BYTES_MIN",
                            crypto_generichash_BYTES_MIN, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_BYTES_MAX",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_BYTES_MAX",
                            crypto_generichash_BYTES_MAX, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_KEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_KEYBYTES",
                            crypto_generichash_KEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_KEYBYTES_MIN",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_KEYBYTES_MIN",
                            crypto_generichash_KEYBYTES_MIN, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_GENERICHASH_KEYBYTES_MAX",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_KEYBYTES_MAX",
                            crypto_generichash_KEYBYTES_MAX, CONST_CS | CONST_PERSISTENT);
 #ifdef crypto_pwhash_SALTBYTES
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SALTBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SALTBYTES",
                            crypto_pwhash_SALTBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_STRING_CONSTANT("Sodium\\CRYPTO_PWHASH_STRPREFIX",
+    REGISTER_STRING_CONSTANT("SODIUM_CRYPTO_PWHASH_STRPREFIX",
                              crypto_pwhash_STRPREFIX, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE",
                            crypto_pwhash_opslimit_interactive(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE",
                            crypto_pwhash_memlimit_interactive(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_OPSLIMIT_MODERATE",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE",
                            crypto_pwhash_opslimit_moderate(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_MODERATE",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE",
                            crypto_pwhash_memlimit_moderate(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_OPSLIMIT_SENSITIVE",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_OPSLIMIT_SENSITIVE",
                            crypto_pwhash_opslimit_sensitive(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_SENSITIVE",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE",
                            crypto_pwhash_memlimit_sensitive(), CONST_CS | CONST_PERSISTENT);
 #endif
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
                            crypto_pwhash_scryptsalsa208sha256_SALTBYTES, CONST_CS | CONST_PERSISTENT);
 #ifndef crypto_pwhash_scryptsalsa208sha256_STRPREFIX
 # define crypto_pwhash_scryptsalsa208sha256_STRPREFIX "$7$"
 #endif
-    REGISTER_STRING_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX",
+    REGISTER_STRING_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX",
                              crypto_pwhash_scryptsalsa208sha256_STRPREFIX, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE",
                            crypto_pwhash_scryptsalsa208sha256_opslimit_interactive(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE",
                            crypto_pwhash_scryptsalsa208sha256_memlimit_interactive(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE",
                            crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
                            crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SCALARMULT_BYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SCALARMULT_BYTES",
                            crypto_scalarmult_BYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SCALARMULT_SCALARBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SCALARMULT_SCALARBYTES",
                            crypto_scalarmult_SCALARBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SHORTHASH_BYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SHORTHASH_BYTES",
                            crypto_shorthash_BYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SHORTHASH_KEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SHORTHASH_KEYBYTES",
                            crypto_shorthash_KEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SECRETBOX_KEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SECRETBOX_KEYBYTES",
                            crypto_secretbox_KEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SECRETBOX_MACBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SECRETBOX_MACBYTES",
                            crypto_secretbox_MACBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SECRETBOX_NONCEBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SECRETBOX_NONCEBYTES",
                            crypto_secretbox_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SIGN_BYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SIGN_BYTES",
                            crypto_sign_BYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SIGN_SEEDBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SIGN_SEEDBYTES",
                            crypto_sign_SEEDBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SIGN_PUBLICKEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES",
                            crypto_sign_PUBLICKEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SIGN_SECRETKEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SIGN_SECRETKEYBYTES",
                            crypto_sign_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SIGN_KEYPAIRBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SIGN_KEYPAIRBYTES",
                            crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES,
                            CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_STREAM_NONCEBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_STREAM_NONCEBYTES",
                            crypto_stream_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_STREAM_KEYBYTES",
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_STREAM_KEYBYTES",
                            crypto_stream_KEYBYTES, CONST_CS | CONST_PERSISTENT);
     return SUCCESS;
 }
@@ -533,7 +533,7 @@ PHP_FUNCTION(sodium_memcmp)
     }
 }
 
-PHP_FUNCTION(randombytes_buf)
+PHP_FUNCTION(sodium_randombytes_buf)
 {
     zend_string *buf;
     zend_long    len;
@@ -550,12 +550,12 @@ PHP_FUNCTION(randombytes_buf)
     RETURN_STR(buf);
 }
 
-PHP_FUNCTION(randombytes_random16)
+PHP_FUNCTION(sodium_randombytes_random16)
 {
     RETURN_LONG((zend_long) (randombytes_random() & (uint32_t) 0xffff));
 }
 
-PHP_FUNCTION(randombytes_uniform)
+PHP_FUNCTION(sodium_randombytes_uniform)
 {
     zend_long upper_bound;
 
@@ -568,7 +568,7 @@ PHP_FUNCTION(randombytes_uniform)
     RETURN_LONG((zend_long) randombytes_uniform((uint32_t) upper_bound));
 }
 
-PHP_FUNCTION(crypto_shorthash)
+PHP_FUNCTION(sodium_crypto_shorthash)
 {
     zend_string   *hash;
     unsigned char *key;
@@ -597,7 +597,7 @@ PHP_FUNCTION(crypto_shorthash)
     RETURN_STR(hash);
 }
 
-PHP_FUNCTION(crypto_secretbox)
+PHP_FUNCTION(sodium_crypto_secretbox)
 {
     zend_string   *ciphertext;
     unsigned char *key;
@@ -638,7 +638,7 @@ PHP_FUNCTION(crypto_secretbox)
     RETURN_STR(ciphertext);
 }
 
-PHP_FUNCTION(crypto_secretbox_open)
+PHP_FUNCTION(sodium_crypto_secretbox_open)
 {
     zend_string   *msg;
     unsigned char *key;
@@ -680,7 +680,7 @@ PHP_FUNCTION(crypto_secretbox_open)
     }
 }
 
-PHP_FUNCTION(crypto_generichash)
+PHP_FUNCTION(sodium_crypto_generichash)
 {
     zend_string   *hash;
     unsigned char *key = NULL;
@@ -716,7 +716,7 @@ PHP_FUNCTION(crypto_generichash)
     RETURN_STR(hash);
 }
 
-PHP_FUNCTION(crypto_generichash_init)
+PHP_FUNCTION(sodium_crypto_generichash_init)
 {
     crypto_generichash_state  state_tmp;
     zend_string              *state;
@@ -751,7 +751,7 @@ PHP_FUNCTION(crypto_generichash_init)
     RETURN_STR(state);
 }
 
-PHP_FUNCTION(crypto_generichash_update)
+PHP_FUNCTION(sodium_crypto_generichash_update)
 {
     crypto_generichash_state  state_tmp;
     zval                     *state_zv;
@@ -784,7 +784,7 @@ PHP_FUNCTION(crypto_generichash_update)
     RETURN_TRUE;
 }
 
-PHP_FUNCTION(crypto_generichash_final)
+PHP_FUNCTION(sodium_crypto_generichash_final)
 {
     crypto_generichash_state  state_tmp;
     zend_string              *hash;
@@ -825,7 +825,7 @@ PHP_FUNCTION(crypto_generichash_final)
     RETURN_STR(hash);
 }
 
-PHP_FUNCTION(crypto_box_keypair)
+PHP_FUNCTION(sodium_crypto_box_keypair)
 {
     zend_string *keypair;
     size_t       keypair_len;
@@ -843,7 +843,7 @@ PHP_FUNCTION(crypto_box_keypair)
     RETURN_STR(keypair);
 }
 
-PHP_FUNCTION(crypto_box_seed_keypair)
+PHP_FUNCTION(sodium_crypto_box_seed_keypair)
 {
     zend_string   *keypair;
     unsigned char *seed;
@@ -873,7 +873,7 @@ PHP_FUNCTION(crypto_box_seed_keypair)
     RETURN_STR(keypair);
 }
 
-PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey)
+PHP_FUNCTION(sodium_crypto_box_keypair_from_secretkey_and_publickey)
 {
     zend_string *keypair;
     char        *publickey;
@@ -907,7 +907,7 @@ PHP_FUNCTION(crypto_box_keypair_from_secretkey_and_publickey)
     RETURN_STR(keypair);
 }
 
-PHP_FUNCTION(crypto_box_secretkey)
+PHP_FUNCTION(sodium_crypto_box_secretkey)
 {
     zend_string   *secretkey;
     unsigned char *keypair;
@@ -930,7 +930,7 @@ PHP_FUNCTION(crypto_box_secretkey)
     RETURN_STR(secretkey);
 }
 
-PHP_FUNCTION(crypto_box_publickey)
+PHP_FUNCTION(sodium_crypto_box_publickey)
 {
     zend_string   *publickey;
     unsigned char *keypair;
@@ -954,7 +954,7 @@ PHP_FUNCTION(crypto_box_publickey)
     RETURN_STR(publickey);
 }
 
-PHP_FUNCTION(crypto_box_publickey_from_secretkey)
+PHP_FUNCTION(sodium_crypto_box_publickey_from_secretkey)
 {
     zend_string   *publickey;
     unsigned char *secretkey;
@@ -980,7 +980,7 @@ PHP_FUNCTION(crypto_box_publickey_from_secretkey)
     RETURN_STR(publickey);
 }
 
-PHP_FUNCTION(crypto_box)
+PHP_FUNCTION(sodium_crypto_box)
 {
     zend_string   *ciphertext;
     unsigned char *keypair;
@@ -1025,7 +1025,7 @@ PHP_FUNCTION(crypto_box)
     RETURN_STR(ciphertext);
 }
 
-PHP_FUNCTION(crypto_box_open)
+PHP_FUNCTION(sodium_crypto_box_open)
 {
     zend_string   *msg;
     unsigned char *ciphertext;
@@ -1071,7 +1071,7 @@ PHP_FUNCTION(crypto_box_open)
 }
 
 #ifdef crypto_box_SEALBYTES
-PHP_FUNCTION(crypto_box_seal)
+PHP_FUNCTION(sodium_crypto_box_seal)
 {
     zend_string   *ciphertext;
     unsigned char *msg;
@@ -1103,7 +1103,7 @@ PHP_FUNCTION(crypto_box_seal)
     RETURN_STR(ciphertext);
 }
 
-PHP_FUNCTION(crypto_box_seal_open)
+PHP_FUNCTION(sodium_crypto_box_seal_open)
 {
     zend_string   *msg;
     unsigned char *ciphertext;
@@ -1141,7 +1141,7 @@ PHP_FUNCTION(crypto_box_seal_open)
 }
 #endif
 
-PHP_FUNCTION(crypto_sign_keypair)
+PHP_FUNCTION(sodium_crypto_sign_keypair)
 {
     zend_string *keypair;
     size_t       keypair_len;
@@ -1159,7 +1159,7 @@ PHP_FUNCTION(crypto_sign_keypair)
     RETURN_STR(keypair);
 }
 
-PHP_FUNCTION(crypto_sign_seed_keypair)
+PHP_FUNCTION(sodium_crypto_sign_seed_keypair)
 {
     zend_string   *keypair;
     unsigned char *seed;
@@ -1189,7 +1189,7 @@ PHP_FUNCTION(crypto_sign_seed_keypair)
     RETURN_STR(keypair);
 }
 
-PHP_FUNCTION(crypto_sign_keypair_from_secretkey_and_publickey)
+PHP_FUNCTION(sodium_crypto_sign_keypair_from_secretkey_and_publickey)
 {
     zend_string *keypair;
     char        *publickey;
@@ -1223,7 +1223,7 @@ PHP_FUNCTION(crypto_sign_keypair_from_secretkey_and_publickey)
     RETURN_STR(keypair);
 }
 
-PHP_FUNCTION(crypto_sign_publickey_from_secretkey)
+PHP_FUNCTION(sodium_crypto_sign_publickey_from_secretkey)
 {
     zend_string *publickey;
     char        *secretkey;
@@ -1249,7 +1249,7 @@ PHP_FUNCTION(crypto_sign_publickey_from_secretkey)
     RETURN_STR(publickey);
 }
 
-PHP_FUNCTION(crypto_sign_secretkey)
+PHP_FUNCTION(sodium_crypto_sign_secretkey)
 {
     zend_string   *secretkey;
     unsigned char *keypair;
@@ -1272,7 +1272,7 @@ PHP_FUNCTION(crypto_sign_secretkey)
     RETURN_STR(secretkey);
 }
 
-PHP_FUNCTION(crypto_sign_publickey)
+PHP_FUNCTION(sodium_crypto_sign_publickey)
 {
     zend_string   *publickey;
     unsigned char *keypair;
@@ -1296,7 +1296,7 @@ PHP_FUNCTION(crypto_sign_publickey)
     RETURN_STR(publickey);
 }
 
-PHP_FUNCTION(crypto_sign)
+PHP_FUNCTION(sodium_crypto_sign)
 {
     zend_string        *msg_signed;
     unsigned char      *msg;
@@ -1338,7 +1338,7 @@ PHP_FUNCTION(crypto_sign)
     RETURN_STR(msg_signed);
 }
 
-PHP_FUNCTION(crypto_sign_open)
+PHP_FUNCTION(sodium_crypto_sign_open)
 {
     zend_string        *msg;
     unsigned char      *msg_signed;
@@ -1379,7 +1379,7 @@ PHP_FUNCTION(crypto_sign_open)
     RETURN_STR(msg);
 }
 
-PHP_FUNCTION(crypto_sign_detached)
+PHP_FUNCTION(sodium_crypto_sign_detached)
 {
     zend_string        *signature;
     unsigned char      *msg;
@@ -1415,7 +1415,7 @@ PHP_FUNCTION(crypto_sign_detached)
     RETURN_STR(signature);
 }
 
-PHP_FUNCTION(crypto_sign_verify_detached)
+PHP_FUNCTION(sodium_crypto_sign_verify_detached)
 {
     unsigned char *msg;
     unsigned char *publickey;
@@ -1448,7 +1448,7 @@ PHP_FUNCTION(crypto_sign_verify_detached)
     RETURN_TRUE;
 }
 
-PHP_FUNCTION(crypto_stream)
+PHP_FUNCTION(sodium_crypto_stream)
 {
     zend_string   *ciphertext;
     unsigned char *key;
@@ -1483,7 +1483,7 @@ PHP_FUNCTION(crypto_stream)
     RETURN_STR(ciphertext);
 }
 
-PHP_FUNCTION(crypto_stream_xor)
+PHP_FUNCTION(sodium_crypto_stream_xor)
 {
     zend_string   *ciphertext;
     unsigned char *key;
@@ -1518,7 +1518,7 @@ PHP_FUNCTION(crypto_stream_xor)
     RETURN_STR(ciphertext);
 }
 
-PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256)
+PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256)
 {
     zend_string   *hash;
     unsigned char *salt;
@@ -1566,7 +1566,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256)
     RETURN_STR(hash);
 }
 
-PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str)
+PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256_str)
 {
     zend_string *hash_str;
     char        *passwd;
@@ -1605,7 +1605,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str)
     RETURN_STR(hash_str);
 }
 
-PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify)
+PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256_str_verify)
 {
     char      *hash_str;
     char      *passwd;
@@ -1633,7 +1633,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify)
 }
 
 #ifdef crypto_pwhash_SALTBYTES
-PHP_FUNCTION(crypto_pwhash)
+PHP_FUNCTION(sodium_crypto_pwhash)
 {
     zend_string   *hash;
     unsigned char *salt;
@@ -1680,7 +1680,7 @@ PHP_FUNCTION(crypto_pwhash)
     RETURN_STR(hash);
 }
 
-PHP_FUNCTION(crypto_pwhash_str)
+PHP_FUNCTION(sodium_crypto_pwhash_str)
 {
     zend_string *hash_str;
     char        *passwd;
@@ -1722,7 +1722,7 @@ PHP_FUNCTION(crypto_pwhash_str)
     RETURN_STR(hash_str);
 }
 
-PHP_FUNCTION(crypto_pwhash_str_verify)
+PHP_FUNCTION(sodium_crypto_pwhash_str_verify)
 {
     char      *hash_str;
     char      *passwd;
@@ -1746,7 +1746,7 @@ PHP_FUNCTION(crypto_pwhash_str_verify)
 }
 #endif
 
-PHP_FUNCTION(crypto_aead_aes256gcm_is_available)
+PHP_FUNCTION(sodium_crypto_aead_aes256gcm_is_available)
 {
 #ifdef HAVE_AESGCM
     RETURN_BOOL(crypto_aead_aes256gcm_is_available());
@@ -1756,7 +1756,7 @@ PHP_FUNCTION(crypto_aead_aes256gcm_is_available)
 }
 
 #ifdef HAVE_AESGCM
-PHP_FUNCTION(crypto_aead_aes256gcm_encrypt)
+PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt)
 {
     zend_string        *ciphertext;
     unsigned char      *ad;
@@ -1812,7 +1812,7 @@ PHP_FUNCTION(crypto_aead_aes256gcm_encrypt)
     RETURN_STR(ciphertext);
 }
 
-PHP_FUNCTION(crypto_aead_aes256gcm_decrypt)
+PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt)
 {
     zend_string        *msg;
     unsigned char      *ad;
@@ -1869,7 +1869,7 @@ PHP_FUNCTION(crypto_aead_aes256gcm_decrypt)
 }
 #endif
 
-PHP_FUNCTION(crypto_aead_chacha20poly1305_encrypt)
+PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt)
 {
     zend_string        *ciphertext;
     unsigned char      *ad;
@@ -1925,7 +1925,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_encrypt)
     RETURN_STR(ciphertext);
 }
 
-PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt)
+PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt)
 {
     zend_string        *msg;
     unsigned char      *ad;
@@ -1982,7 +1982,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_decrypt)
 }
 
 #ifdef crypto_aead_chacha20poly1305_IETF_NPUBBYTES
-PHP_FUNCTION(crypto_aead_chacha20poly1305_ietf_encrypt)
+PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt)
 {
     zend_string        *ciphertext;
     unsigned char      *ad;
@@ -2041,7 +2041,7 @@ PHP_FUNCTION(crypto_aead_chacha20poly1305_ietf_encrypt)
     RETURN_STR(ciphertext);
 }
 
-PHP_FUNCTION(crypto_aead_chacha20poly1305_ietf_decrypt)
+PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt)
 {
     zend_string        *msg;
     unsigned char      *ad;
@@ -2153,7 +2153,7 @@ PHP_FUNCTION(sodium_hex2bin)
     RETURN_STR(bin);
 }
 
-PHP_FUNCTION(crypto_scalarmult)
+PHP_FUNCTION(sodium_crypto_scalarmult)
 {
     zend_string   *q;
     unsigned char *n;
@@ -2180,7 +2180,7 @@ PHP_FUNCTION(crypto_scalarmult)
     RETURN_STR(q);
 }
 
-PHP_FUNCTION(crypto_kx)
+PHP_FUNCTION(sodium_crypto_kx)
 {
     crypto_generichash_state h;
     unsigned char            q[crypto_scalarmult_BYTES];
@@ -2229,7 +2229,7 @@ PHP_FUNCTION(crypto_kx)
     RETURN_STR(sharedkey);
 }
 
-PHP_FUNCTION(crypto_auth)
+PHP_FUNCTION(sodium_crypto_auth)
 {
     zend_string *mac;
     char        *key;
@@ -2256,7 +2256,7 @@ PHP_FUNCTION(crypto_auth)
     RETURN_STR(mac);
 }
 
-PHP_FUNCTION(crypto_auth_verify)
+PHP_FUNCTION(sodium_crypto_auth_verify)
 {
     char      *mac;
     char      *key;
@@ -2285,7 +2285,7 @@ PHP_FUNCTION(crypto_auth_verify)
     RETURN_TRUE;
 }
 
-PHP_FUNCTION(crypto_sign_ed25519_sk_to_curve25519)
+PHP_FUNCTION(sodium_crypto_sign_ed25519_sk_to_curve25519)
 {
     zend_string *ecdhkey;
     char        *eddsakey;
@@ -2311,7 +2311,7 @@ PHP_FUNCTION(crypto_sign_ed25519_sk_to_curve25519)
     RETURN_STR(ecdhkey);
 }
 
-PHP_FUNCTION(crypto_sign_ed25519_pk_to_curve25519)
+PHP_FUNCTION(sodium_crypto_sign_ed25519_pk_to_curve25519)
 {
     zend_string *ecdhkey;
     char        *eddsakey;

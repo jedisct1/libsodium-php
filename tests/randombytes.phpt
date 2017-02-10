@@ -4,13 +4,13 @@ Check for libsodium randombytes
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
-$a = \Sodium\randombytes_buf(0);
+$a = sodium_randombytes_buf(0);
 echo strlen($a);
 echo "\n";
-$a = \Sodium\randombytes_buf(100);
+$a = sodium_randombytes_buf(100);
 echo strlen($a);
 echo "\n";
-$b = \Sodium\randombytes_buf(100);
+$b = sodium_randombytes_buf(100);
 echo strlen($a);
 echo "\n";
 if ($a === $b) {
@@ -19,8 +19,8 @@ if ($a === $b) {
   echo "OK\n";
 }
 $x = 10;
-$c = \Sodium\randombytes_random16();
-while (\Sodium\randombytes_random16() === $c) {
+$c = sodium_randombytes_random16();
+while (sodium_randombytes_random16() === $c) {
   if (--$x <= 0) {
     die("FAIL\n");
   }
@@ -28,13 +28,13 @@ while (\Sodium\randombytes_random16() === $c) {
 echo "OK\n";
 $x = 10000;
 do {
-  $c = \Sodium\randombytes_random16();
+  $c = sodium_randombytes_random16();
   if ($c < 0 || $c > 0xffff) {
     die("FAIL\n");
   }
 } while (--$x > 0);
 echo "OK\n";
-$d = \Sodium\randombytes_uniform(10);
+$d = sodium_randombytes_uniform(10);
 if ($d < 10) {
   echo "OK\n";
 }

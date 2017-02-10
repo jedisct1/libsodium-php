@@ -4,15 +4,15 @@ Check for libsodium bin2hex
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
-$bin = \Sodium\randombytes_buf(\Sodium\randombytes_uniform(1000));
-$hex = \Sodium\bin2hex($bin);
+$bin = sodium_randombytes_buf(sodium_randombytes_uniform(1000));
+$hex = sodium_bin2hex($bin);
 $phphex = bin2hex($bin);
 var_dump(strcasecmp($hex, $phphex));
 
-$bin2 = \Sodium\hex2bin($hex);
+$bin2 = sodium_hex2bin($hex);
 var_dump($bin2 === $bin);
 
-$bin2 = \Sodium\hex2bin('[' . $hex .']', '[]');
+$bin2 = sodium_hex2bin('[' . $hex .']', '[]');
 var_dump($bin2 === $bin);
 ?>
 --EXPECT--
