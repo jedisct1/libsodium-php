@@ -8,6 +8,7 @@
 #include "ext/standard/info.h"
 #include "php_libsodium.h"
 #include "compat.h"
+#include "zend_exceptions.h"
 
 #include <sodium.h>
 #include <stdint.h>
@@ -435,7 +436,8 @@ PHP_FUNCTION(sodium_memzero)
     }
     ZVAL_DEREF(buf_zv);
     if (Z_TYPE_P(buf_zv) != IS_STRING) {
-        zend_error(E_RECOVERABLE_ERROR, "memzero: a PHP string is required");
+        zend_throw_exception(zend_ce_exception, "memzero: a PHP string is required", 0);
+        return;
     }
     if (HAS_MORE_REFS(buf_zv)) {
         convert_to_null(buf_zv);
@@ -463,10 +465,12 @@ PHP_FUNCTION(sodium_increment)
     }
     ZVAL_DEREF(val_zv);
     if (IS_IMMUTABLE(val_zv)) {
-        zend_error(E_RECOVERABLE_ERROR, "increment(): value is immutable");
+        zend_throw_exception(zend_ce_exception, "increment(): value is immutable", 0);
+        return;
     }
     if (Z_TYPE_P(val_zv) != IS_STRING) {
-        zend_error(E_RECOVERABLE_ERROR, "increment(): a PHP string is required");
+        zend_throw_exception(zend_ce_exception, "increment(): a PHP string is required", 0);
+        return;
     }
     val = (unsigned char *) Z_STRVAL(*val_zv);
     val_len = Z_STRLEN(*val_zv);
@@ -494,15 +498,18 @@ PHP_FUNCTION(sodium_add)
     }
     ZVAL_DEREF(val_zv);
     if (IS_IMMUTABLE(val_zv)) {
-        zend_error(E_RECOVERABLE_ERROR, "add(): value is immutable");
+        zend_throw_exception(zend_ce_exception, "add(): value is immutable", 0);
+        return;
     }
     if (Z_TYPE_P(val_zv) != IS_STRING) {
-        zend_error(E_RECOVERABLE_ERROR, "add(): PHP strings are required");
+        zend_throw_exception(zend_ce_exception, "add(): PHP strings are required", 0);
+        return;
     }
     val = (unsigned char *) Z_STRVAL(*val_zv);
     val_len = Z_STRLEN(*val_zv);
     if (val_len != addv_len) {
-        zend_error(E_RECOVERABLE_ERROR, "add(): values must have the same length");
+        zend_throw_exception(zend_ce_exception, "add(): values must have the same length", 0);
+        return;
     }
     c = 0U;
     for (i = (strsize_t) 0U; i < val_len; i++) {
@@ -527,7 +534,8 @@ PHP_FUNCTION(sodium_memcmp)
     if (len1 != len2) {
         RETURN_LONG(-1);
     } else if (len1 > SIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "memcmp(): invalid length");
+        zend_throw_exception(zend_ce_exception, "memcmp(): invalid length", 0);
+        return;
     } else {
         RETURN_LONG(sodium_memcmp(buf1, buf2, (size_t) len1));
     }
@@ -541,7 +549,8 @@ PHP_FUNCTION(sodium_randombytes_buf)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &len) == FAILURE ||
         len < 0 || len >= STRSIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "randombytes_buf(): invalid length");
+        zend_throw_exception(zend_ce_exception, "randombytes_buf(): invalid length", 0);
+        return;
     }
     buf = zend_string_alloc((size_t) len, 0);
     randombytes_buf(ZSTR_VAL(buf), (size_t) ZSTR_LEN(buf));
@@ -562,7 +571,8 @@ PHP_FUNCTION(sodium_randombytes_uniform)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
                               &upper_bound) == FAILURE ||
         upper_bound <= 0 || upper_bound > INT32_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "randombytes_uniform(): invalid upper bound");
+        zend_throw_exception(zend_ce_exception, "randombytes_uniform(): invalid upper bound", 0);
+        return;
     }
 
     RETURN_LONG((zend_long) randombytes_uniform((uint32_t) upper_bound));
@@ -582,15 +592,18 @@ PHP_FUNCTION(sodium_crypto_shorthash)
         return;
     }
     if (key_len != crypto_shorthash_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_shorthash(): key size should be "
-                   "CRYPTO_SHORTHASH_KEYBYTES bytes");
+                   "CRYPTO_SHORTHASH_KEYBYTES bytes",
+                   0);
+        return;
     }
     hash = zend_string_alloc(crypto_shorthash_BYTES, 0);
     if (crypto_shorthash((unsigned char *) ZSTR_VAL(hash), msg,
                          (unsigned long long) msg_len, key) != 0) {
         zend_string_free(hash);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_shorthash()");
+        zend_throw_exception(zend_ce_error, "crypto_shorthash(): internal error", 0);
+        return;
     }
     ZSTR_VAL(hash)[crypto_shorthash_BYTES] = 0;
 
@@ -614,24 +627,29 @@ PHP_FUNCTION(sodium_crypto_secretbox)
         return;
     }
     if (nonce_len != crypto_secretbox_NONCEBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_secretbox(): nonce size should be "
-                   "CRYPTO_SECRETBOX_NONCEBYTES bytes");
+                   "CRYPTO_SECRETBOX_NONCEBYTES bytes",
+                   0);
+        return;
     }
     if (key_len != crypto_secretbox_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_secretbox(): key size should be "
-                   "CRYPTO_SECRETBOX_KEYBYTES bytes");
+                   "CRYPTO_SECRETBOX_KEYBYTES bytes",
+                   0);
+        return;
     }
     if (STRSIZE_MAX - msg_len <= crypto_secretbox_MACBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ciphertext = zend_string_alloc((size_t) msg_len + crypto_secretbox_MACBYTES, 0);
     if (crypto_secretbox_easy((unsigned char *) ZSTR_VAL(ciphertext),
                               msg, (unsigned long long) msg_len,
                               nonce, key) != 0) {
         zend_string_free(ciphertext);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_secretbox()");
+        zend_throw_exception(zend_ce_error, "crypto_secretbox(): internal error", 0);
     }
     ZSTR_VAL(ciphertext)[msg_len + crypto_secretbox_MACBYTES] = 0;
 
@@ -655,14 +673,18 @@ PHP_FUNCTION(sodium_crypto_secretbox_open)
         return;
     }
     if (nonce_len != crypto_secretbox_NONCEBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_secretbox_open(): nonce size should be "
-                   "CRYPTO_SECRETBOX_NONCEBYTES bytes");
+                   "CRYPTO_SECRETBOX_NONCEBYTES bytes",
+                   0);
+        return;
     }
     if (key_len != crypto_secretbox_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_secretbox_open(): key size should be "
-                   "CRYPTO_SECRETBOX_KEYBYTES bytes");
+                   "CRYPTO_SECRETBOX_KEYBYTES bytes",
+                   0);
+        return;
     }
     if (ciphertext_len < crypto_secretbox_MACBYTES) {
         RETURN_FALSE;
@@ -697,19 +719,22 @@ PHP_FUNCTION(sodium_crypto_generichash)
     }
     if (hash_len < crypto_generichash_BYTES_MIN ||
         hash_len > crypto_generichash_BYTES_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash(): unsupported output length");
+        zend_throw_exception(zend_ce_exception, "crypto_generichash(): unsupported output length", 0);
+        return;
     }
     if (key_len != 0 &&
         (key_len < crypto_generichash_KEYBYTES_MIN ||
          key_len > crypto_generichash_KEYBYTES_MAX)) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash(): unsupported key length");
+        zend_throw_exception(zend_ce_exception, "crypto_generichash(): unsupported key length", 0);
+        return;
     }
     hash = zend_string_alloc(hash_len, 0);
     if (crypto_generichash((unsigned char *) ZSTR_VAL(hash), (size_t) hash_len,
                            msg, (unsigned long long) msg_len,
                            key, (size_t) key_len) != 0) {
         zend_string_free(hash);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash()");
+        zend_throw_exception(zend_ce_error, "crypto_generichash(): internal error", 0);
+        return;
     }
     ZSTR_VAL(hash)[hash_len] = 0;
 
@@ -732,16 +757,18 @@ PHP_FUNCTION(sodium_crypto_generichash_init)
     }
     if (hash_len < crypto_generichash_BYTES_MIN ||
         hash_len > crypto_generichash_BYTES_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_init(): unsupported output length");
+        zend_throw_exception(zend_ce_exception, "crypto_generichash_init(): unsupported output length", 0);
+        return;
     }
     if (key_len != 0 &&
         (key_len < crypto_generichash_KEYBYTES_MIN ||
          key_len > crypto_generichash_KEYBYTES_MAX)) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_init(): unsupported key length");
+        zend_throw_exception(zend_ce_exception, "crypto_generichash_init(): unsupported key length", 0);
     }
     if (crypto_generichash_init((void *) &state_tmp, key, (size_t) key_len,
                                 (size_t) hash_len) != 0) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_init()");
+        zend_throw_exception(zend_ce_error, "crypto_generichash_init(): internal error", 0);
+        return;
     }
     state = zend_string_alloc(state_len, 0);
     memcpy(ZSTR_VAL(state), &state_tmp, state_len);
@@ -766,17 +793,20 @@ PHP_FUNCTION(sodium_crypto_generichash_update)
     }
     ZVAL_DEREF(state_zv);
     if (Z_TYPE_P(state_zv) != IS_STRING) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_update: a reference to a state is required");
+        zend_throw_exception(zend_ce_exception, "crypto_generichash_update: a reference to a state is required", 0);
+        return;
     }
     state = (unsigned char *) Z_STRVAL(*state_zv);
     state_len = Z_STRLEN(*state_zv);
     if (state_len != sizeof (crypto_generichash_state)) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_update(): incorrect state length");
+        zend_throw_exception(zend_ce_exception, "crypto_generichash_update(): incorrect state length", 0);
+        return;
     }
     memcpy(&state_tmp, state, sizeof state_tmp);
     if (crypto_generichash_update((void *) &state_tmp, msg,
                                   (unsigned long long) msg_len) != 0) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_update()");
+        zend_throw_exception(zend_ce_error, "crypto_generichash_update(): internal error", 0);
+        return;
     }
     memcpy(state, &state_tmp, state_len);
     sodium_memzero(&state_tmp, sizeof state_tmp);
@@ -799,16 +829,19 @@ PHP_FUNCTION(sodium_crypto_generichash_final)
     }
     ZVAL_DEREF(state_zv);
     if (Z_TYPE_P(state_zv) != IS_STRING) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_final: a reference to a state is required");
+        zend_throw_exception(zend_ce_exception, "crypto_generichash_final: a reference to a state is required", 0);
+        return;
     }
     state = (unsigned char *) Z_STRVAL(*state_zv);
     state_len = Z_STRLEN(*state_zv);
     if (state_len != sizeof (crypto_generichash_state)) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_final(): incorrect state length");
+        zend_throw_exception(zend_ce_exception, "crypto_generichash_final(): incorrect state length", 0);
+        return;
     }
     if (hash_len < crypto_generichash_BYTES_MIN ||
         hash_len > crypto_generichash_BYTES_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_final(): unsupported output length");
+        zend_throw_exception(zend_ce_exception, "crypto_generichash_final(): unsupported output length", 0);
+        return;
     }
     hash = zend_string_alloc(hash_len, 0);
     memcpy(&state_tmp, state, sizeof state_tmp);
@@ -816,7 +849,8 @@ PHP_FUNCTION(sodium_crypto_generichash_final)
                                  (unsigned char *) ZSTR_VAL(hash),
                                  (size_t) hash_len) != 0) {
         zend_string_free(hash);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_final()");
+        zend_throw_exception(zend_ce_error, "crypto_generichash_final(): internal error", 0);
+        return;
     }
     sodium_memzero(state, state_len);
     convert_to_null(state_zv);
@@ -836,7 +870,8 @@ PHP_FUNCTION(sodium_crypto_box_keypair)
                            crypto_box_SECRETKEYBYTES,
                            (unsigned char *) ZSTR_VAL(keypair)) != 0) {
         zend_string_free(keypair);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_box_keypair()");
+        zend_throw_exception(zend_ce_error, "crypto_box_keypair(): internal error", 0);
+        return;
     }
     ZSTR_VAL(keypair)[keypair_len] = 0;
 
@@ -855,9 +890,11 @@ PHP_FUNCTION(sodium_crypto_box_seed_keypair)
         return;
     }
     if (seed_len != crypto_box_SEEDBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box_seed_keypair(): "
-                   "seed should be crypto_box_SEEDBYTES long");
+                   "seed should be crypto_box_SEEDBYTES long",
+                   0);
+        return;
     }
     keypair_len = crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES;
     keypair = zend_string_alloc(keypair_len, 0);
@@ -866,7 +903,8 @@ PHP_FUNCTION(sodium_crypto_box_seed_keypair)
                                  (unsigned char *) ZSTR_VAL(keypair),
                                  seed) != 0) {
         zend_string_free(keypair);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_box_seed_keypair()");
+        zend_throw_exception(zend_ce_error, "crypto_box_seed_keypair(): internal error", 0);
+        return;
     }
     ZSTR_VAL(keypair)[keypair_len] = 0;
 
@@ -888,14 +926,18 @@ PHP_FUNCTION(sodium_crypto_box_keypair_from_secretkey_and_publickey)
         return;
     }
     if (secretkey_len != crypto_box_SECRETKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box_keypair_from_secretkey_and_publickey(): "
-                   "secretkey should be CRYPTO_BOX_SECRETKEYBYTES long");
+                   "secretkey should be CRYPTO_BOX_SECRETKEYBYTES long",
+                   0);
+        return;
     }
     if (publickey_len != crypto_box_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box_keypair_from_secretkey_and_publickey(): "
-                   "publickey should be CRYPTO_BOX_PUBLICKEYBYTES long");
+                   "publickey should be CRYPTO_BOX_PUBLICKEYBYTES long",
+                   0);
+        return;
     }
     keypair_len = crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES;
     keypair = zend_string_alloc(keypair_len, 0);
@@ -919,9 +961,11 @@ PHP_FUNCTION(sodium_crypto_box_secretkey)
     }
     if (keypair_len !=
         crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box_secretkey(): keypair should be "
-                   "CRYPTO_BOX_KEYPAIRBYTES long");
+                   "CRYPTO_BOX_KEYPAIRBYTES long",
+                   0);
+        return;
     }
     secretkey = zend_string_alloc(crypto_box_SECRETKEYBYTES, 0);
     memcpy(ZSTR_VAL(secretkey), keypair, crypto_box_SECRETKEYBYTES);
@@ -942,9 +986,11 @@ PHP_FUNCTION(sodium_crypto_box_publickey)
     }
     if (keypair_len !=
         crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box_publickey(): keypair should be "
-                   "CRYPTO_BOX_KEYPAIRBYTES long");
+                   "CRYPTO_BOX_KEYPAIRBYTES long",
+                   0);
+        return;
     }
     publickey = zend_string_alloc(crypto_box_PUBLICKEYBYTES, 0);
     memcpy(ZSTR_VAL(publickey), keypair + crypto_box_SECRETKEYBYTES,
@@ -965,9 +1011,11 @@ PHP_FUNCTION(sodium_crypto_box_publickey_from_secretkey)
         return;
     }
     if (secretkey_len != crypto_box_SECRETKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box_publickey_from_secretkey(): key should be "
-                   "CRYPTO_BOX_SECRETKEYBYTES long");
+                   "CRYPTO_BOX_SECRETKEYBYTES long",
+                   0);
+        return;
     }
     publickey = zend_string_alloc(crypto_box_PUBLICKEYBYTES, 0);
     (void) sizeof(int[crypto_scalarmult_BYTES ==
@@ -999,26 +1047,32 @@ PHP_FUNCTION(sodium_crypto_box)
         return;
     }
     if (nonce_len != crypto_box_NONCEBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box(): nonce size should be "
-                   "CRYPTO_BOX_NONCEBYTES bytes");
+                   "CRYPTO_BOX_NONCEBYTES bytes",
+                   0);
+        return;
     }
     if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box(): keypair size should be "
-                   "CRYPTO_BOX_KEYPAIRBYTES bytes");
+                   "CRYPTO_BOX_KEYPAIRBYTES bytes",
+                   0);
+        return;
     }
     secretkey = keypair;
     publickey = keypair + crypto_box_SECRETKEYBYTES;
     if (STRSIZE_MAX - msg_len <= crypto_box_MACBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ciphertext = zend_string_alloc((size_t) msg_len + crypto_box_MACBYTES, 0);
     if (crypto_box_easy((unsigned char *) ZSTR_VAL(ciphertext), msg,
                         (unsigned long long) msg_len,
                         nonce, publickey, secretkey) != 0) {
         zend_string_free(ciphertext);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_box()");
+        zend_throw_exception(zend_ce_error, "crypto_box(): internal error", 0);
+        return;
     }
     ZSTR_VAL(ciphertext)[msg_len + crypto_box_MACBYTES] = 0;
 
@@ -1044,14 +1098,18 @@ PHP_FUNCTION(sodium_crypto_box_open)
         return;
     }
     if (nonce_len != crypto_box_NONCEBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box_open(): nonce size should be "
-                   "CRYPTO_BOX_NONCEBYTES bytes");
+                   "CRYPTO_BOX_NONCEBYTES bytes",
+                   0);
+        return;
     }
     if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box_open(): keypair size should be "
-                   "CRYPTO_BOX_KEYBYTES bytes");
+                   "CRYPTO_BOX_KEYBYTES bytes",
+                   0);
+        return;
     }
     secretkey = keypair;
     publickey = keypair + crypto_box_SECRETKEYBYTES;
@@ -1085,18 +1143,22 @@ PHP_FUNCTION(sodium_crypto_box_seal)
         return;
     }
     if (publickey_len != crypto_box_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box_seal(): public key size should be "
-                   "CRYPTO_BOX_PUBLICKEYBYTES bytes");
+                   "CRYPTO_BOX_PUBLICKEYBYTES bytes",
+                   0);
+        return;
     }
     if (STRSIZE_MAX - msg_len <= crypto_box_SEALBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ciphertext = zend_string_alloc((size_t) msg_len + crypto_box_SEALBYTES, 0);
     if (crypto_box_seal((unsigned char *) ZSTR_VAL(ciphertext), msg,
                         (unsigned long long) msg_len, publickey) != 0) {
         zend_string_free(ciphertext);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_box_seal()");
+        zend_throw_exception(zend_ce_error, "crypto_box_seal(): internal error", 0);
+        return;
     }
     ZSTR_VAL(ciphertext)[msg_len + crypto_box_SEALBYTES] = 0;
 
@@ -1119,9 +1181,11 @@ PHP_FUNCTION(sodium_crypto_box_seal_open)
         return;
     }
     if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_box_seal_open(): keypair size should be "
-                   "CRYPTO_BOX_KEYBYTES bytes");
+                   "CRYPTO_BOX_KEYBYTES bytes",
+                   0);
+        return;
     }
     secretkey = keypair;
     publickey = keypair + crypto_box_SECRETKEYBYTES;
@@ -1152,7 +1216,8 @@ PHP_FUNCTION(sodium_crypto_sign_keypair)
                             crypto_sign_SECRETKEYBYTES,
                             (unsigned char *) ZSTR_VAL(keypair)) != 0) {
         zend_string_free(keypair);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_sign_keypair()");
+        zend_throw_exception(zend_ce_error, "crypto_sign_keypair(): internal error", 0);
+        return;
     }
     ZSTR_VAL(keypair)[keypair_len] = 0;
 
@@ -1171,9 +1236,11 @@ PHP_FUNCTION(sodium_crypto_sign_seed_keypair)
         return;
     }
     if (seed_len != crypto_sign_SEEDBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_seed_keypair(): "
-                   "seed should be crypto_sign_SEEDBYTES long");
+                   "seed should be crypto_sign_SEEDBYTES long",
+                   0);
+        return;
     }
     keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
     keypair = zend_string_alloc(keypair_len, 0);
@@ -1182,7 +1249,7 @@ PHP_FUNCTION(sodium_crypto_sign_seed_keypair)
                                  (unsigned char *) ZSTR_VAL(keypair),
                                  seed) != 0) {
         zend_string_free(keypair);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_sign_seed_keypair()");
+        zend_throw_exception(zend_ce_error, "crypto_sign_seed_keypair(): internal error", 0);
     }
     ZSTR_VAL(keypair)[keypair_len] = 0;
 
@@ -1204,14 +1271,18 @@ PHP_FUNCTION(sodium_crypto_sign_keypair_from_secretkey_and_publickey)
         return;
     }
     if (secretkey_len != crypto_sign_SECRETKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_keypair_from_secretkey_and_publickey(): "
-                   "secretkey should be CRYPTO_SIGN_SECRETKEYBYTES long");
+                   "secretkey should be CRYPTO_SIGN_SECRETKEYBYTES long",
+                   0);
+        return;
     }
     if (publickey_len != crypto_sign_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_keypair_from_secretkey_and_publickey(): "
-                   "publickey should be CRYPTO_SIGN_PUBLICKEYBYTES long");
+                   "publickey should be CRYPTO_SIGN_PUBLICKEYBYTES long",
+                   0);
+        return;
     }
     keypair_len = crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES;
     keypair = zend_string_alloc(keypair_len, 0);
@@ -1234,15 +1305,18 @@ PHP_FUNCTION(sodium_crypto_sign_publickey_from_secretkey)
         return;
     }
     if (secretkey_len != crypto_sign_SECRETKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_publickey_from_secretkey(): "
-                   "secretkey should be CRYPTO_SIGN_SECRETKEYBYTES long");
+                   "secretkey should be CRYPTO_SIGN_SECRETKEYBYTES long",
+                   0);
+        return;
     }
     publickey = zend_string_alloc(crypto_sign_PUBLICKEYBYTES, 0);
 
     if (crypto_sign_ed25519_sk_to_pk((unsigned char *) ZSTR_VAL(publickey),
                                      (const unsigned char *) secretkey) != 0) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_sign()");
+        zend_throw_exception(zend_ce_error, "crypto_sign(): internal error", 0);
+        return;
     }
     ZSTR_VAL(publickey)[crypto_sign_PUBLICKEYBYTES] = 0;
 
@@ -1261,9 +1335,11 @@ PHP_FUNCTION(sodium_crypto_sign_secretkey)
     }
     if (keypair_len !=
         crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_secretkey(): keypair should be "
-                   "CRYPTO_SIGN_KEYPAIRBYTES long");
+                   "CRYPTO_SIGN_KEYPAIRBYTES long",
+                   0);
+        return;
     }
     secretkey = zend_string_alloc(crypto_sign_SECRETKEYBYTES, 0);
     memcpy(ZSTR_VAL(secretkey), keypair, crypto_sign_SECRETKEYBYTES);
@@ -1284,9 +1360,11 @@ PHP_FUNCTION(sodium_crypto_sign_publickey)
     }
     if (keypair_len !=
         crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_publickey(): keypair should be "
-                   "CRYPTO_SIGN_KEYPAIRBYTES long");
+                   "CRYPTO_SIGN_KEYPAIRBYTES long",
+                   0);
+        return;
     }
     publickey = zend_string_alloc(crypto_sign_PUBLICKEYBYTES, 0);
     memcpy(ZSTR_VAL(publickey), keypair + crypto_sign_SECRETKEYBYTES,
@@ -1312,12 +1390,15 @@ PHP_FUNCTION(sodium_crypto_sign)
         return;
     }
     if (secretkey_len != crypto_sign_SECRETKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign(): secret key size should be "
-                   "CRYPTO_SIGN_SECRETKEYBYTES bytes");
+                   "CRYPTO_SIGN_SECRETKEYBYTES bytes",
+                   0);
+        return;
     }
     if (STRSIZE_MAX - msg_len <= crypto_sign_BYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     msg_signed_len = msg_len + crypto_sign_BYTES;
     msg_signed = zend_string_alloc((size_t) msg_signed_len, 0);
@@ -1325,12 +1406,14 @@ PHP_FUNCTION(sodium_crypto_sign)
                     &msg_signed_real_len, msg,
                     (unsigned long long) msg_len, secretkey) != 0) {
         zend_string_free(msg_signed);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_sign()");
+        zend_throw_exception(zend_ce_error, "crypto_sign(): internal error", 0);
+        return;
     }
     if (msg_signed_real_len <= 0U || msg_signed_real_len >= STRSIZE_MAX ||
         msg_signed_real_len > msg_signed_len) {
         zend_string_free(msg_signed);
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ZSTR_TRUNCATE(msg_signed, (strsize_t) msg_signed_real_len);
     ZSTR_VAL(msg_signed)[msg_signed_real_len] = 0;
@@ -1354,13 +1437,16 @@ PHP_FUNCTION(sodium_crypto_sign_open)
         return;
     }
     if (publickey_len != crypto_sign_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_open(): public key size should be "
-                   "CRYPTO_SIGN_PUBLICKEYBYTES bytes");
+                   "CRYPTO_SIGN_PUBLICKEYBYTES bytes",
+                   0);
+        return;
     }
     msg_len = msg_signed_len;
     if (msg_len >= STRSIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     msg = zend_string_alloc((size_t) msg_len, 0);
     if (crypto_sign_open((unsigned char *) ZSTR_VAL(msg), &msg_real_len,
@@ -1371,7 +1457,8 @@ PHP_FUNCTION(sodium_crypto_sign_open)
     }
     if (msg_real_len >= STRSIZE_MAX || msg_real_len > msg_signed_len) {
         zend_string_free(msg);
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ZSTR_TRUNCATE(msg, (strsize_t) msg_real_len);
     ZSTR_VAL(msg)[msg_real_len] = 0;
@@ -1394,20 +1481,24 @@ PHP_FUNCTION(sodium_crypto_sign_detached)
         return;
     }
     if (secretkey_len != crypto_sign_SECRETKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_detached(): secret key size should be "
-                   "CRYPTO_SIGN_SECRETKEYBYTES bytes");
+                   "CRYPTO_SIGN_SECRETKEYBYTES bytes",
+                   0);
+        return;
     }
     signature = zend_string_alloc((size_t) crypto_sign_BYTES, 0);
     if (crypto_sign_detached((unsigned char *) ZSTR_VAL(signature),
                              &signature_real_len, msg,
                              (unsigned long long) msg_len, secretkey) != 0) {
         zend_string_free(signature);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_sign_detached()");
+        zend_throw_exception(zend_ce_exception, "crypto_sign_detached()", 0);
+        return;
     }
     if (signature_real_len <= 0U || signature_real_len > crypto_sign_BYTES) {
         zend_string_free(signature);
-        zend_error(E_RECOVERABLE_ERROR, "signature has a bogus size");
+        zend_throw_exception(zend_ce_exception, "signature has a bogus size", 0);
+        return;
     }
     ZSTR_TRUNCATE(signature, (strsize_t) signature_real_len);
     ZSTR_VAL(signature)[signature_real_len] = 0;
@@ -1431,14 +1522,18 @@ PHP_FUNCTION(sodium_crypto_sign_verify_detached)
         return;
     }
     if (signature_len != crypto_sign_BYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception, 
                    "crypto_sign_verify_detached(): signature size should be "
-                   "CRYPTO_SIGN_BYTES bytes");
+                   "CRYPTO_SIGN_BYTES bytes",
+                   0);
+        return;
     }
     if (publickey_len != crypto_sign_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_verify_detached(): public key size should be "
-                   "CRYPTO_SIGN_PUBLICKEYBYTES bytes");
+                   "CRYPTO_SIGN_PUBLICKEYBYTES bytes",
+                   0);
+        return;
     }
     if (crypto_sign_verify_detached(signature,
                                     msg, (unsigned long long) msg_len,
@@ -1464,19 +1559,23 @@ PHP_FUNCTION(sodium_crypto_stream)
         return;
     }
     if (ciphertext_len <= 0 || ciphertext_len >= STRSIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_stream(): invalid length");
+        zend_throw_exception(zend_ce_exception, "crypto_stream(): invalid length", 0);
+        return;
     }
     if (nonce_len != crypto_stream_NONCEBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "nonce should be CRYPTO_STREAM_NONCEBYTES bytes");
+        zend_throw_exception(zend_ce_exception, "nonce should be CRYPTO_STREAM_NONCEBYTES bytes", 0);
+        return;
     }
     if (key_len != crypto_stream_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "key should be CRYPTO_STREAM_KEYBYTES bytes");
+        zend_throw_exception(zend_ce_exception, "key should be CRYPTO_STREAM_KEYBYTES bytes", 0);
+        return;
     }
     ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
     if (crypto_stream((unsigned char *) ZSTR_VAL(ciphertext),
                       (unsigned long long) ciphertext_len, nonce, key) != 0) {
         zend_string_free(ciphertext);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_stream()");
+        zend_throw_exception(zend_ce_error, "crypto_stream(): internal error", 0);
+        return;
     }
     ZSTR_VAL(ciphertext)[ciphertext_len] = 0;
 
@@ -1501,17 +1600,17 @@ PHP_FUNCTION(sodium_crypto_stream_xor)
         return;
     }
     if (nonce_len != crypto_stream_NONCEBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "nonce should be CRYPTO_STREAM_NONCEBYTES bytes");
+        zend_throw_exception(zend_ce_exception, "nonce should be CRYPTO_STREAM_NONCEBYTES bytes", 0);
     }
     if (key_len != crypto_stream_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "key should be CRYPTO_STREAM_KEYBYTES bytes");
+        zend_throw_exception(zend_ce_exception, "key should be CRYPTO_STREAM_KEYBYTES bytes", 0);
     }
     ciphertext_len = msg_len;
     ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
     if (crypto_stream_xor((unsigned char *) ZSTR_VAL(ciphertext), msg,
                           (unsigned long long) msg_len, nonce, key) != 0) {
         zend_string_free(ciphertext);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_stream_xor()");
+        zend_throw_exception(zend_ce_error, "crypto_stream_xor(): internal error", 0);
     }
     ZSTR_VAL(ciphertext)[ciphertext_len] = 0;
 
@@ -1536,14 +1635,17 @@ PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256)
                               &opslimit, &memlimit) == FAILURE ||
         hash_len <= 0 || hash_len >= STRSIZE_MAX ||
         opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_pwhash_scryptsalsa208sha256(): invalid parameters");
+        zend_throw_exception(zend_ce_exception, "crypto_pwhash_scryptsalsa208sha256(): invalid parameters", 0);
+        return;
     }
     if (passwd_len <= 0) {
         zend_error(E_WARNING, "empty password");
     }
     if (salt_len != crypto_pwhash_scryptsalsa208sha256_SALTBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
-                   "salt should be CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES bytes");
+        zend_throw_exception(zend_ce_exception,
+                   "salt should be CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES bytes",
+                   0);
+        return;
     }
     if (opslimit < crypto_pwhash_scryptsalsa208sha256_opslimit_interactive()) {
         zend_error(E_WARNING,
@@ -1559,7 +1661,8 @@ PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256)
          passwd, (unsigned long long) passwd_len, salt,
          (unsigned long long) opslimit, (size_t) memlimit) != 0) {
         zend_string_free(hash);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_pwhash_scryptsalsa208sha256()");
+        zend_throw_exception(zend_ce_error, "crypto_pwhash_scryptsalsa208sha256(): internal error", 0);
+        return;
     }
     ZSTR_VAL(hash)[hash_len] = 0;
 
@@ -1578,8 +1681,10 @@ PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256_str)
                               &passwd, &passwd_len,
                               &opslimit, &memlimit) == FAILURE ||
         opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR,
-                   "crypto_pwhash_scryptsalsa208sha256_str(): invalid parameters");
+        zend_throw_exception(zend_ce_exception,
+                   "crypto_pwhash_scryptsalsa208sha256_str(): invalid parameters",
+                   0);
+        return;
     }
     if (passwd_len <= 0) {
         zend_error(E_WARNING, "empty password");
@@ -1598,7 +1703,8 @@ PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256_str)
         (ZSTR_VAL(hash_str), passwd, (unsigned long long) passwd_len,
          (unsigned long long) opslimit, (size_t) memlimit) != 0) {
         zend_string_free(hash_str);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_pwhash_scryptsalsa208sha256_str()");
+        zend_throw_exception(zend_ce_error, "crypto_pwhash_scryptsalsa208sha256_str(): internal error", 0);
+        return;
     }
     ZSTR_VAL(hash_str)[crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1] = 0;
 
@@ -1615,8 +1721,10 @@ PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256_str_verify)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &hash_str, &hash_str_len,
                               &passwd, &passwd_len) == FAILURE) {
-        zend_error(E_RECOVERABLE_ERROR,
-                   "crypto_pwhash_scryptsalsa208sha256_str_verify(): invalid parameters");
+        zend_throw_exception(zend_ce_exception,
+                   "crypto_pwhash_scryptsalsa208sha256_str_verify(): invalid parameters",
+                   0);
+        return;
     }
     if (passwd_len <= 0) {
         zend_error(E_WARNING, "empty password");
@@ -1651,13 +1759,15 @@ PHP_FUNCTION(sodium_crypto_pwhash)
                               &opslimit, &memlimit) == FAILURE ||
         hash_len <= 0 || hash_len >= STRSIZE_MAX ||
         opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_pwhash(): invalid parameters");
+        zend_throw_exception(zend_ce_exception, "crypto_pwhash(): invalid parameters", 0);
+        return;
     }
     if (passwd_len <= 0) {
         zend_error(E_WARNING, "empty password");
     }
     if (salt_len != crypto_pwhash_SALTBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "salt should be CRYPTO_PWHASH_SALTBYTES bytes");
+        zend_throw_exception(zend_ce_exception, "salt should be CRYPTO_PWHASH_SALTBYTES bytes", 0);
+        return;
     }
     if (opslimit < crypto_pwhash_OPSLIMIT_INTERACTIVE) {
         zend_error(E_WARNING,
@@ -1673,7 +1783,8 @@ PHP_FUNCTION(sodium_crypto_pwhash)
          (unsigned long long) opslimit, (size_t) memlimit,
          crypto_pwhash_alg_default()) != 0) {
         zend_string_free(hash);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_pwhash()");
+        zend_throw_exception(zend_ce_error, "crypto_pwhash(): internal error", 0);
+        return;
     }
     ZSTR_VAL(hash)[hash_len] = 0;
 
@@ -1693,8 +1804,10 @@ PHP_FUNCTION(sodium_crypto_pwhash_str)
                               &passwd, &passwd_len,
                               &opslimit, &memlimit) == FAILURE ||
         opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR,
-                   "crypto_pwhash_str(): invalid parameters");
+        zend_throw_exception(zend_ce_exception,
+                   "crypto_pwhash_str(): invalid parameters",
+                   0);
+        return;
     }
     if (passwd_len <= 0) {
         zend_error(E_WARNING, "empty password");
@@ -1712,7 +1825,8 @@ PHP_FUNCTION(sodium_crypto_pwhash_str)
         (ZSTR_VAL(hash_str), passwd, (unsigned long long) passwd_len,
          (unsigned long long) opslimit, (size_t) memlimit) != 0) {
         zend_string_free(hash_str);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_pwhash_str()");
+        zend_throw_exception(zend_ce_error, "crypto_pwhash_str(): internal error", 0);
+        return;
     }
     ZSTR_VAL(hash_str)[crypto_pwhash_STRBYTES - 1] = 0;
 
@@ -1732,8 +1846,10 @@ PHP_FUNCTION(sodium_crypto_pwhash_str_verify)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &hash_str, &hash_str_len,
                               &passwd, &passwd_len) == FAILURE) {
-        zend_error(E_RECOVERABLE_ERROR,
-                   "crypto_pwhash_str_verify(): invalid parameters");
+        zend_throw_exception(zend_ce_exception,
+                   "crypto_pwhash_str_verify(): invalid parameters",
+                   0);
+        return;
     }
     if (passwd_len <= 0) {
         zend_error(E_WARNING, "empty password");
@@ -1778,19 +1894,24 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt)
         return;
     }
     if (npub_len != crypto_aead_aes256gcm_NPUBBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_aes256gcm_encrypt(): "
                    "public nonce size should be "
-                   "CRYPTO_AEAD_aes256gcm_NPUBBYTES bytes");
+                   "CRYPTO_AEAD_aes256gcm_NPUBBYTES bytes",
+                   0);
+        return;
     }
     if (secretkey_len != crypto_aead_aes256gcm_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_aes256gcm_encrypt(): "
                    "secret key size should be "
-                   "CRYPTO_AEAD_aes256gcm_KEYBYTES bytes");
+                   "CRYPTO_AEAD_aes256gcm_KEYBYTES bytes",
+                   0);
+        return;
     }
     if (STRSIZE_MAX - msg_len <= crypto_aead_aes256gcm_ABYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ciphertext_len = msg_len + crypto_aead_aes256gcm_ABYTES;
     ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
@@ -1799,12 +1920,14 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt)
          (unsigned long long) msg_len,
          ad, (unsigned long long) ad_len, NULL, npub, secretkey) != 0) {
         zend_string_free(ciphertext);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_aead_aes256gcm_encrypt()");
+        zend_throw_exception(zend_ce_error, "crypto_aead_aes256gcm_encrypt(): internal error", 0);
+        return;
     }
     if (ciphertext_real_len <= 0U || ciphertext_real_len >= STRSIZE_MAX ||
         ciphertext_real_len > ciphertext_len) {
         zend_string_free(ciphertext);
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ZSTR_TRUNCATE(ciphertext, (strsize_t) ciphertext_real_len);
     ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
@@ -1834,20 +1957,25 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt)
         return;
     }
     if (npub_len != crypto_aead_aes256gcm_NPUBBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_aes256gcm_decrypt(): "
                    "public nonce size should be "
-                   "CRYPTO_AEAD_aes256gcm_NPUBBYTES bytes");
+                   "CRYPTO_AEAD_aes256gcm_NPUBBYTES bytes",
+                   0);
+        return;
     }
     if (secretkey_len != crypto_aead_aes256gcm_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_aes256gcm_decrypt(): "
                    "secret key size should be "
-                   "CRYPTO_AEAD_aes256gcm_KEYBYTES bytes");
+                   "CRYPTO_AEAD_aes256gcm_KEYBYTES bytes",
+                   0);
+        return;
     }
     msg_len = ciphertext_len;
     if (msg_len >= STRSIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     msg = zend_string_alloc((size_t) msg_len, 0);
     if (ciphertext_len < crypto_aead_aes256gcm_ABYTES ||
@@ -1860,7 +1988,8 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt)
     }
     if (msg_real_len >= STRSIZE_MAX || msg_real_len > msg_len) {
         zend_string_free(msg);
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ZSTR_TRUNCATE(msg, (strsize_t) msg_real_len);
     ZSTR_VAL(msg)[msg_real_len] = 0;
@@ -1891,19 +2020,24 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt)
         return;
     }
     if (npub_len != crypto_aead_chacha20poly1305_NPUBBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_chacha20poly1305_encrypt(): "
                    "public nonce size should be "
-                   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
+                   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes",
+                   0);
+        return;
     }
     if (secretkey_len != crypto_aead_chacha20poly1305_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_chacha20poly1305_encrypt(): "
                    "secret key size should be "
-                   "CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES bytes");
+                   "CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES bytes",
+                   0);
+        return;
     }
     if (STRSIZE_MAX - msg_len <= crypto_aead_chacha20poly1305_ABYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ciphertext_len = msg_len + crypto_aead_chacha20poly1305_ABYTES;
     ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
@@ -1912,12 +2046,13 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt)
          (unsigned long long) msg_len,
          ad, (unsigned long long) ad_len, NULL, npub, secretkey) != 0) {
         zend_string_free(ciphertext);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_aead_chacha20poly1305_encrypt()");
+        zend_throw_exception(zend_ce_error, "crypto_aead_chacha20poly1305_encrypt(): internal error", 0);
+        return;
     }
     if (ciphertext_real_len <= 0U || ciphertext_real_len >= STRSIZE_MAX ||
         ciphertext_real_len > ciphertext_len) {
         zend_string_free(ciphertext);
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
     }
     ZSTR_TRUNCATE(ciphertext, (strsize_t) ciphertext_real_len);
     ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
@@ -1947,20 +2082,25 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt)
         return;
     }
     if (npub_len != crypto_aead_chacha20poly1305_NPUBBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_chacha20poly1305_decrypt(): "
                    "public nonce size should be "
-                   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes");
+                   "CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes",
+                   0);
+        return;
     }
     if (secretkey_len != crypto_aead_chacha20poly1305_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_chacha20poly1305_decrypt(): "
                    "secret key size should be "
-                   "CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES bytes");
+                   "CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES bytes",
+                   0);
+        return;
     }
     msg_len = ciphertext_len;
     if (msg_len >= STRSIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     msg = zend_string_alloc((size_t) msg_len, 0);
     if (ciphertext_len < crypto_aead_chacha20poly1305_ABYTES ||
@@ -1973,7 +2113,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt)
     }
     if (msg_real_len >= STRSIZE_MAX || msg_real_len > msg_len) {
         zend_string_free(msg);
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
     }
     ZSTR_TRUNCATE(msg, (strsize_t) msg_real_len);
     ZSTR_VAL(msg)[msg_real_len] = 0;
@@ -2004,22 +2144,28 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt)
         return;
     }
     if (npub_len != crypto_aead_chacha20poly1305_IETF_NPUBBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_chacha20poly1305_ietf_encrypt(): "
                    "public nonce size should be "
-                   "CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES bytes");
+                   "CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES bytes",
+                   0);
+        return;
     }
     if (secretkey_len != crypto_aead_chacha20poly1305_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_chacha20poly1305_ietf_encrypt(): "
                    "secret key size should be "
-                   "CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES bytes");
+                   "CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES bytes",
+                   0);
+        return;
     }
     if (STRSIZE_MAX - msg_len <= crypto_aead_chacha20poly1305_ABYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     if ((unsigned long long) msg_len > 64ULL * (1ULL << 32) - 64ULL) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ciphertext_len = msg_len + crypto_aead_chacha20poly1305_ABYTES;
     ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
@@ -2028,12 +2174,14 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt)
          (unsigned long long) msg_len,
          ad, (unsigned long long) ad_len, NULL, npub, secretkey) != 0) {
         zend_string_free(ciphertext);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_aead_chacha20poly1305_ietf_encrypt()");
+        zend_throw_exception(zend_ce_error, "crypto_aead_chacha20poly1305_ietf_encrypt(): internal error", 0);
+        return;
     }
     if (ciphertext_real_len <= 0U || ciphertext_real_len >= STRSIZE_MAX ||
         ciphertext_real_len > ciphertext_len) {
         zend_string_free(ciphertext);
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ZSTR_TRUNCATE(ciphertext, (strsize_t) ciphertext_real_len);
     ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
@@ -2063,24 +2211,30 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt)
         return;
     }
     if (npub_len != crypto_aead_chacha20poly1305_IETF_NPUBBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_chacha20poly1305_ietf_decrypt(): "
                    "public nonce size should be "
-                   "CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES bytes");
+                   "CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES bytes",
+                   0);
+        return;
     }
     if (secretkey_len != crypto_aead_chacha20poly1305_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_aead_chacha20poly1305_ietf_decrypt(): "
                    "secret key size should be "
-                   "CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES bytes");
+                   "CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES bytes",
+                   0);
+        return;
     }
     msg_len = ciphertext_len;
     if (msg_len >= STRSIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     if ((unsigned long long) ciphertext_len -
         crypto_aead_chacha20poly1305_ABYTES > 64ULL * (1ULL << 32) - 64ULL) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     msg = zend_string_alloc((size_t) msg_len, 0);
     if (ciphertext_len < crypto_aead_chacha20poly1305_ABYTES ||
@@ -2093,7 +2247,8 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt)
     }
     if (msg_real_len >= STRSIZE_MAX || msg_real_len > msg_len) {
         zend_string_free(msg);
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ZSTR_TRUNCATE(msg, (strsize_t) msg_real_len);
     ZSTR_VAL(msg)[msg_real_len] = 0;
@@ -2114,7 +2269,8 @@ PHP_FUNCTION(sodium_bin2hex)
         return;
     }
     if (bin_len >= STRSIZE_MAX / 2U) {
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     hex_len = bin_len * 2U;
     hex = zend_string_alloc((size_t) hex_len, 0);
@@ -2145,7 +2301,8 @@ PHP_FUNCTION(sodium_hex2bin)
                        ignore, &bin_real_len, NULL) != 0 ||
         bin_real_len >= STRSIZE_MAX || bin_real_len > bin_len) {
         zend_string_free(bin);
-        zend_error(E_RECOVERABLE_ERROR, "arithmetic overflow");
+        zend_throw_exception(zend_ce_exception, "arithmetic overflow", 0);
+        return;
     }
     ZSTR_TRUNCATE(bin, (strsize_t) bin_real_len);
     ZSTR_VAL(bin)[bin_real_len] = 0;
@@ -2167,13 +2324,16 @@ PHP_FUNCTION(sodium_crypto_scalarmult)
     }
     if (n_len != crypto_scalarmult_SCALARBYTES ||
         p_len != crypto_scalarmult_SCALARBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_scalarmult(): scalar and point must be "
-                   "CRYPTO_SCALARMULT_SCALARBYTES bytes");
+        zend_throw_exception(zend_ce_exception, "crypto_scalarmult(): scalar and point must be "
+                   "CRYPTO_SCALARMULT_SCALARBYTES bytes",
+                   0);
+        return;
     }
     q = zend_string_alloc(crypto_scalarmult_BYTES, 0);
     if (crypto_scalarmult((unsigned char *) ZSTR_VAL(q), n, p) != 0) {
         zend_string_free(q);
-        zend_error(E_RECOVERABLE_ERROR, "crypto_scalarmult(): internal error");
+        zend_throw_exception(zend_ce_error, "crypto_scalarmult(): internal error", 0);
+        return;
     }
     ZSTR_VAL(q)[crypto_scalarmult_BYTES] = 0;
 
@@ -2202,19 +2362,22 @@ PHP_FUNCTION(sodium_crypto_kx)
         return;
     }
     if (secretkey_len != crypto_kx_SECRETKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_kx(): secret key must be CRYPTO_KX_SECRETKEY bytes");
+        zend_throw_exception(zend_ce_exception, "crypto_kx(): secret key must be CRYPTO_KX_SECRETKEY bytes", 0);
+        return;
     }
     if (publickey_len != crypto_kx_PUBLICKEYBYTES ||
         client_publickey_len != crypto_kx_PUBLICKEYBYTES ||
         server_publickey_len != crypto_kx_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_kx(): public keys must be CRYPTO_KX_PUBLICKEY bytes");
+        zend_throw_exception(zend_ce_exception, "crypto_kx(): public keys must be CRYPTO_KX_PUBLICKEY bytes", 0);
+        return;
     }
     (void) sizeof(int[crypto_scalarmult_SCALARBYTES ==
                       crypto_kx_PUBLICKEYBYTES ? 1 : -1]);
     (void) sizeof(int[crypto_scalarmult_SCALARBYTES ==
                       crypto_kx_SECRETKEYBYTES ? 1 : -1]);
     if (crypto_scalarmult(q, secretkey, publickey) != 0) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_kx(): internal error");
+        zend_throw_exception(zend_ce_error, "crypto_kx(): internal error", 0);
+        return;
     }
     sharedkey = zend_string_alloc(crypto_kx_BYTES, 0);
     crypto_generichash_init(&h, NULL, 0U, crypto_generichash_BYTES);
@@ -2243,13 +2406,15 @@ PHP_FUNCTION(sodium_crypto_auth)
         return;
     }
     if (key_len != crypto_auth_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_auth(): key must be CRYPTO_AUTH_KEYBYTES bytes");
+        zend_throw_exception(zend_ce_exception, "crypto_auth(): key must be CRYPTO_AUTH_KEYBYTES bytes", 0);
+        return;
     }
     mac = zend_string_alloc(crypto_auth_BYTES, 0);
     if (crypto_auth((unsigned char *) ZSTR_VAL(mac),
                     (const unsigned char *) msg, msg_len,
                     (const unsigned char *) key) != 0) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_auth(): internal error");
+        zend_throw_exception(zend_ce_error, "crypto_auth(): internal error", 0);
+        return;
     }
     ZSTR_VAL(mac)[crypto_auth_BYTES] = 0;
 
@@ -2272,10 +2437,12 @@ PHP_FUNCTION(sodium_crypto_auth_verify)
         return;
     }
     if (key_len != crypto_auth_KEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_auth_verify(): key must be CRYPTO_AUTH_KEYBYTES bytes");
+        zend_throw_exception(zend_ce_exception, "crypto_auth_verify(): key must be CRYPTO_AUTH_KEYBYTES bytes", 0);
+        return;
     }
     if (mac_len != crypto_auth_BYTES) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_auth_verify(): authentication tag must be CRYPTO_AUTH_BYTES bytes");
+        zend_throw_exception(zend_ce_exception, "crypto_auth_verify(): authentication tag must be CRYPTO_AUTH_BYTES bytes", 0);
+        return;
     }
     if (crypto_auth_verify((const unsigned char *) mac,
                            (const unsigned char *) msg, msg_len,
@@ -2296,15 +2463,18 @@ PHP_FUNCTION(sodium_crypto_sign_ed25519_sk_to_curve25519)
         return;
     }
     if (eddsakey_len != crypto_sign_SECRETKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_ed25519_sk_to_curve25519(): "
-                   "Ed25519 key should be CRYPTO_SIGN_SECRETKEYBYTES long");
+                   "Ed25519 key should be CRYPTO_SIGN_SECRETKEYBYTES long",
+                   0);
+        return;
     }
     ecdhkey = zend_string_alloc(crypto_box_SECRETKEYBYTES, 0);
 
     if (crypto_sign_ed25519_sk_to_curve25519((unsigned char *) ZSTR_VAL(ecdhkey),
                                              (const unsigned char *) eddsakey) != 0) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_sign_ed25519_sk_to_curve25519()");
+        zend_throw_exception(zend_ce_error, "crypto_sign_ed25519_sk_to_curve25519()", 0);
+        return;
     }
     ZSTR_VAL(ecdhkey)[crypto_box_SECRETKEYBYTES] = 0;
 
@@ -2322,15 +2492,17 @@ PHP_FUNCTION(sodium_crypto_sign_ed25519_pk_to_curve25519)
         return;
     }
     if (eddsakey_len != crypto_sign_PUBLICKEYBYTES) {
-        zend_error(E_RECOVERABLE_ERROR,
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_ed25519_pk_to_curve25519(): "
-                   "Ed25519 key should be CRYPTO_SIGN_PUBLICKEYBYTES long");
+                   "Ed25519 key should be CRYPTO_SIGN_PUBLICKEYBYTES long",
+                   0);
+        return;
     }
     ecdhkey = zend_string_alloc(crypto_sign_PUBLICKEYBYTES, 0);
 
     if (crypto_sign_ed25519_pk_to_curve25519((unsigned char *) ZSTR_VAL(ecdhkey),
                                              (const unsigned char *) eddsakey) != 0) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_sign_ed25519_pk_to_curve25519()");
+        zend_throw_exception(zend_ce_error, "crypto_sign_ed25519_pk_to_curve25519()", 0);
     }
     ZSTR_VAL(ecdhkey)[crypto_box_PUBLICKEYBYTES] = 0;
 
@@ -2352,9 +2524,9 @@ PHP_FUNCTION(sodium_compare)
         return;
     }
     if (len1 != len2) {
-        zend_error(E_RECOVERABLE_ERROR, "compare(): arguments have different sizes");
+        zend_throw_exception(zend_ce_exception, "compare(): arguments have different sizes", 0);
     } else if (len1 > SIZE_MAX) {
-        zend_error(E_RECOVERABLE_ERROR, "compare(): invalid length");
+        zend_throw_exception(zend_ce_exception, "compare(): invalid length", 0);
     } else {
         RETURN_LONG(sodium_compare((const unsigned char *) buf1,
                                    (const unsigned char *) buf2, (size_t) len1));
