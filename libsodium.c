@@ -506,7 +506,7 @@ PHP_FUNCTION(sodium_add)
         zend_throw_exception(zend_ce_exception, "add(): PHP strings are required", 0);
         return;
     }
-    SEPARATE_STRING(zval_zv);
+    SEPARATE_STRING(val_zv);
     val = (unsigned char *) Z_STRVAL(*val_zv);
     val_len = Z_STRLEN(*val_zv);
     if (val_len != addv_len) {
