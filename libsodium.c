@@ -472,6 +472,7 @@ PHP_FUNCTION(sodium_increment)
         zend_throw_exception(zend_ce_exception, "increment(): a PHP string is required", 0);
         return;
     }
+    SEPARATE_STRING(zval_zv);
     val = (unsigned char *) Z_STRVAL(*val_zv);
     val_len = Z_STRLEN(*val_zv);
     c = 1U << 8;
@@ -505,6 +506,7 @@ PHP_FUNCTION(sodium_add)
         zend_throw_exception(zend_ce_exception, "add(): PHP strings are required", 0);
         return;
     }
+    SEPARATE_STRING(zval_zv);
     val = (unsigned char *) Z_STRVAL(*val_zv);
     val_len = Z_STRLEN(*val_zv);
     if (val_len != addv_len) {
@@ -1522,7 +1524,7 @@ PHP_FUNCTION(sodium_crypto_sign_verify_detached)
         return;
     }
     if (signature_len != crypto_sign_BYTES) {
-        zend_throw_exception(zend_ce_exception, 
+        zend_throw_exception(zend_ce_exception,
                    "crypto_sign_verify_detached(): signature size should be "
                    "CRYPTO_SIGN_BYTES bytes",
                    0);
