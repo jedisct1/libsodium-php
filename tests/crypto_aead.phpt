@@ -31,6 +31,13 @@ if (sodium_library_version_major() > 7 ||
     var_dump($ciphertext !== $msg);
     var_dump($msg === $msg2);
     var_dump(sodium_crypto_aead_chacha20poly1305_ietf_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
+    try {
+        // Switched order
+        $msg2 = sodium_crypto_aead_chacha20poly1305_ietf_decrypt($ciphertext, $ad, $key, $nonce);
+        var_dump(false);
+    } catch (Exception $ex) {
+        var_dump(true);
+    }
 } else {
     var_dump(true);
     var_dump(true);
@@ -51,7 +58,7 @@ if (sodium_crypto_aead_aes256gcm_is_available()) {
 } else {
     var_dump(true);
     var_dump(true);
-    var_dump(false);    
+    var_dump(false);
 }
 ?>
 --EXPECT--
@@ -61,6 +68,7 @@ bool(false)
 bool(true)
 bool(true)
 bool(false)
+bool(true)
 bool(true)
 bool(true)
 bool(false)
