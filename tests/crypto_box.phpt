@@ -42,6 +42,16 @@ $ciphertext = sodium_crypto_box(
     $alice_to_bob_kp
 );
 
+try {
+  $ciphertext = sodium_crypto_box(
+      $msg,
+      $message_nonce,
+      substr($alice_to_bob_kp, 1)
+  );
+} catch (Exception $ex) {
+    echo $ex->getMessage(), PHP_EOL;
+}
+
 sodium_memzero($alice_box_kp);
 sodium_memzero($bob_box_kp);
 
@@ -132,6 +142,7 @@ bool(true)
 bool(true)
 bool(true)
 bool(true)
+crypto_box(): keypair size should be CRYPTO_BOX_KEYPAIRBYTES bytes
 bool(true)
 string(17) "Hi, this is Alice"
 string(21) "Hi Alice! This is Bob"

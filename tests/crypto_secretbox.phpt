@@ -13,7 +13,14 @@ var_dump(bin2hex($x));
 $y = sodium_crypto_secretbox_open("\0" . $a, $nonce, $key);
 var_dump($y);
 
+try {
+    sodium_crypto_secretbox('test', substr($nonce, 1), $key);
+} catch (Exception $ex) {
+    var_dump(true);
+}
+
 ?>
 --EXPECT--
 string(8) "74657374"
 bool(false)
+bool(true)
