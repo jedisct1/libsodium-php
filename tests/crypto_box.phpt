@@ -22,7 +22,7 @@ $seed_x = str_repeat('x', SODIUM_CRYPTO_BOX_SEEDBYTES);
 $seed_y = str_repeat('y', SODIUM_CRYPTO_BOX_SEEDBYTES);
 $alice_box_kp = sodium_crypto_box_seed_keypair($seed_x);
 $bob_box_kp = sodium_crypto_box_seed_keypair($seed_y);
-$message_nonce = sodium_randombytes_buf(SODIUM_CRYPTO_BOX_NONCEBYTES);
+$message_nonce = random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
 
 $alice_box_secretkey = sodium_crypto_box_secretkey($alice_box_kp);
 $bob_box_publickey = sodium_crypto_box_publickey($bob_box_kp);
@@ -88,7 +88,7 @@ $alice_to_bob_kp = sodium_crypto_box_keypair_from_secretkey_and_publickey
 $bob_to_alice_kp = sodium_crypto_box_keypair_from_secretkey_and_publickey
   ($bob_secretkey, $alice_publickey);
 
-$alice_to_bob_message_nonce = sodium_randombytes_buf(SODIUM_CRYPTO_BOX_NONCEBYTES);
+$alice_to_bob_message_nonce = random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
 
 $alice_to_bob_ciphertext = sodium_crypto_box('Hi, this is Alice',
                                               $alice_to_bob_message_nonce,
@@ -98,7 +98,7 @@ $alice_message_decrypted_by_bob = sodium_crypto_box_open($alice_to_bob_ciphertex
                                                           $alice_to_bob_message_nonce,
                                                           $bob_to_alice_kp);
 
-$bob_to_alice_message_nonce = sodium_randombytes_buf(SODIUM_CRYPTO_BOX_NONCEBYTES);
+$bob_to_alice_message_nonce = random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
 
 $bob_to_alice_ciphertext = sodium_crypto_box('Hi Alice! This is Bob',
                                               $bob_to_alice_message_nonce,

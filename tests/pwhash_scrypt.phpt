@@ -18,7 +18,7 @@ var_dump($c);
 $c = sodium_crypto_pwhash_scryptsalsa208sha256_str_verify($hash, 'passwd');
 var_dump($c);
 
-$salt = sodium_randombytes_buf(SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES);
+$salt = random_bytes(SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES);
 $out_len = 100;
 $key = sodium_crypto_pwhash_scryptsalsa208sha256
   ($out_len, $passwd, $salt,

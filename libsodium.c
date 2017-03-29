@@ -52,14 +52,6 @@ ZEND_BEGIN_ARG_INFO_EX(AI_FourStrings, 0, 0, 3)
   ZEND_ARG_INFO(0, string_4)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(AI_Length, 0, 0, 1)
-  ZEND_ARG_INFO(0, length)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(AI_Integer, 0, 0, 1)
-  ZEND_ARG_INFO(0, integer)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(AI_StringAndKey, 0, 0, 2)
   ZEND_ARG_INFO(0, string)
   ZEND_ARG_INFO(0, key)
@@ -224,9 +216,6 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(sodium_crypto_sign_verify_detached, AI_SignatureAndStringAndKey)
     PHP_FE(sodium_crypto_stream, AI_LengthAndNonceAndKey)
     PHP_FE(sodium_crypto_stream_xor, AI_StringAndNonceAndKey)
-    PHP_FE(sodium_randombytes_buf, AI_Length)
-    PHP_FE(sodium_randombytes_random16, AI_None)
-    PHP_FE(sodium_randombytes_uniform, AI_Integer)
     PHP_FE(sodium_bin2hex, AI_String)
 #if SODIUM_LIBRARY_VERSION_MAJOR > 7 || \
     (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 6)
@@ -565,43 +554,6 @@ PHP_FUNCTION(sodium_memcmp)
     } else {
         RETURN_LONG(sodium_memcmp(buf1, buf2, len1));
     }
-}
-
-PHP_FUNCTION(sodium_randombytes_buf)
-{
-    zend_string *buf;
-    zend_long    len;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), "l",
-                              &len) == FAILURE ||
-        len < 0 || len >= SIZE_MAX) {
-        zend_throw_exception(sodium_exception_ce, "randombytes_buf(): invalid length", 0);
-        return;
-    }
-    buf = zend_string_alloc((size_t) len, 0);
-    randombytes_buf(ZSTR_VAL(buf), (size_t) ZSTR_LEN(buf));
-    ZSTR_VAL(buf)[len] = 0;
-
-    RETURN_STR(buf);
-}
-
-PHP_FUNCTION(sodium_randombytes_random16)
-{
-    RETURN_LONG((zend_long) (randombytes_random() & (uint32_t) 0xffff));
-}
-
-PHP_FUNCTION(sodium_randombytes_uniform)
-{
-    zend_long upper_bound;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), "l",
-                              &upper_bound) == FAILURE ||
-        upper_bound <= 0 || upper_bound > INT32_MAX) {
-        zend_throw_exception(sodium_exception_ce, "randombytes_uniform(): invalid upper bound", 0);
-        return;
-    }
-
-    RETURN_LONG((zend_long) randombytes_uniform((uint32_t) upper_bound));
 }
 
 PHP_FUNCTION(sodium_crypto_shorthash)
