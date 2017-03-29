@@ -11,7 +11,7 @@ foreach($functions as $func) {
     echo $func."$br\n";
 }
 echo "$br\n";
-$function = 'sodium_version_string';
+$function = 'sodium_memzero';
 $exit = 0;
 if (extension_loaded($module)) {
         $str = $function($module);
