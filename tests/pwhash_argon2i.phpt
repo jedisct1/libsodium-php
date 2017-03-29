@@ -27,7 +27,7 @@ var_dump($c);
 $c = sodium_crypto_pwhash_str_verify($hash, 'passwd');
 var_dump($c);
 
-$salt = sodium_randombytes_buf(SODIUM_CRYPTO_PWHASH_SALTBYTES);
+$salt = random_bytes(SODIUM_CRYPTO_PWHASH_SALTBYTES);
 $out_len = 100;
 $key = sodium_crypto_pwhash
   ($out_len, $passwd, $salt,
