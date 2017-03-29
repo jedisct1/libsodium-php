@@ -4,8 +4,8 @@ Check for libsodium secretbox
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
-$nonce = sodium_randombytes_buf(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-$key = sodium_randombytes_buf(SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
+$nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+$key = random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
 
 $a = sodium_crypto_secretbox('test', $nonce, $key);
 $x = sodium_crypto_secretbox_open($a, $nonce, $key);

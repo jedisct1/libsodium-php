@@ -4,14 +4,14 @@ Check for libsodium auth
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
-$msg = sodium_randombytes_buf(1000);
-$key = sodium_randombytes_buf(SODIUM_CRYPTO_AUTH_KEYBYTES);
+$msg = random_bytes(1000);
+$key = random_bytes(SODIUM_CRYPTO_AUTH_KEYBYTES);
 $mac = sodium_crypto_auth($msg, $key);
 
 // This should validate
 var_dump(sodium_crypto_auth_verify($mac, $msg, $key));
 
-$bad_key = sodium_randombytes_buf(SODIUM_CRYPTO_AUTH_KEYBYTES - 1);
+$bad_key = random_bytes(SODIUM_CRYPTO_AUTH_KEYBYTES - 1);
 try {
     $mac = sodium_crypto_auth($msg, $bad_key);
     echo 'Fail!', PHP_EOL;

@@ -4,7 +4,7 @@ Check for libsodium bin2hex
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
 --FILE--
 <?php
-$bin = sodium_randombytes_buf(sodium_randombytes_uniform(1000));
+$bin = random_bytes(random_int(0, 1000));
 $hex = sodium_bin2hex($bin);
 $phphex = bin2hex($bin);
 var_dump(strcasecmp($hex, $phphex));

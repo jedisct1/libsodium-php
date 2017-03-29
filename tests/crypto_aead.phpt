@@ -7,10 +7,10 @@ if (!defined('SODIUM_CRYPTO_AEAD_AES256GCM_NPUBBYTES')) print "skip libsodium wi
 ?>
 --FILE--
 <?php
-$msg = sodium_randombytes_buf(sodium_randombytes_uniform(1000));
-$nonce = sodium_randombytes_buf(SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES);
-$key = sodium_randombytes_buf(SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES);
-$ad = sodium_randombytes_buf(sodium_randombytes_uniform(1000));
+$msg = random_bytes(random_int(0, 1000));
+$nonce = random_bytes(SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES);
+$key = random_bytes(SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES);
+$ad = random_bytes(random_int(0, 1000));
 
 $ciphertext = sodium_crypto_aead_chacha20poly1305_encrypt($msg, $ad, $nonce, $key);
 $msg2 = sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, $ad, $nonce, $key);
@@ -18,10 +18,10 @@ var_dump($ciphertext !== $msg);
 var_dump($msg === $msg2);
 var_dump(sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
 
-$msg = sodium_randombytes_buf(sodium_randombytes_uniform(1000));
-$nonce = sodium_randombytes_buf(SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES);
-$key = sodium_randombytes_buf(SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES);
-$ad = sodium_randombytes_buf(sodium_randombytes_uniform(1000));
+$msg = random_bytes(random_int(0, 1000));
+$nonce = random_bytes(SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES);
+$key = random_bytes(SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES);
+$ad = random_bytes(random_int(0, 1000));
 
 if (SODIUM_LIBRARY_MAJOR_VERSION > 7 ||
     (SODIUM_LIBRARY_MAJOR_VERSION == 7 &&
@@ -44,10 +44,10 @@ if (SODIUM_LIBRARY_MAJOR_VERSION > 7 ||
     var_dump(false);
 }
 
-$msg = sodium_randombytes_buf(sodium_randombytes_uniform(1000));
-$nonce = sodium_randombytes_buf(SODIUM_CRYPTO_AEAD_AES256GCM_NPUBBYTES);
-$key = sodium_randombytes_buf(SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES);
-$ad = sodium_randombytes_buf(sodium_randombytes_uniform(1000));
+$msg = random_bytes(random_int(0, 1000));
+$nonce = random_bytes(SODIUM_CRYPTO_AEAD_AES256GCM_NPUBBYTES);
+$key = random_bytes(SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES);
+$ad = random_bytes(random_int(0, 1000));
 
 if (sodium_crypto_aead_aes256gcm_is_available()) {
     $ciphertext = sodium_crypto_aead_aes256gcm_encrypt($msg, $ad, $nonce, $key);
