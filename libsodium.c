@@ -290,6 +290,15 @@ static zend_object *sodium_exception_create_object(zend_class_entry *ce) {
     return obj;
 }
 
+static void sodium_separate_string(zval *zv) {
+    ZEND_ASSERT(Z_TYPE_P(zv) == IS_STRING);
+    if (!Z_REFCOUNTED_P(zv) || Z_REFCOUNT_P(zv) > 1) {
+        zend_string *copy = zend_string_init(Z_STRVAL_P(zv), Z_STRLEN_P(zv), 0);
+        Z_TRY_DELREF_P(zv);
+        ZVAL_STR(zv, copy);
+    }
+}
+
 PHP_MINIT_FUNCTION(libsodium)
 {
     zend_class_entry ce;
@@ -505,12 +514,7 @@ PHP_FUNCTION(sodium_increment)
         return;
     }
 
-    if (!Z_REFCOUNTED_P(val_zv) || Z_REFCOUNT_P(val_zv) > 1) {
-        zend_string *copy = zend_string_init(Z_STRVAL_P(val_zv), Z_STRLEN_P(val_zv), 0);
-        Z_TRY_DELREF_P(val_zv);
-        ZVAL_STR(val_zv, copy);
-    }
-
+    sodium_separate_string(val_zv);
     val = (unsigned char *) Z_STRVAL(*val_zv);
     val_len = Z_STRLEN(*val_zv);
     c = 1U << 8;
@@ -541,12 +545,7 @@ PHP_FUNCTION(sodium_add)
         return;
     }
 
-    if (!Z_REFCOUNTED_P(val_zv) || Z_REFCOUNT_P(val_zv) > 1) {
-        zend_string *copy = zend_string_init(Z_STRVAL_P(val_zv), Z_STRLEN_P(val_zv), 0);
-        Z_TRY_DELREF_P(val_zv);
-        ZVAL_STR(val_zv, copy);
-    }
-
+    sodium_separate_string(val_zv);
     val = (unsigned char *) Z_STRVAL(*val_zv);
     val_len = Z_STRLEN(*val_zv);
     if (val_len != addv_len) {
@@ -837,6 +836,7 @@ PHP_FUNCTION(sodium_crypto_generichash_update)
         zend_throw_exception(sodium_exception_ce, "crypto_generichash_update: a reference to a state is required", 0);
         return;
     }
+    sodium_separate_string(state_zv);
     state = (unsigned char *) Z_STRVAL(*state_zv);
     state_len = Z_STRLEN(*state_zv);
     if (state_len != sizeof (crypto_generichash_state)) {
@@ -873,6 +873,7 @@ PHP_FUNCTION(sodium_crypto_generichash_final)
         zend_throw_exception(sodium_exception_ce, "crypto_generichash_final: a reference to a state is required", 0);
         return;
     }
+    sodium_separate_string(state_zv);
     state = (unsigned char *) Z_STRVAL(*state_zv);
     state_len = Z_STRLEN(*state_zv);
     if (state_len != sizeof (crypto_generichash_state)) {
