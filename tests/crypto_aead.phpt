@@ -23,9 +23,9 @@ $nonce = sodium_randombytes_buf(SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYT
 $key = sodium_randombytes_buf(SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES);
 $ad = sodium_randombytes_buf(sodium_randombytes_uniform(1000));
 
-if (sodium_library_version_major() > 7 ||
-    (sodium_library_version_major() == 7 &&
-     sodium_library_version_minor() >= 6)) {
+if (SODIUM_LIBRARY_MAJOR_VERSION > 7 ||
+    (SODIUM_LIBRARY_MAJOR_VERSION == 7 &&
+     SODIUM_LIBRARY_MINOR_VERSION >= 6)) {
     $ciphertext = sodium_crypto_aead_chacha20poly1305_ietf_encrypt($msg, $ad, $nonce, $key);
     $msg2 = sodium_crypto_aead_chacha20poly1305_ietf_decrypt($ciphertext, $ad, $nonce, $key);
     var_dump($ciphertext !== $msg);

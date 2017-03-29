@@ -235,11 +235,8 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(sodium_hex2bin, AI_TwoStrings)
     PHP_FE(sodium_increment, AI_StringRef)
     PHP_FE(sodium_add, AI_StringRef_And_String)
-    PHP_FE(sodium_library_version_major, AI_None)
-    PHP_FE(sodium_library_version_minor, AI_None)
     PHP_FE(sodium_memcmp, AI_TwoStrings)
     PHP_FE(sodium_memzero, AI_FirstArgByReferenceSecondLength)
-    PHP_FE(sodium_version_string, AI_None)
 
     PHP_FALIAS(sodium_crypto_scalarmult_base, sodium_crypto_box_publickey_from_secretkey, AI_TwoStrings)
 
@@ -311,6 +308,12 @@ PHP_MINIT_FUNCTION(libsodium)
     sodium_exception_ce = zend_register_internal_class_ex(&ce, zend_ce_exception);
     sodium_exception_ce->create_object = sodium_exception_create_object;
 
+    REGISTER_STRING_CONSTANT("SODIUM_LIBRARY_VERSION",
+                             (char *) (void *) sodium_version_string(), CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("SODIUM_LIBRARY_MAJOR_VERSION",
+                           sodium_library_version_major(), CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("SODIUM_LIBRARY_MINOR_VERSION",
+                           sodium_library_version_minor(), CONST_CS | CONST_PERSISTENT);
 #ifdef HAVE_AESGCM
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES",
                            crypto_aead_aes256gcm_KEYBYTES, CONST_CS | CONST_PERSISTENT);
@@ -456,21 +459,6 @@ PHP_MINFO_FUNCTION(libsodium)
     php_info_print_table_header(2, "libsodium headers version", SODIUM_VERSION_STRING);
     php_info_print_table_header(2, "libsodium library version", sodium_version_string());
     php_info_print_table_end();
-}
-
-PHP_FUNCTION(sodium_version_string)
-{
-    RETURN_STRING(sodium_version_string());
-}
-
-PHP_FUNCTION(sodium_library_version_major)
-{
-    RETURN_LONG(sodium_library_version_major());
-}
-
-PHP_FUNCTION(sodium_library_version_minor)
-{
-    RETURN_LONG(sodium_library_version_minor());
 }
 
 PHP_FUNCTION(sodium_memzero)
