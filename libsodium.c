@@ -13,8 +13,6 @@
 #include <stdint.h>
 
 #define ZSTR_TRUNCATE(zs, len) do { ZSTR_LEN(zs) = (len); } while(0)
-#define IS_IMMUTABLE(p) (IS_INTERNED(Z_STR(*(p))) || Z_REFCOUNTED_P(p) == 0)
-#define HAS_MORE_REFS(p) (IS_IMMUTABLE(p) || Z_REFCOUNT(*(p)) > 1)
 
 static zend_class_entry *sodium_exception_ce;
 
@@ -33,8 +31,17 @@ ZEND_BEGIN_ARG_INFO_EX(AI_String, 0, 0, 1)
   ZEND_ARG_INFO(0, string)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(AI_StringRef, 0, 0, 1)
+  ZEND_ARG_INFO(1, string)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(AI_TwoStrings, 0, 0, 2)
   ZEND_ARG_INFO(0, string_1)
+  ZEND_ARG_INFO(0, string_2)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(AI_StringRef_And_String, 0, 0, 2)
+  ZEND_ARG_INFO(1, string_1)
   ZEND_ARG_INFO(0, string_2)
 ZEND_END_ARG_INFO()
 
@@ -226,8 +233,8 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(sodium_compare, AI_TwoStrings)
 #endif
     PHP_FE(sodium_hex2bin, AI_TwoStrings)
-    PHP_FE(sodium_increment, AI_String)
-    PHP_FE(sodium_add, AI_TwoStrings)
+    PHP_FE(sodium_increment, AI_StringRef)
+    PHP_FE(sodium_add, AI_StringRef_And_String)
     PHP_FE(sodium_library_version_major, AI_None)
     PHP_FE(sodium_library_version_minor, AI_None)
     PHP_FE(sodium_memcmp, AI_TwoStrings)
@@ -460,8 +467,6 @@ PHP_FUNCTION(sodium_library_version_minor)
 PHP_FUNCTION(sodium_memzero)
 {
     zval      *buf_zv;
-    char      *buf;
-    size_t     buf_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS(),
                               "z", &buf_zv) == FAILURE) {
@@ -472,14 +477,12 @@ PHP_FUNCTION(sodium_memzero)
         zend_throw_exception(sodium_exception_ce, "memzero: a PHP string is required", 0);
         return;
     }
-    if (HAS_MORE_REFS(buf_zv)) {
-        convert_to_null(buf_zv);
-        return;
-    }
-    buf = Z_STRVAL(*buf_zv);
-    buf_len = Z_STRLEN(*buf_zv);
-    if (buf_len > 0) {
-        sodium_memzero(buf, (size_t) buf_len);
+    if (Z_REFCOUNTED_P(buf_zv) && Z_REFCOUNT_P(buf_zv) == 1) {
+        char *buf = Z_STRVAL(*buf_zv);
+        size_t buf_len = Z_STRLEN(*buf_zv);
+        if (buf_len > 0) {
+            sodium_memzero(buf, (size_t) buf_len);
+        }
     }
     convert_to_null(buf_zv);
 }
@@ -497,14 +500,17 @@ PHP_FUNCTION(sodium_increment)
         return;
     }
     ZVAL_DEREF(val_zv);
-    if (IS_IMMUTABLE(val_zv)) {
-        zend_throw_exception(sodium_exception_ce, "increment(): value is immutable", 0);
-        return;
-    }
     if (Z_TYPE_P(val_zv) != IS_STRING) {
         zend_throw_exception(sodium_exception_ce, "increment(): a PHP string is required", 0);
         return;
     }
+
+    if (!Z_REFCOUNTED_P(val_zv) || Z_REFCOUNT_P(val_zv) > 1) {
+        zend_string *copy = zend_string_init(Z_STRVAL_P(val_zv), Z_STRLEN_P(val_zv), 0);
+        Z_TRY_DELREF_P(val_zv);
+        ZVAL_STR(val_zv, copy);
+    }
+
     val = (unsigned char *) Z_STRVAL(*val_zv);
     val_len = Z_STRLEN(*val_zv);
     c = 1U << 8;
@@ -530,14 +536,17 @@ PHP_FUNCTION(sodium_add)
         return;
     }
     ZVAL_DEREF(val_zv);
-    if (IS_IMMUTABLE(val_zv)) {
-        zend_throw_exception(sodium_exception_ce, "add(): value is immutable", 0);
-        return;
-    }
     if (Z_TYPE_P(val_zv) != IS_STRING) {
         zend_throw_exception(sodium_exception_ce, "add(): PHP strings are required", 0);
         return;
     }
+
+    if (!Z_REFCOUNTED_P(val_zv) || Z_REFCOUNT_P(val_zv) > 1) {
+        zend_string *copy = zend_string_init(Z_STRVAL_P(val_zv), Z_STRLEN_P(val_zv), 0);
+        Z_TRY_DELREF_P(val_zv);
+        ZVAL_STR(val_zv, copy);
+    }
+
     val = (unsigned char *) Z_STRVAL(*val_zv);
     val_len = Z_STRLEN(*val_zv);
     if (val_len != addv_len) {
