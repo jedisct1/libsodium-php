@@ -56,6 +56,12 @@ var_dump(sodium_memcmp($calc_pubkey, $alice_publickey) === 0);
 $ed25519key = sodium_hex2bin("55b62f664bf1c359f58a6b91b89556f97284273510573055b9237d17f5a20564607f0626f49e63c2c8f814ed6d955bf8b005b33fd5fd56eaca93073d8eb99165");
 $curve25519key = sodium_crypto_sign_ed25519_sk_to_curve25519($ed25519key);
 var_dump($curve25519key === sodium_hex2bin("381b2be5e3d38820deb1243fb58b4be654da30dd3ccde492cb88f937eb489363"));
+
+try {
+    sodium_crypto_sign($msg, substr($alice_secretkey, 1));
+} catch (SodiumException $ex) {
+    var_dump(true);
+}
 ?>
 --EXPECT--
 bool(true)
@@ -70,5 +76,6 @@ bool(true)
 bool(true)
 bool(true)
 bool(false)
+bool(true)
 bool(true)
 bool(true)

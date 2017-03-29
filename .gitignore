@@ -12,6 +12,7 @@
 *.out
 *.so
 *.so.*
+*.swp
 *.tgz
 *.tmp
 .deps
@@ -34,6 +35,7 @@ missing
 mkinstalldirs
 run-tests.php
 tests/*.diff
+tests/*.exp
 tests/*.log
 tests/*.php
 tests/*.sh

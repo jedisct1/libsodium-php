@@ -20,7 +20,18 @@ $shared_key_computed_by_server =
 
 var_dump(sodium_bin2hex($shared_key_computed_by_client));
 var_dump(sodium_bin2hex($shared_key_computed_by_server));
+try {
+    sodium_crypto_kx(
+        substr($client_secretkey, 1),
+        $server_publickey,
+        $client_publickey,
+        $server_publickey
+    );
+} catch (SodiumException $ex) {
+    var_dump(true);
+}
 ?>
 --EXPECT--
 string(64) "509a1580c2ee30c565317e29e0fea0b1c232e0ef3a7871d91dc64814b19a3bd2"
 string(64) "509a1580c2ee30c565317e29e0fea0b1c232e0ef3a7871d91dc64814b19a3bd2"
+bool(true)
