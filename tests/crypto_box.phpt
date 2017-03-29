@@ -48,7 +48,7 @@ try {
       $message_nonce,
       substr($alice_to_bob_kp, 1)
   );
-} catch (Exception $ex) {
+} catch (SodiumException $ex) {
     echo $ex->getMessage(), PHP_EOL;
 }
 

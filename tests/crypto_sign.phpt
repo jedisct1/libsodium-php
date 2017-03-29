@@ -59,7 +59,7 @@ var_dump($curve25519key === sodium_hex2bin("381b2be5e3d38820deb1243fb58b4be654da
 
 try {
     sodium_crypto_sign($msg, substr($alice_secretkey, 1));
-} catch (Exception $ex) {
+} catch (SodiumException $ex) {
     var_dump(true);
 }
 ?>

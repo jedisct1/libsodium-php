@@ -42,7 +42,7 @@ var_dump($act);
 var_dump($exp === $act);
 try {
     $hash = sodium_crypto_generichash('test', '', 128);
-} catch (Exception $ex) {
+} catch (SodiumException $ex) {
     var_dump(true);
 }
 ?>

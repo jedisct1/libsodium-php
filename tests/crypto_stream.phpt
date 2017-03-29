@@ -34,7 +34,7 @@ var_dump($stream6 === $stream);
 
 try {
     sodium_crypto_stream($len, substr($nonce, 1), $key);
-} catch (Exception $ex) {
+} catch (SodiumException $ex) {
     var_dump(true);
 }
 

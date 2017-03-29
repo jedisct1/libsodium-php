@@ -27,7 +27,7 @@ try {
         $client_publickey,
         $server_publickey
     );
-} catch (Exception $ex) {
+} catch (SodiumException $ex) {
     var_dump(true);
 }
 ?>

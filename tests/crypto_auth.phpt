@@ -15,7 +15,7 @@ $bad_key = sodium_randombytes_buf(SODIUM_CRYPTO_AUTH_KEYBYTES - 1);
 try {
     $mac = sodium_crypto_auth($msg, $bad_key);
     echo 'Fail!', PHP_EOL;
-} catch (Exception $ex) {
+} catch (SodiumException $ex) {
   echo $ex->getMessage(), PHP_EOL;
 }
 

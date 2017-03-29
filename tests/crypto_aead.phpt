@@ -35,7 +35,7 @@ if (sodium_library_version_major() > 7 ||
         // Switched order
         $msg2 = sodium_crypto_aead_chacha20poly1305_ietf_decrypt($ciphertext, $ad, $key, $nonce);
         var_dump(false);
-    } catch (Exception $ex) {
+    } catch (SodiumException $ex) {
         var_dump(true);
     }
 } else {
