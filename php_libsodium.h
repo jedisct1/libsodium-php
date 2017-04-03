@@ -32,6 +32,8 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt);
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt);
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt);
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt);
+PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt);
+PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt);
 PHP_FUNCTION(sodium_crypto_auth);
 PHP_FUNCTION(sodium_crypto_auth_verify);
 PHP_FUNCTION(sodium_crypto_box);
