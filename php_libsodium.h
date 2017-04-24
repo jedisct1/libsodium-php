@@ -16,7 +16,7 @@ extern zend_module_entry libsodium_module_entry;
 #endif
 
 #ifdef ZTS
-#include "TSRM.h"
+# include "TSRM.h"
 #endif
 
 PHP_MINIT_FUNCTION(libsodium);
@@ -88,16 +88,16 @@ PHP_FUNCTION(sodium_memcmp);
 PHP_FUNCTION(sodium_memzero);
 
 #ifdef ZTS
-#define LIBSODIUM_G(v) TSRMG(libsodium_globals_id, zend_libsodium_globals *, v)
+# define LIBSODIUM_G(v) TSRMG(libsodium_globals_id, zend_libsodium_globals *, v)
 #else
-#define LIBSODIUM_G(v) (libsodium_globals.v)
+# define LIBSODIUM_G(v) (libsodium_globals.v)
 #endif
 
 #define crypto_kx_BYTES crypto_scalarmult_BYTES
 #define crypto_kx_PUBLICKEYBYTES crypto_scalarmult_SCALARBYTES
 #define crypto_kx_SECRETKEYBYTES crypto_scalarmult_SCALARBYTES
 
-#endif  /* PHP_LIBSODIUM_H */
+#endif	/* PHP_LIBSODIUM_H */
 
 /*
  * Local variables:

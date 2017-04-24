@@ -12,23 +12,23 @@ $server_publickey = sodium_crypto_box_publickey_from_secretkey($server_secretkey
 
 $shared_key_computed_by_client =
   sodium_crypto_kx($client_secretkey, $server_publickey,
-                    $client_publickey, $server_publickey);
+					$client_publickey, $server_publickey);
 
 $shared_key_computed_by_server =
   sodium_crypto_kx($server_secretkey, $client_publickey,
-                    $client_publickey, $server_publickey);
+					$client_publickey, $server_publickey);
 
 var_dump(sodium_bin2hex($shared_key_computed_by_client));
 var_dump(sodium_bin2hex($shared_key_computed_by_server));
 try {
-    sodium_crypto_kx(
-        substr($client_secretkey, 1),
-        $server_publickey,
-        $client_publickey,
-        $server_publickey
-    );
+	sodium_crypto_kx(
+		substr($client_secretkey, 1),
+		$server_publickey,
+		$client_publickey,
+		$server_publickey
+	);
 } catch (SodiumException $ex) {
-    var_dump(true);
+	var_dump(true);
 }
 ?>
 --EXPECT--
