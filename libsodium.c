@@ -564,7 +564,7 @@ PHP_FUNCTION(sodium_memcmp)
 		return;
 	}
 	if (len1 != len2) {
-		RETURN_LONG(-1);
+		zend_throw_exception(sodium_exception_ce, "memcmp(): arguments have different sizes", 0);
 	} else {
 		RETURN_LONG(sodium_memcmp(buf1, buf2, len1));
 	}
