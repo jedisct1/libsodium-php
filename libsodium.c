@@ -888,7 +888,7 @@ PHP_FUNCTION(sodium_crypto_box_seed_keypair)
 	if (seed_len != crypto_box_SEEDBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_box_seed_keypair(): "
-				   "seed should be crypto_box_SEEDBYTES long",
+				   "seed should be CRYPTO_BOX_SEEDBYTES bytes",
 				   0);
 		return;
 	}
@@ -924,14 +924,14 @@ PHP_FUNCTION(sodium_crypto_box_keypair_from_secretkey_and_publickey)
 	if (secretkey_len != crypto_box_SECRETKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_box_keypair_from_secretkey_and_publickey(): "
-				   "secretkey should be CRYPTO_BOX_SECRETKEYBYTES long",
+				   "secretkey should be CRYPTO_BOX_SECRETKEYBYTES bytes",
 				   0);
 		return;
 	}
 	if (publickey_len != crypto_box_PUBLICKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_box_keypair_from_secretkey_and_publickey(): "
-				   "publickey should be CRYPTO_BOX_PUBLICKEYBYTES long",
+				   "publickey should be CRYPTO_BOX_PUBLICKEYBYTES bytes",
 				   0);
 		return;
 	}
@@ -959,7 +959,7 @@ PHP_FUNCTION(sodium_crypto_box_secretkey)
 		crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_box_secretkey(): keypair should be "
-				   "CRYPTO_BOX_KEYPAIRBYTES long",
+				   "CRYPTO_BOX_KEYPAIRBYTES bytes",
 				   0);
 		return;
 	}
@@ -984,7 +984,7 @@ PHP_FUNCTION(sodium_crypto_box_publickey)
 		crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_box_publickey(): keypair should be "
-				   "CRYPTO_BOX_KEYPAIRBYTES long",
+				   "CRYPTO_BOX_KEYPAIRBYTES bytes",
 				   0);
 		return;
 	}
@@ -1009,7 +1009,7 @@ PHP_FUNCTION(sodium_crypto_box_publickey_from_secretkey)
 	if (secretkey_len != crypto_box_SECRETKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_box_publickey_from_secretkey(): key should be "
-				   "CRYPTO_BOX_SECRETKEYBYTES long",
+				   "CRYPTO_BOX_SECRETKEYBYTES bytes",
 				   0);
 		return;
 	}
@@ -1234,7 +1234,7 @@ PHP_FUNCTION(sodium_crypto_sign_seed_keypair)
 	if (seed_len != crypto_sign_SEEDBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_sign_seed_keypair(): "
-				   "seed should be crypto_sign_SEEDBYTES long",
+				   "seed should be CRYPTO_SIGN_SEEDBYTES bytes",
 				   0);
 		return;
 	}
@@ -1270,14 +1270,14 @@ PHP_FUNCTION(sodium_crypto_sign_keypair_from_secretkey_and_publickey)
 	if (secretkey_len != crypto_sign_SECRETKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_sign_keypair_from_secretkey_and_publickey(): "
-				   "secretkey should be CRYPTO_SIGN_SECRETKEYBYTES long",
+				   "secretkey should be CRYPTO_SIGN_SECRETKEYBYTES bytes",
 				   0);
 		return;
 	}
 	if (publickey_len != crypto_sign_PUBLICKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_sign_keypair_from_secretkey_and_publickey(): "
-				   "publickey should be CRYPTO_SIGN_PUBLICKEYBYTES long",
+				   "publickey should be CRYPTO_SIGN_PUBLICKEYBYTES bytes",
 				   0);
 		return;
 	}
@@ -1304,7 +1304,7 @@ PHP_FUNCTION(sodium_crypto_sign_publickey_from_secretkey)
 	if (secretkey_len != crypto_sign_SECRETKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_sign_publickey_from_secretkey(): "
-				   "secretkey should be CRYPTO_SIGN_SECRETKEYBYTES long",
+				   "secretkey should be CRYPTO_SIGN_SECRETKEYBYTES bytes",
 				   0);
 		return;
 	}
@@ -1335,7 +1335,7 @@ PHP_FUNCTION(sodium_crypto_sign_secretkey)
 		crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_sign_secretkey(): keypair should be "
-				   "CRYPTO_SIGN_KEYPAIRBYTES long",
+				   "CRYPTO_SIGN_KEYPAIRBYTES bytes",
 				   0);
 		return;
 	}
@@ -1360,7 +1360,7 @@ PHP_FUNCTION(sodium_crypto_sign_publickey)
 		crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_sign_publickey(): keypair should be "
-				   "CRYPTO_SIGN_KEYPAIRBYTES long",
+				   "CRYPTO_SIGN_KEYPAIRBYTES bytes",
 				   0);
 		return;
 	}
@@ -1898,7 +1898,7 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt)
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_aead_aes256gcm_encrypt(): "
 				   "public nonce size should be "
-				   "CRYPTO_AEAD_aes256gcm_NPUBBYTES bytes",
+				   "CRYPTO_AEAD_AES256GCM_NPUBBYTES bytes",
 				   0);
 		return;
 	}
@@ -1906,7 +1906,7 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt)
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_aead_aes256gcm_encrypt(): "
 				   "secret key size should be "
-				   "CRYPTO_AEAD_aes256gcm_KEYBYTES bytes",
+				   "CRYPTO_AEAD_AES256GCM_KEYBYTES bytes",
 				   0);
 		return;
 	}
@@ -1961,7 +1961,7 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt)
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_aead_aes256gcm_decrypt(): "
 				   "public nonce size should be "
-				   "CRYPTO_AEAD_aes256gcm_NPUBBYTES bytes",
+				   "CRYPTO_AEAD_AES256GCM_NPUBBYTES bytes",
 				   0);
 		return;
 	}
@@ -1969,7 +1969,7 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt)
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_aead_aes256gcm_decrypt(): "
 				   "secret key size should be "
-				   "CRYPTO_AEAD_aes256gcm_KEYBYTES bytes",
+				   "CRYPTO_AEAD_AES256GCM_KEYBYTES bytes",
 				   0);
 		return;
 	}
@@ -2604,7 +2604,7 @@ PHP_FUNCTION(sodium_crypto_sign_ed25519_sk_to_curve25519)
 	if (eddsakey_len != crypto_sign_SECRETKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_sign_ed25519_sk_to_curve25519(): "
-				   "Ed25519 key should be CRYPTO_SIGN_SECRETKEYBYTES long",
+				   "Ed25519 key should be CRYPTO_SIGN_SECRETKEYBYTES bytes",
 				   0);
 		return;
 	}
@@ -2633,7 +2633,7 @@ PHP_FUNCTION(sodium_crypto_sign_ed25519_pk_to_curve25519)
 	if (eddsakey_len != crypto_sign_PUBLICKEYBYTES) {
 		zend_throw_exception(sodium_exception_ce,
 				   "crypto_sign_ed25519_pk_to_curve25519(): "
-				   "Ed25519 key should be CRYPTO_SIGN_PUBLICKEYBYTES long",
+				   "Ed25519 key should be CRYPTO_SIGN_PUBLICKEYBYTES bytes",
 				   0);
 		return;
 	}
