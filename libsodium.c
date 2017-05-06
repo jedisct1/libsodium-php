@@ -1312,7 +1312,8 @@ PHP_FUNCTION(sodium_crypto_sign_publickey_from_secretkey)
 
 	if (crypto_sign_ed25519_sk_to_pk((unsigned char *) ZSTR_VAL(publickey),
 									 (const unsigned char *) secretkey) != 0) {
-		zend_throw_exception(sodium_exception_ce, "crypto_sign(): internal error", 0);
+		zend_throw_exception(sodium_exception_ce,
+				   "crypto_sign_publickey_from_secretkey(): internal error", 0);
 		return;
 	}
 	ZSTR_VAL(publickey)[crypto_sign_PUBLICKEYBYTES] = 0;
