@@ -97,7 +97,7 @@ PHP_FUNCTION(sodium_memzero);
 #define crypto_kx_PUBLICKEYBYTES crypto_scalarmult_SCALARBYTES
 #define crypto_kx_SECRETKEYBYTES crypto_scalarmult_SCALARBYTES
 
-#endif	/* PHP_LIBSODIUM_H */
+#endif  /* PHP_LIBSODIUM_H */
 
 /*
  * Local variables:
