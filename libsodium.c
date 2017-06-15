@@ -261,19 +261,18 @@ static zend_object *sodium_exception_create_object(zend_class_entry *ce) {
 
     /* Remove argument information from backtrace to prevent information leaks */
     ZVAL_OBJ(&obj_zv, obj);
-    trace = zend_read_property(zend_ce_exception, &obj_zv, "trace", sizeof("trace")-1, 0, &rv);
+    trace = zend_read_property(zend_ce_exception, &obj_zv, "trace", (sizeof "trace") - 1, 0, &rv);
     if (trace && Z_TYPE_P(trace) == IS_ARRAY) {
         zval *frame;
         ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(trace), frame) {
             if (Z_TYPE_P(frame) == IS_ARRAY) {
-                zval *args = zend_hash_str_find(Z_ARRVAL_P(frame), "args", sizeof("args")-1);
+                zval *args = zend_hash_str_find(Z_ARRVAL_P(frame), "args", (sizeof "args") - 1);
                 if (args && Z_TYPE_P(frame) == IS_ARRAY) {
                     zend_hash_clean(Z_ARRVAL_P(args));
                 }
             }
         } ZEND_HASH_FOREACH_END();
     }
-
     return obj;
 }
 
