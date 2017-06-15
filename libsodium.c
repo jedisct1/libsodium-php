@@ -16,9 +16,6 @@
 
 static zend_class_entry *sodium_exception_ce;
 
-const int pass_rest_by_reference = 1;
-const int pass_arg_by_reference = 0;
-
 ZEND_BEGIN_ARG_INFO_EX(AI_None, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
