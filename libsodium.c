@@ -146,6 +146,16 @@ ZEND_BEGIN_ARG_INFO_EX(AI_MaybeKeyAndLength, 0, 0, 0)
     ZEND_ARG_INFO(0, length)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(AI_KXClientSession, 0, 0, 2)
+    ZEND_ARG_INFO(0, client_keypair)
+    ZEND_ARG_INFO(0, server_key)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(AI_KXServerSession, 0, 0, 2)
+    ZEND_ARG_INFO(0, server_keypair)
+    ZEND_ARG_INFO(0, client_key)
+ZEND_END_ARG_INFO()
+
 #ifndef PHP_FE_END
 # define PHP_FE_END { NULL, NULL, NULL }
 #endif
@@ -186,7 +196,12 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE(sodium_crypto_box_seal_open, AI_StringAndKey)
 #endif
     PHP_FE(sodium_crypto_box_secretkey, AI_Key)
-    PHP_FE(sodium_crypto_kx, AI_FourStrings)
+    PHP_FE(sodium_crypto_kx_keypair, AI_None)
+    PHP_FE(sodium_crypto_kx_publickey, AI_Key)
+    PHP_FE(sodium_crypto_kx_secretkey, AI_Key)
+    PHP_FE(sodium_crypto_kx_seed_keypair, AI_String)
+    PHP_FE(sodium_crypto_kx_client_session_keys, AI_KXClientSession)
+    PHP_FE(sodium_crypto_kx_server_session_keys, AI_KXServerSession)
     PHP_FE(sodium_crypto_generichash, AI_StringAndMaybeKeyAndLength)
     PHP_FE(sodium_crypto_generichash_init, AI_MaybeKeyAndLength)
     PHP_FE(sodium_crypto_generichash_update, AI_StateByReferenceAndString)
@@ -362,12 +377,17 @@ PHP_MINIT_FUNCTION(libsodium)
                            crypto_box_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_SEEDBYTES",
                            crypto_box_SEEDBYTES, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_BYTES",
-                           crypto_kx_BYTES, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_SEEDBYTES",
+                           crypto_kx_SEEDBYTES, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_SESSIONKEYBYTES",
+                           crypto_kx_SESSIONKEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_PUBLICKEYBYTES",
                            crypto_kx_PUBLICKEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_SECRETKEYBYTES",
                            crypto_kx_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_KEYPAIRBYTES",
+                           crypto_kx_SECRETKEYBYTES + crypto_kx_PUBLICKEYBYTES,
+                           CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_BYTES",
                            crypto_generichash_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_BYTES_MIN",
@@ -470,7 +490,7 @@ PHP_FUNCTION(sodium_memzero)
     }
     ZVAL_DEREF(buf_zv);
     if (Z_TYPE_P(buf_zv) != IS_STRING) {
-        zend_throw_exception(sodium_exception_ce, "memzero: a PHP string is required", 0);
+        zend_throw_exception(sodium_exception_ce, "memzero(): a PHP string is required", 0);
         return;
     }
     if (Z_REFCOUNTED_P(buf_zv) && Z_REFCOUNT_P(buf_zv) == 1) {
@@ -2475,56 +2495,197 @@ PHP_FUNCTION(sodium_crypto_scalarmult)
     RETURN_STR(q);
 }
 
-PHP_FUNCTION(sodium_crypto_kx)
+PHP_FUNCTION(sodium_crypto_kx_seed_keypair)
+{
+    unsigned char *sk;
+    unsigned char *pk;
+    unsigned char *seed;
+    size_t         seed_len;
+    zend_string   *keypair;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "s",
+                              &seed, &seed_len) == FAILURE) {
+        return;
+    }
+    if (seed_len != crypto_kx_SEEDBYTES) {
+        zend_throw_exception(sodium_exception_ce, "seed must be CRYPTO_KX_SEEDBYTES bytes", 0);
+        return;
+    }
+    (void) sizeof(int[crypto_scalarmult_SCALARBYTES == crypto_kx_PUBLICKEYBYTES ? 1 : -1]);
+    (void) sizeof(int[crypto_scalarmult_SCALARBYTES == crypto_kx_SECRETKEYBYTES ? 1 : -1]);
+    keypair = zend_string_alloc(crypto_kx_SECRETKEYBYTES + crypto_kx_PUBLICKEYBYTES, 0);
+    sk = (unsigned char *) ZSTR_VAL(keypair);
+    pk = sk + crypto_kx_SECRETKEYBYTES;
+    crypto_generichash(sk, crypto_kx_SECRETKEYBYTES,
+                       seed, crypto_kx_SEEDBYTES, NULL, 0);
+    if (crypto_scalarmult_base(pk, sk) != 0) {
+        zend_throw_exception(sodium_exception_ce, "internal error", 0);
+        return;
+    }
+    ZSTR_VAL(keypair)[crypto_kx_SECRETKEYBYTES + crypto_kx_PUBLICKEYBYTES] = 0;
+    RETURN_STR(keypair);
+}
+
+PHP_FUNCTION(sodium_crypto_kx_keypair)
+{
+    unsigned char *sk;
+    unsigned char *pk;
+    zend_string   *keypair;
+
+    keypair = zend_string_alloc(crypto_kx_SECRETKEYBYTES + crypto_kx_PUBLICKEYBYTES, 0);
+    sk = (unsigned char *) ZSTR_VAL(keypair);
+    pk = sk + crypto_kx_SECRETKEYBYTES;
+    randombytes_buf(sk, crypto_kx_SECRETKEYBYTES);
+    if (crypto_scalarmult_base(pk, sk) != 0) {
+        zend_throw_exception(sodium_exception_ce, "internal error", 0);
+        return;
+    }
+    RETURN_STR(keypair);
+}
+
+PHP_FUNCTION(sodium_crypto_kx_secretkey)
+{
+    zend_string   *secretkey;
+    unsigned char *keypair;
+    size_t         keypair_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "s",
+                              &keypair, &keypair_len) == FAILURE) {
+        return;
+    }
+    if (keypair_len !=
+        crypto_kx_SECRETKEYBYTES + crypto_kx_PUBLICKEYBYTES) {
+        zend_throw_exception(sodium_exception_ce,
+                   "keypair should be CRYPTO_KX_KEYPAIRBYTES bytes",
+                   0);
+        return;
+    }
+    secretkey = zend_string_alloc(crypto_kx_SECRETKEYBYTES, 0);
+    memcpy(ZSTR_VAL(secretkey), keypair, crypto_kx_SECRETKEYBYTES);
+    ZSTR_VAL(secretkey)[crypto_kx_SECRETKEYBYTES] = 0;
+
+    RETURN_STR(secretkey);
+}
+
+PHP_FUNCTION(sodium_crypto_kx_publickey)
+{
+    zend_string   *publickey;
+    unsigned char *keypair;
+    size_t         keypair_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "s",
+                              &keypair, &keypair_len) == FAILURE) {
+        return;
+    }
+    if (keypair_len !=
+        crypto_kx_SECRETKEYBYTES + crypto_kx_PUBLICKEYBYTES) {
+        zend_throw_exception(sodium_exception_ce,
+                   "keypair should be CRYPTO_KX_KEYPAIRBYTES bytes",
+                   0);
+        return;
+    }
+    publickey = zend_string_alloc(crypto_kx_PUBLICKEYBYTES, 0);
+    memcpy(ZSTR_VAL(publickey), keypair + crypto_kx_SECRETKEYBYTES,
+           crypto_kx_PUBLICKEYBYTES);
+    ZSTR_VAL(publickey)[crypto_kx_PUBLICKEYBYTES] = 0;
+
+    RETURN_STR(publickey);
+}
+
+PHP_FUNCTION(sodium_crypto_kx_client_session_keys)
 {
     crypto_generichash_state h;
-    unsigned char            q[crypto_scalarmult_BYTES];
-    zend_string             *sharedkey;
-    unsigned char           *client_publickey;
-    unsigned char           *publickey;
-    unsigned char           *secretkey;
-    unsigned char           *server_publickey;
-    size_t                   client_publickey_len;
-    size_t                   publickey_len;
-    size_t                   secretkey_len;
-    size_t                   server_publickey_len;
+    unsigned char  q[crypto_scalarmult_BYTES];
+    unsigned char *keypair;
+    unsigned char *client_sk;
+    unsigned char *client_pk;
+    unsigned char *server_pk;
+    unsigned char  session_keys[2 * crypto_kx_SESSIONKEYBYTES];
+    size_t         keypair_len;
+    size_t         server_pk_len;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), "ssss",
-                              &secretkey, &secretkey_len,
-                              &publickey, &publickey_len,
-                              &client_publickey, &client_publickey_len,
-                              &server_publickey, &server_publickey_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss",
+                              &keypair, &keypair_len,
+                              &server_pk, &server_pk_len) == FAILURE) {
         return;
     }
-    if (secretkey_len != crypto_kx_SECRETKEYBYTES) {
-        zend_throw_exception(sodium_exception_ce, "crypto_kx(): secret key must be CRYPTO_KX_SECRETKEY bytes", 0);
+    if (keypair_len != crypto_kx_SECRETKEYBYTES + crypto_kx_PUBLICKEYBYTES) {
+        zend_throw_exception(sodium_exception_ce, "keypair must be CRYPTO_KX_KEYPAIRBYTES bytes", 0);
         return;
     }
-    if (publickey_len != crypto_kx_PUBLICKEYBYTES ||
-        client_publickey_len != crypto_kx_PUBLICKEYBYTES ||
-        server_publickey_len != crypto_kx_PUBLICKEYBYTES) {
-        zend_throw_exception(sodium_exception_ce, "crypto_kx(): public keys must be CRYPTO_KX_PUBLICKEY bytes", 0);
+    if (server_pk_len != crypto_kx_PUBLICKEYBYTES) {
+        zend_throw_exception(sodium_exception_ce, "public keys must be CRYPTO_KX_PUBLICKEYBYTES bytes", 0);
         return;
     }
-    (void) sizeof(int[crypto_scalarmult_SCALARBYTES ==
-                      crypto_kx_PUBLICKEYBYTES ? 1 : -1]);
-    (void) sizeof(int[crypto_scalarmult_SCALARBYTES ==
-                      crypto_kx_SECRETKEYBYTES ? 1 : -1]);
-    if (crypto_scalarmult(q, secretkey, publickey) != 0) {
-        zend_throw_exception(sodium_exception_ce, "crypto_kx(): internal error", 0);
+    client_sk = &keypair[0];
+    client_pk = &keypair[crypto_kx_SECRETKEYBYTES];
+    (void) sizeof(int[crypto_scalarmult_SCALARBYTES == crypto_kx_PUBLICKEYBYTES ? 1 : -1]);
+    (void) sizeof(int[crypto_scalarmult_SCALARBYTES == crypto_kx_SECRETKEYBYTES ? 1 : -1]);
+    if (crypto_scalarmult(q, client_sk, server_pk) != 0) {
+        zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    sharedkey = zend_string_alloc(crypto_kx_BYTES, 0);
-    crypto_generichash_init(&h, NULL, 0U, crypto_generichash_BYTES);
+    crypto_generichash_init(&h, NULL, 0U, 2 * crypto_kx_SESSIONKEYBYTES);
     crypto_generichash_update(&h, q, sizeof q);
     sodium_memzero(q, sizeof q);
-    crypto_generichash_update(&h, client_publickey, client_publickey_len);
-    crypto_generichash_update(&h, server_publickey, server_publickey_len);
-    crypto_generichash_final(&h, (unsigned char *) ZSTR_VAL(sharedkey),
-                             crypto_kx_BYTES);
-    ZSTR_VAL(sharedkey)[crypto_kx_BYTES] = 0;
+    crypto_generichash_update(&h, client_pk, crypto_kx_PUBLICKEYBYTES);
+    crypto_generichash_update(&h, server_pk, crypto_kx_PUBLICKEYBYTES);
+    crypto_generichash_final(&h, session_keys, 2 * crypto_kx_SESSIONKEYBYTES);
+    array_init(return_value);
+    add_next_index_stringl(return_value,
+                           (const char *) session_keys,
+                           crypto_kx_SESSIONKEYBYTES);
+    add_next_index_stringl(return_value,
+                           (const char *) session_keys + crypto_kx_SESSIONKEYBYTES,
+                           crypto_kx_SESSIONKEYBYTES);
+}
 
-    RETURN_STR(sharedkey);
+PHP_FUNCTION(sodium_crypto_kx_server_session_keys)
+{
+    crypto_generichash_state h;
+    unsigned char  q[crypto_scalarmult_BYTES];
+    unsigned char *keypair;
+    unsigned char *server_sk;
+    unsigned char *server_pk;
+    unsigned char *client_pk;
+    unsigned char  session_keys[2 * crypto_kx_SESSIONKEYBYTES];
+    size_t         keypair_len;
+    size_t         client_pk_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss",
+                              &keypair, &keypair_len,
+                              &client_pk, &client_pk_len) == FAILURE) {
+        return;
+    }
+    if (keypair_len != crypto_kx_SECRETKEYBYTES + crypto_kx_PUBLICKEYBYTES) {
+        zend_throw_exception(sodium_exception_ce, "keypair must be CRYPTO_KX_KEYPAIRBYTES bytes", 0);
+        return;
+    }
+    if (client_pk_len != crypto_kx_PUBLICKEYBYTES) {
+        zend_throw_exception(sodium_exception_ce, "public keys must be CRYPTO_KX_PUBLICKEYBYTES bytes", 0);
+        return;
+    }
+    server_sk = &keypair[0];
+    server_pk = &keypair[crypto_kx_SECRETKEYBYTES];
+    (void) sizeof(int[crypto_scalarmult_SCALARBYTES == crypto_kx_PUBLICKEYBYTES ? 1 : -1]);
+    (void) sizeof(int[crypto_scalarmult_SCALARBYTES == crypto_kx_SECRETKEYBYTES ? 1 : -1]);
+    if (crypto_scalarmult(q, server_sk, client_pk) != 0) {
+        zend_throw_exception(sodium_exception_ce, "internal error", 0);
+        return;
+    }
+    crypto_generichash_init(&h, NULL, 0U, 2 * crypto_kx_SESSIONKEYBYTES);
+    crypto_generichash_update(&h, q, sizeof q);
+    sodium_memzero(q, sizeof q);
+    crypto_generichash_update(&h, client_pk, crypto_kx_PUBLICKEYBYTES);
+    crypto_generichash_update(&h, server_pk, crypto_kx_PUBLICKEYBYTES);
+    crypto_generichash_final(&h, session_keys, 2 * crypto_kx_SESSIONKEYBYTES);
+    array_init(return_value);
+    add_next_index_stringl(return_value,
+                           (const char *) session_keys + crypto_kx_SESSIONKEYBYTES,
+                           crypto_kx_SESSIONKEYBYTES);
+    add_next_index_stringl(return_value,
+                           (const char *) session_keys,
+                           crypto_kx_SESSIONKEYBYTES);
 }
 
 PHP_FUNCTION(sodium_crypto_auth)
