@@ -377,6 +377,12 @@ PHP_MINIT_FUNCTION(libsodium)
                            crypto_box_NONCEBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_SEEDBYTES",
                            crypto_box_SEEDBYTES, CONST_CS | CONST_PERSISTENT);
+#ifndef crypto_kx_SEEDBYTES
+# define crypto_kx_SEEDBYTES 32
+# define crypto_kx_SESSIONKEYBYTES 32
+# define crypto_kx_PUBLICKEYBYTES 32
+# define crypto_kx_SECRETKEYBYTES 32
+#endif
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_SEEDBYTES",
                            crypto_kx_SEEDBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_SESSIONKEYBYTES",
