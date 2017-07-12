@@ -14,7 +14,7 @@ before_script:
  - git clone git://github.com/jedisct1/libsodium.git
  - cd libsodium
  - ./autogen.sh
- - ./configure --disable-dependency-tracking --enable-minimal
+ - ./configure --disable-dependency-tracking
  - make
  - sudo make install
  - sudo /sbin/ldconfig
