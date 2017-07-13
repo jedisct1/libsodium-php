@@ -23,12 +23,15 @@
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
 This is a major release, featuring a new API identical to the one of sodium extension included with PHP 7.2.
+
 Functions are now in the global namespace, and return exceptions.
 
 Note that PHP 5 is not supported any more.
 
-Support for the key exchange API (crypto_kx) and for the xchacha20-poly1305 construction have been added,
-and many bugs have been squashed.
+Support for the key exchange API (crypto_kx), key derivation (crypto_kdf) and
+for the xchacha20-poly1305 construction have been added.
+
+Many bugs have been squashed.
   </notes>
   <contents>
     <dir name="/">
@@ -51,6 +54,7 @@ and many bugs have been squashed.
         <file role="test" name="crypto_box.phpt"/>
         <file role="test" name="crypto_generichash.phpt"/>
         <file role="test" name="crypto_hex.phpt"/>
+        <file role="test" name="crypto_kdf.phpt"/>
         <file role="test" name="crypto_kx.phpt"/>
         <file role="test" name="crypto_scalarmult.phpt"/>
         <file role="test" name="crypto_secretbox.phpt"/>
