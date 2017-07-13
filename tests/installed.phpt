@@ -1,7 +1,7 @@
 --TEST--
 Check for libsodium presence
 --SKIPIF--
-<?php if (!extension_loaded("libsodium")) print "skip"; ?>
+<?php if (!extension_loaded("sodium")) print "skip"; ?>
 --FILE--
 <?php
 echo "libsodium extension is available";
@@ -13,7 +13,7 @@ echo "libsodium extension is available";
   to pass, differences between the output and the
   expected text are interpreted as failure
 
-        see php5/README.TESTING for further information on
+        see php7/README.TESTING for further information on
   writing regression tests
 */
 ?>

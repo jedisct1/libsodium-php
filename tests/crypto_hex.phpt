@@ -1,7 +1,7 @@
 --TEST--
 Check for libsodium bin2hex
 --SKIPIF--
-<?php if (!extension_loaded("libsodium")) print "skip"; ?>
+<?php if (!extension_loaded("sodium")) print "skip"; ?>
 --FILE--
 <?php
 $bin = random_bytes(random_int(1, 1000));

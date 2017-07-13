@@ -1,7 +1,7 @@
 --TEST--
 SodiumException backtraces do not contain function arguments
 --SKIPIF--
-<?php if (!extension_loaded("libsodium")) print "skip"; ?>
+<?php if (!extension_loaded("sodium")) print "skip"; ?>
 --FILE--
 <?php
 

@@ -1,7 +1,7 @@
 --TEST--
 Check for libsodium utils
 --SKIPIF--
-<?php if (!extension_loaded("libsodium")) print "skip"; ?>
+<?php if (!extension_loaded("sodium")) print "skip"; ?>
 --FILE--
 <?php
 $a = 'test';

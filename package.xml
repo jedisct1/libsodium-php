@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2016-05-04</date>
-  <time>23:54:11</time>
+  <date>2017-07-13</date>
+  <time>06:46:44</time>
   <version>
-    <release>1.0.6</release>
-    <api>1.0.6</api>
+    <release>2.0.0</release>
+    <api>2.0.0</api>
   </version>
   <stability>
     <release>stable</release>
@@ -22,7 +22,13 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- The PWHASH_MEMLIMIT_{MODERATE,SENSITIVE} constants are correctly defined
+This is a major release, featuring a new API identical to the one of sodium extension included with PHP 7.2.
+Functions are now in the global namespace, and return exceptions.
+
+Note that PHP 5 is not supported any more.
+
+Support for the key exchange API (crypto_kx) and for the xchacha20-poly1305 construction have been added,
+and many bugs have been squashed.
   </notes>
   <contents>
     <dir name="/">
@@ -51,10 +57,11 @@
         <file role="test" name="crypto_shorthash.phpt"/>
         <file role="test" name="crypto_sign.phpt"/>
         <file role="test" name="crypto_stream.phpt"/>
+        <file role="test" name="exception_trace_without_args.phpt"/>
+        <file role="test" name="inc_add.phpt"/>
         <file role="test" name="installed.phpt"/>
         <file role="test" name="pwhash_argon2i.phpt"/>
         <file role="test" name="pwhash_scrypt.phpt"/>
-        <file role="test" name="randombytes.phpt"/>
         <file role="test" name="utils.phpt"/>
         <file role="test" name="version.phpt"/>
       </dir>
@@ -63,7 +70,7 @@
   <dependencies>
     <required>
       <php>
-        <min>5.4.0</min>
+        <min>7.0.0</min>
         <max>7.99.99</max>
       </php>
       <pearinstaller>
