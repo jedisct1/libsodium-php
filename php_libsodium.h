@@ -97,9 +97,6 @@ PHP_FUNCTION(sodium_hex2bin);
 PHP_FUNCTION(sodium_increment);
 PHP_FUNCTION(sodium_memcmp);
 PHP_FUNCTION(sodium_memzero);
-PHP_FUNCTION(sodium_randombytes_buf);
-PHP_FUNCTION(sodium_randombytes_random16);
-PHP_FUNCTION(sodium_randombytes_uniform);
 
 #ifdef ZTS
 # define LIBSODIUM_G(v) TSRMG(libsodium_globals_id, zend_libsodium_globals *, v)
