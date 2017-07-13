@@ -166,7 +166,7 @@ ZEND_END_ARG_INFO()
 # define HAVE_AESGCM 1
 #endif
 
-const zend_function_entry libsodium_functions[] = {
+const zend_function_entry sodium_functions[] = {
     PHP_FE(sodium_crypto_aead_aes256gcm_is_available, AI_None)
 #ifdef HAVE_AESGCM
     PHP_FE(sodium_crypto_aead_aes256gcm_decrypt, AI_StringAndADAndNonceAndKey)
@@ -262,26 +262,26 @@ const zend_function_entry libsodium_functions[] = {
     PHP_FE_END
 };
 
-zend_module_entry libsodium_module_entry = {
+zend_module_entry sodium_module_entry = {
 #if ZEND_MODULE_API_NO >= 20010901
     STANDARD_MODULE_HEADER,
 #endif
-    "libsodium",
-    libsodium_functions,
-    PHP_MINIT(libsodium),
-    PHP_MSHUTDOWN(libsodium),
+    "sodium",
+    sodium_functions,
+    PHP_MINIT(sodium),
+    PHP_MSHUTDOWN(sodium),
     NULL,
     NULL,
-    PHP_MINFO(libsodium),
+    PHP_MINFO(sodium),
 #if ZEND_MODULE_API_NO >= 20010901
-    PHP_LIBSODIUM_VERSION,
+    PHP_SODIUM_VERSION,
 #endif
     STANDARD_MODULE_PROPERTIES
 };
 /* }}} */
 
-#ifdef COMPILE_DL_LIBSODIUM
-ZEND_GET_MODULE(libsodium)
+#ifdef COMPILE_DL_SODIUM
+ZEND_GET_MODULE(sodium)
 #endif
 
 static zend_object *sodium_exception_create_object(zend_class_entry *ce) {
@@ -314,7 +314,7 @@ static void sodium_separate_string(zval *zv) {
     }
 }
 
-PHP_MINIT_FUNCTION(libsodium)
+PHP_MINIT_FUNCTION(sodium)
 {
     zend_class_entry ce;
 
@@ -485,18 +485,18 @@ PHP_MINIT_FUNCTION(libsodium)
     return SUCCESS;
 }
 
-PHP_MSHUTDOWN_FUNCTION(libsodium)
+PHP_MSHUTDOWN_FUNCTION(sodium)
 {
     return SUCCESS;
 }
 
-PHP_MINFO_FUNCTION(libsodium)
+PHP_MINFO_FUNCTION(sodium)
 {
     php_info_print_table_start();
-    php_info_print_table_header(2, "libsodium support", "enabled");
-    php_info_print_table_header(2, "libsodium compiled version", PHP_LIBSODIUM_VERSION);
-    php_info_print_table_header(2, "libsodium headers version", SODIUM_VERSION_STRING);
-    php_info_print_table_header(2, "libsodium library version", sodium_version_string());
+    php_info_print_table_header(2, "sodium support", "enabled");
+    php_info_print_table_header(2, "sodium compiled version", PHP_SODIUM_VERSION);
+    php_info_print_table_header(2, "sodium headers version", SODIUM_VERSION_STRING);
+    php_info_print_table_header(2, "sodium library version", sodium_version_string());
     php_info_print_table_end();
 }
 

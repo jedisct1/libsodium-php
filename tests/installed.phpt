@@ -1,10 +1,10 @@
 --TEST--
-Check for libsodium presence
+Check for sodium presence
 --SKIPIF--
 <?php if (!extension_loaded("sodium")) print "skip"; ?>
 --FILE--
 <?php
-echo "libsodium extension is available";
+echo "sodium extension is available";
 /*
         you can add regression tests for your extension here
 
@@ -18,4 +18,4 @@ echo "libsodium extension is available";
 */
 ?>
 --EXPECT--
-libsodium extension is available
+sodium extension is available

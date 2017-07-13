@@ -1,10 +1,10 @@
 <?php
 $br = (php_sapi_name() == "cli")? "":"<br>";
 
-if(!extension_loaded('libsodium')) {
+if(!extension_loaded('sodium')) {
     dl('libsodium.' . PHP_SHLIB_SUFFIX);
 }
-$module = 'libsodium';
+$module = 'sodium';
 $functions = get_extension_funcs($module);
 echo "Functions available in the test extension:$br\n";
 foreach($functions as $func) {
