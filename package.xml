@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2017-07-13</date>
-  <time>06:46:44</time>
+  <date>2017-07-15</date>
+  <time>15:42:11</time>
   <version>
-    <release>2.0.0</release>
-    <api>2.0.0</api>
+    <release>2.0.1</release>
+    <api>2.0.1</api>
   </version>
   <stability>
     <release>stable</release>
@@ -22,16 +22,9 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-This is a major release, featuring a new API identical to the one of sodium extension included with PHP 7.2.
+Version 2.0.0 couldn't be compiled on old libsodium versions.
 
-Functions are now in the global namespace, and return exceptions.
-
-Note that PHP 5 is not supported any more.
-
-Support for the key exchange API (crypto_kx), key derivation (crypto_kdf) and
-for the xchacha20-poly1305 construction have been added.
-
-Many bugs have been squashed.
+This has been fixed.
   </notes>
   <contents>
     <dir name="/">
