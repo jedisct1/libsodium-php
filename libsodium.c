@@ -2912,7 +2912,7 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
                                                  (size_t) subkey_len,
                                                  NULL, 0,
                                                  (const unsigned char *) key,
-                                                 crypto_kdf_blake2b_KEYBYTES,
+                                                 crypto_kdf_KEYBYTES,
                                                  salt, ctx_padded) != 0) {
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
     }
