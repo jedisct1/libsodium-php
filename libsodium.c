@@ -2896,16 +2896,16 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
     if (key_len != crypto_kdf_KEYBYTES) {
         zend_throw_exception(sodium_exception_ce, "context should be sodium_crypto_kdf_KEYBYTES bytes", 0);
     }
-    memcpy(ctx_padded, ctx, crypto_kdf_blake2b_CONTEXTBYTES);
-    memset(ctx_padded + crypto_kdf_blake2b_CONTEXTBYTES, 0, sizeof ctx_padded - crypto_kdf_blake2b_CONTEXTBYTES);
-    salt[0] = (unsigned char) (subkey_id      );
-    salt[1] = (unsigned char) (subkey_id >>  8);
-    salt[2] = (unsigned char) (subkey_id >> 16);
-    salt[3] = (unsigned char) (subkey_id >> 24);
-    salt[4] = (unsigned char) (subkey_id >> 32);
-    salt[5] = (unsigned char) (subkey_id >> 40);
-    salt[6] = (unsigned char) (subkey_id >> 48);
-    salt[7] = (unsigned char) (subkey_id >> 56);
+    memcpy(ctx_padded, ctx, crypto_kdf_CONTEXTBYTES);
+    memset(ctx_padded + crypto_kdf_CONTEXTBYTES, 0, sizeof ctx_padded - crypto_kdf_CONTEXTBYTES);
+    salt[0] = (unsigned char) (((uint64_t) subkey_id)      );
+    salt[1] = (unsigned char) (((uint64_t) subkey_id) >>  8);
+    salt[2] = (unsigned char) (((uint64_t) subkey_id) >> 16);
+    salt[3] = (unsigned char) (((uint64_t) subkey_id) >> 24);
+    salt[4] = (unsigned char) (((uint64_t) subkey_id) >> 32);
+    salt[5] = (unsigned char) (((uint64_t) subkey_id) >> 40);
+    salt[6] = (unsigned char) (((uint64_t) subkey_id) >> 48);
+    salt[7] = (unsigned char) (((uint64_t) subkey_id) >> 56);
     memset(salt + 8, 0, (sizeof salt) - 8);
     subkey = zend_string_alloc(subkey_len, 0);
     if (crypto_generichash_blake2b_salt_personal((unsigned char *) ZSTR_VAL(subkey),
