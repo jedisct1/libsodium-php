@@ -39,7 +39,7 @@ if test "$PHP_SODIUM" != "no"; then
   fi
 
   LIBNAME=sodium
-  LIBSYMBOL=crypto_pwhash_scryptsalsa208sha256
+  LIBSYMBOL=crypto_pwhash
 
   if test -n "$LIBSODIUM_DIR"; then
     PHP_ADD_INCLUDE($LIBSODIUM_DIR/include)
@@ -50,7 +50,7 @@ if test "$PHP_SODIUM" != "no"; then
   [
     AC_DEFINE(HAVE_LIBSODIUMLIB,1,[ ])
   ],[
-    AC_MSG_ERROR([wrong libsodium lib version or lib not found])
+    AC_MSG_ERROR([wrong libsodium lib version (< 1.0.9) or lib not found])
   ],[
   ])
   PHP_CHECK_LIBRARY($LIBNAME,crypto_aead_aes256gcm_encrypt,

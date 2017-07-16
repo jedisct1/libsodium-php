@@ -57,7 +57,6 @@ This has been fixed.
         <file role="test" name="inc_add.phpt"/>
         <file role="test" name="installed.phpt"/>
         <file role="test" name="pwhash_argon2i.phpt"/>
-        <file role="test" name="pwhash_scrypt.phpt"/>
         <file role="test" name="utils.phpt"/>
         <file role="test" name="version.phpt"/>
       </dir>

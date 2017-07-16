@@ -199,10 +199,8 @@ const zend_function_entry sodium_functions[] = {
     PHP_FE(sodium_crypto_box_open, AI_StringAndNonceAndKey)
     PHP_FE(sodium_crypto_box_publickey, AI_Key)
     PHP_FE(sodium_crypto_box_publickey_from_secretkey, AI_Key)
-#ifdef crypto_box_SEALBYTES
     PHP_FE(sodium_crypto_box_seal, AI_StringAndKey)
     PHP_FE(sodium_crypto_box_seal_open, AI_StringAndKey)
-#endif
     PHP_FE(sodium_crypto_box_secretkey, AI_Key)
     PHP_FE(sodium_crypto_kx_keypair, AI_None)
     PHP_FE(sodium_crypto_kx_publickey, AI_Key)
@@ -215,14 +213,9 @@ const zend_function_entry sodium_functions[] = {
     PHP_FE(sodium_crypto_generichash_update, AI_StateByReferenceAndString)
     PHP_FE(sodium_crypto_generichash_final, AI_StateByReferenceAndMaybeLength)
     PHP_FE(sodium_crypto_kdf_derive_from_key, AI_KDF)
-#ifdef crypto_pwhash_SALTBYTES
     PHP_FE(sodium_crypto_pwhash, AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
     PHP_FE(sodium_crypto_pwhash_str, AI_PasswordAndOpsLimitAndMemLimit)
     PHP_FE(sodium_crypto_pwhash_str_verify, AI_HashAndPassword)
-#endif
-    PHP_FE(sodium_crypto_pwhash_scryptsalsa208sha256, AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
-    PHP_FE(sodium_crypto_pwhash_scryptsalsa208sha256_str, AI_PasswordAndOpsLimitAndMemLimit)
-    PHP_FE(sodium_crypto_pwhash_scryptsalsa208sha256_str_verify, AI_HashAndPassword)
     PHP_FE(sodium_crypto_scalarmult, AI_TwoStrings)
     PHP_FE(sodium_crypto_secretbox, AI_StringAndNonceAndKey)
     PHP_FE(sodium_crypto_secretbox_open, AI_StringAndNonceAndKey)
@@ -242,10 +235,7 @@ const zend_function_entry sodium_functions[] = {
     PHP_FE(sodium_crypto_stream, AI_LengthAndNonceAndKey)
     PHP_FE(sodium_crypto_stream_xor, AI_StringAndNonceAndKey)
     PHP_FE(sodium_bin2hex, AI_String)
-#if SODIUM_LIBRARY_VERSION_MAJOR > 7 || \
-    (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 6)
     PHP_FE(sodium_compare, AI_TwoStrings)
-#endif
     PHP_FE(sodium_hex2bin, AI_TwoStrings)
     PHP_FE(sodium_increment, AI_StringRef)
     PHP_FE(sodium_add, AI_StringRef_And_String)
@@ -360,7 +350,6 @@ PHP_MINIT_FUNCTION(sodium)
                            crypto_aead_chacha20poly1305_NPUBBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_ABYTES",
                            crypto_aead_chacha20poly1305_ABYTES, CONST_CS | CONST_PERSISTENT);
-#ifdef crypto_aead_chacha20poly1305_IETF_NPUBBYTES
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES",
                            crypto_aead_chacha20poly1305_KEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_NSECBYTES",
@@ -369,7 +358,6 @@ PHP_MINIT_FUNCTION(sodium)
                            crypto_aead_chacha20poly1305_IETF_NPUBBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_ABYTES",
                            crypto_aead_chacha20poly1305_ABYTES, CONST_CS | CONST_PERSISTENT);
-#endif
 #ifdef crypto_aead_xchacha20poly1305_IETF_NPUBBYTES
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES",
                            crypto_aead_xchacha20poly1305_IETF_KEYBYTES, CONST_CS | CONST_PERSISTENT);
@@ -384,10 +372,8 @@ PHP_MINIT_FUNCTION(sodium)
                            crypto_auth_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_AUTH_KEYBYTES",
                            crypto_auth_KEYBYTES, CONST_CS | CONST_PERSISTENT);
-#ifdef crypto_box_SEALBYTES
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_SEALBYTES",
                            crypto_box_SEALBYTES, CONST_CS | CONST_PERSISTENT);
-#endif
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_SECRETKEYBYTES",
                            crypto_box_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_BOX_PUBLICKEYBYTES",
@@ -444,7 +430,6 @@ PHP_MINIT_FUNCTION(sodium)
                            crypto_generichash_KEYBYTES_MIN, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_KEYBYTES_MAX",
                            crypto_generichash_KEYBYTES_MAX, CONST_CS | CONST_PERSISTENT);
-#ifdef crypto_pwhash_SALTBYTES
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SALTBYTES",
                            crypto_pwhash_SALTBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_STRING_CONSTANT("SODIUM_CRYPTO_PWHASH_STRPREFIX",
@@ -461,22 +446,6 @@ PHP_MINIT_FUNCTION(sodium)
                            crypto_pwhash_opslimit_sensitive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE",
                            crypto_pwhash_memlimit_sensitive(), CONST_CS | CONST_PERSISTENT);
-#endif
-    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
-                           crypto_pwhash_scryptsalsa208sha256_SALTBYTES, CONST_CS | CONST_PERSISTENT);
-#ifndef crypto_pwhash_scryptsalsa208sha256_STRPREFIX
-# define crypto_pwhash_scryptsalsa208sha256_STRPREFIX "$7$"
-#endif
-    REGISTER_STRING_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX",
-                             crypto_pwhash_scryptsalsa208sha256_STRPREFIX, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE",
-                           crypto_pwhash_scryptsalsa208sha256_opslimit_interactive(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE",
-                           crypto_pwhash_scryptsalsa208sha256_memlimit_interactive(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE",
-                           crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive(), CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
-                           crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SCALARMULT_BYTES",
                            crypto_scalarmult_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SCALARMULT_SCALARBYTES",
@@ -1169,7 +1138,6 @@ PHP_FUNCTION(sodium_crypto_box_open)
     }
 }
 
-#ifdef crypto_box_SEALBYTES
 PHP_FUNCTION(sodium_crypto_box_seal)
 {
     zend_string   *ciphertext;
@@ -1242,7 +1210,6 @@ PHP_FUNCTION(sodium_crypto_box_seal_open)
         RETURN_STR(msg);
     }
 }
-#endif
 
 PHP_FUNCTION(sodium_crypto_sign_keypair)
 {
@@ -1650,130 +1617,6 @@ PHP_FUNCTION(sodium_crypto_stream_xor)
     RETURN_STR(ciphertext);
 }
 
-PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256)
-{
-    zend_string   *hash;
-    unsigned char *salt;
-    char          *passwd;
-    zend_long      hash_len;
-    zend_long      memlimit;
-    zend_long      opslimit;
-    size_t         passwd_len;
-    size_t         salt_len;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), "lssll",
-                              &hash_len,
-                              &passwd, &passwd_len,
-                              &salt, &salt_len,
-                              &opslimit, &memlimit) == FAILURE ||
-        hash_len <= 0 || hash_len >= SIZE_MAX ||
-        opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
-        zend_throw_exception(sodium_exception_ce, "invalid parameters", 0);
-        return;
-    }
-    if (passwd_len <= 0) {
-        zend_error(E_WARNING, "empty password");
-    }
-    if (salt_len != crypto_pwhash_scryptsalsa208sha256_SALTBYTES) {
-        zend_throw_exception(sodium_exception_ce,
-                   "salt should be CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES bytes",
-                   0);
-        return;
-    }
-    if (opslimit < crypto_pwhash_scryptsalsa208sha256_opslimit_interactive()) {
-        zend_error(E_WARNING,
-                   "number of operations for the scrypt function is low");
-    }
-    if (memlimit < crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()) {
-        zend_error(E_WARNING,
-                   "maximum memory for the scrypt function is low");
-    }
-    hash = zend_string_alloc((size_t) hash_len, 0);
-    if (crypto_pwhash_scryptsalsa208sha256
-        ((unsigned char *) ZSTR_VAL(hash), (unsigned long long) hash_len,
-         passwd, (unsigned long long) passwd_len, salt,
-         (unsigned long long) opslimit, (size_t) memlimit) != 0) {
-        zend_string_free(hash);
-        zend_throw_exception(sodium_exception_ce, "internal error", 0);
-        return;
-    }
-    ZSTR_VAL(hash)[hash_len] = 0;
-
-    RETURN_STR(hash);
-}
-
-PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256_str)
-{
-    zend_string *hash_str;
-    char        *passwd;
-    zend_long    memlimit;
-    zend_long    opslimit;
-    size_t       passwd_len;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), "sll",
-                              &passwd, &passwd_len,
-                              &opslimit, &memlimit) == FAILURE ||
-        opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX) {
-        zend_throw_exception(sodium_exception_ce,
-                   "invalid parameters",
-                   0);
-        return;
-    }
-    if (passwd_len <= 0) {
-        zend_error(E_WARNING, "empty password");
-    }
-    if (opslimit < crypto_pwhash_scryptsalsa208sha256_opslimit_interactive()) {
-        zend_error(E_WARNING,
-                   "number of operations for the scrypt function is low");
-    }
-    if (memlimit < crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()) {
-        zend_error(E_WARNING,
-                   "maximum memory for the scrypt function is low");
-    }
-    hash_str = zend_string_alloc
-        (crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1, 0);
-    if (crypto_pwhash_scryptsalsa208sha256_str
-        (ZSTR_VAL(hash_str), passwd, (unsigned long long) passwd_len,
-         (unsigned long long) opslimit, (size_t) memlimit) != 0) {
-        zend_string_free(hash_str);
-        zend_throw_exception(sodium_exception_ce, "internal error", 0);
-        return;
-    }
-    ZSTR_VAL(hash_str)[crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1] = 0;
-
-    RETURN_STR(hash_str);
-}
-
-PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256_str_verify)
-{
-    char      *hash_str;
-    char      *passwd;
-    size_t     hash_str_len;
-    size_t     passwd_len;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss",
-                              &hash_str, &hash_str_len,
-                              &passwd, &passwd_len) == FAILURE) {
-        zend_throw_exception(sodium_exception_ce,
-                   "invalid parameters",
-                   0);
-        return;
-    }
-    if (passwd_len <= 0) {
-        zend_error(E_WARNING, "empty password");
-    }
-    if (hash_str_len != crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1) {
-        zend_error(E_WARNING, "wrong size for the hashed password");
-        RETURN_FALSE;
-    }
-    if (crypto_pwhash_scryptsalsa208sha256_str_verify
-        (hash_str, passwd, (unsigned long long) passwd_len) == 0) {
-        RETURN_TRUE;
-    }
-    RETURN_FALSE;
-}
-
-#ifdef crypto_pwhash_SALTBYTES
 PHP_FUNCTION(sodium_crypto_pwhash)
 {
     zend_string   *hash;
@@ -1893,7 +1736,6 @@ PHP_FUNCTION(sodium_crypto_pwhash_str_verify)
     }
     RETURN_FALSE;
 }
-#endif
 
 PHP_FUNCTION(sodium_crypto_aead_aes256gcm_is_available)
 {
@@ -2148,7 +1990,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt)
     RETURN_STR(msg);
 }
 
-#ifdef crypto_aead_chacha20poly1305_IETF_NPUBBYTES
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt)
 {
     zend_string        *ciphertext;
@@ -2278,7 +2119,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt)
 
     RETURN_STR(msg);
 }
-#endif
 
 #ifdef crypto_aead_xchacha20poly1305_IETF_NPUBBYTES
 PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt)
@@ -2804,8 +2644,6 @@ PHP_FUNCTION(sodium_crypto_sign_ed25519_pk_to_curve25519)
     RETURN_STR(ecdhkey);
 }
 
-#if SODIUM_LIBRARY_VERSION_MAJOR > 7 || \
-    (SODIUM_LIBRARY_VERSION_MAJOR == 7 && SODIUM_LIBRARY_VERSION_MINOR >= 6)
 PHP_FUNCTION(sodium_compare)
 {
     char      *buf1;
@@ -2825,7 +2663,6 @@ PHP_FUNCTION(sodium_compare)
                                    (const unsigned char *) buf2, (size_t) len1));
     }
 }
-#endif
 
 #ifdef HAVE_AESGCM
 PHP_FUNCTION(sodium_crypto_aead_aes256gcm_keygen)
