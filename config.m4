@@ -18,8 +18,8 @@ if test "$PHP_SODIUM" != "no"; then
 
   dnl pkg-config output
   elif test -x "$PKG_CONFIG" && $PKG_CONFIG --exists libsodium; then
-    LIBSODIUM_CFLAGS=`$PKG_CONFIG libsodium --cflags`
-    LIBSODIUM_LIBS=`$PKG_CONFIG libsodium --libs`
+    LIBSODIUM_CFLAGS=`$PKG_CONFIG libsodium --cflags \>= 1.0.9`
+    LIBSODIUM_LIBS=`$PKG_CONFIG libsodium --libs \>= 1.0.9`
     LIBSODIUM_VERSION=`$PKG_CONFIG libsodium --modversion`
     AC_MSG_RESULT(version $LIBSODIUM_VERSION found using pkg-config)
     PHP_EVAL_LIBLINE($LIBSODIUM_LIBS, SODIUM_SHARED_LIBADD)
