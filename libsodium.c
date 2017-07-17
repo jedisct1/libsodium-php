@@ -168,8 +168,7 @@ ZEND_END_ARG_INFO()
 # define PHP_FE_END { NULL, NULL, NULL }
 #endif
 
-#if defined(HAVE_CRYPTO_AEAD_AES256GCM) && defined(crypto_aead_aes256gcm_KEYBYTES) && \
-    (defined(__amd64) || defined(__amd64__) || defined(__x86_64__) || defined(__i386__) || \
+#if (defined(__amd64) || defined(__amd64__) || defined(__x86_64__) || defined(__i386__) || \
      defined(_M_AMD64) || defined(_M_IX86))
 # define HAVE_AESGCM 1
 #endif

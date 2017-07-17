@@ -53,11 +53,6 @@ if test "$PHP_SODIUM" != "no"; then
     AC_MSG_ERROR([wrong libsodium lib version (< 1.0.9) or lib not found])
   ],[
   ])
-  PHP_CHECK_LIBRARY($LIBNAME,crypto_aead_aes256gcm_encrypt,
-  [
-    AC_DEFINE(HAVE_CRYPTO_AEAD_AES256GCM,1,[ ])
-  ],[],[
-  ])
 
   PHP_SUBST(SODIUM_SHARED_LIBADD)
 
