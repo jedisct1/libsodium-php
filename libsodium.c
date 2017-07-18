@@ -2740,7 +2740,7 @@ PHP_FUNCTION(sodium_crypto_generichash_keygen)
 
     if (zend_parse_parameters_none() == FAILURE) {
         return;
-    }    
+    }
     randombytes_buf(key, sizeof key);
     RETURN_STRINGL((const char *) key, sizeof key);
 }
@@ -2751,7 +2751,7 @@ PHP_FUNCTION(sodium_crypto_kdf_keygen)
 
     if (zend_parse_parameters_none() == FAILURE) {
         return;
-    }        
+    }
     randombytes_buf(key, sizeof key);
     RETURN_STRINGL((const char *) key, sizeof key);
 }
@@ -2762,7 +2762,7 @@ PHP_FUNCTION(sodium_crypto_secretbox_keygen)
 
     if (zend_parse_parameters_none() == FAILURE) {
         return;
-    }    
+    }
     randombytes_buf(key, sizeof key);
     RETURN_STRINGL((const char *) key, sizeof key);
 }
@@ -2773,7 +2773,7 @@ PHP_FUNCTION(sodium_crypto_shorthash_keygen)
 
     if (zend_parse_parameters_none() == FAILURE) {
         return;
-    }    
+    }
     randombytes_buf(key, sizeof key);
     RETURN_STRINGL((const char *) key, sizeof key);
 }
@@ -2784,7 +2784,7 @@ PHP_FUNCTION(sodium_crypto_stream_keygen)
 
     if (zend_parse_parameters_none() == FAILURE) {
         return;
-    }    
+    }
     randombytes_buf(key, sizeof key);
     RETURN_STRINGL((const char *) key, sizeof key);
 }
