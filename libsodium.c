@@ -812,6 +812,7 @@ PHP_FUNCTION(sodium_crypto_generichash_update)
     memcpy(&state_tmp, state, sizeof state_tmp);
     if (crypto_generichash_update((void *) &state_tmp, msg,
                                   (unsigned long long) msg_len) != 0) {
+        sodium_memzero(&state_tmp, sizeof state_tmp);
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
@@ -856,6 +857,7 @@ PHP_FUNCTION(sodium_crypto_generichash_final)
     if (crypto_generichash_final((void *) &state_tmp,
                                  (unsigned char *) ZSTR_VAL(hash),
                                  (size_t) hash_len) != 0) {
+        sodium_memzero(state, state_len);
         zend_string_free(hash);
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
@@ -2471,6 +2473,7 @@ PHP_FUNCTION(sodium_crypto_kx_client_session_keys)
     crypto_generichash_update(&h, client_pk, crypto_kx_PUBLICKEYBYTES);
     crypto_generichash_update(&h, server_pk, crypto_kx_PUBLICKEYBYTES);
     crypto_generichash_final(&h, session_keys, 2 * crypto_kx_SESSIONKEYBYTES);
+    sodium_memzero(&h, sizeof h);
     array_init(return_value);
     add_next_index_stringl(return_value,
                            (const char *) session_keys,
@@ -2519,6 +2522,7 @@ PHP_FUNCTION(sodium_crypto_kx_server_session_keys)
     crypto_generichash_update(&h, client_pk, crypto_kx_PUBLICKEYBYTES);
     crypto_generichash_update(&h, server_pk, crypto_kx_PUBLICKEYBYTES);
     crypto_generichash_final(&h, session_keys, 2 * crypto_kx_SESSIONKEYBYTES);
+    sodium_memzero(&h, sizeof h);
     array_init(return_value);
     add_next_index_stringl(return_value,
                            (const char *) session_keys + crypto_kx_SESSIONKEYBYTES,
