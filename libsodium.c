@@ -2696,6 +2696,48 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_keygen)
 }
 #endif
 
+PHP_FUNCTION(sodium_crypto_auth_keygen)
+{
+    unsigned char key[crypto_auth_KEYBYTES];
+    randombytes_buf(key, sizeof key);
+    RETURN_STRINGL((const char *) key, sizeof key);
+}
+
+PHP_FUNCTION(sodium_crypto_generichash_keygen)
+{
+    unsigned char key[crypto_generichash_KEYBYTES];
+    randombytes_buf(key, sizeof key);
+    RETURN_STRINGL((const char *) key, sizeof key);
+}
+
+PHP_FUNCTION(sodium_crypto_kdf_keygen)
+{
+    unsigned char key[crypto_kdf_KEYBYTES];
+    randombytes_buf(key, sizeof key);
+    RETURN_STRINGL((const char *) key, sizeof key);
+}
+
+PHP_FUNCTION(sodium_crypto_secretbox_keygen)
+{
+    unsigned char key[crypto_secretbox_KEYBYTES];
+    randombytes_buf(key, sizeof key);
+    RETURN_STRINGL((const char *) key, sizeof key);
+}
+
+PHP_FUNCTION(sodium_crypto_shorthash_keygen)
+{
+    unsigned char key[crypto_shorthash_KEYBYTES];
+    randombytes_buf(key, sizeof key);
+    RETURN_STRINGL((const char *) key, sizeof key);
+}
+
+PHP_FUNCTION(sodium_crypto_stream_keygen)
+{
+    unsigned char key[crypto_stream_KEYBYTES];
+    randombytes_buf(key, sizeof key);
+    RETURN_STRINGL((const char *) key, sizeof key);
+}
+
 PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
 {
     unsigned char  ctx_padded[crypto_generichash_blake2b_PERSONALBYTES];
@@ -2756,48 +2798,6 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
     ZSTR_VAL(subkey)[subkey_len] = 0;
 
     RETURN_STR(subkey);
-}
-
-PHP_FUNCTION(sodium_crypto_auth_keygen)
-{
-    unsigned char key[crypto_auth_KEYBYTES];
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
-}
-
-PHP_FUNCTION(sodium_crypto_generichash_keygen)
-{
-    unsigned char key[crypto_generichash_KEYBYTES];
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
-}
-
-PHP_FUNCTION(sodium_crypto_kdf_keygen)
-{
-    unsigned char key[crypto_kdf_KEYBYTES];
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
-}
-
-PHP_FUNCTION(sodium_crypto_secretbox_keygen)
-{
-    unsigned char key[crypto_secretbox_KEYBYTES];
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
-}
-
-PHP_FUNCTION(sodium_crypto_shorthash_keygen)
-{
-    unsigned char key[crypto_shorthash_KEYBYTES];
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
-}
-
-PHP_FUNCTION(sodium_crypto_stream_keygen)
-{
-    unsigned char key[crypto_stream_KEYBYTES];
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
 }
 
 /*
