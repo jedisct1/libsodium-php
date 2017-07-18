@@ -43,13 +43,6 @@ ZEND_BEGIN_ARG_INFO_EX(AI_StringRef_And_String, 0, 0, 2)
     ZEND_ARG_INFO(0, string_2)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(AI_FourStrings, 0, 0, 3)
-    ZEND_ARG_INFO(0, string_1)
-    ZEND_ARG_INFO(0, string_2)
-    ZEND_ARG_INFO(0, string_3)
-    ZEND_ARG_INFO(0, string_4)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(AI_StringAndKey, 0, 0, 2)
     ZEND_ARG_INFO(0, string)
     ZEND_ARG_INFO(0, key)
@@ -124,10 +117,6 @@ ZEND_BEGIN_ARG_INFO_EX(AI_StringAndADAndNonceAndKey, 0, 0, 4)
     ZEND_ARG_INFO(0, ad)
     ZEND_ARG_INFO(0, nonce)
     ZEND_ARG_INFO(0, key)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(AI_StateByReference, 0, 0, 1)
-    ZEND_ARG_INFO(1, state)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(AI_StateByReferenceAndMaybeLength, 0, 0, 1)
@@ -2849,72 +2838,6 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
     ZSTR_VAL(subkey)[subkey_len] = 0;
 
     RETURN_STR(subkey);
-}
-
-PHP_FUNCTION(sodium_crypto_auth_keygen)
-{
-    unsigned char key[crypto_auth_KEYBYTES];
-
-    if (zend_parse_parameters_none() == FAILURE) {
-        return;
-    }
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
-}
-
-PHP_FUNCTION(sodium_crypto_generichash_keygen)
-{
-    unsigned char key[crypto_generichash_KEYBYTES];
-
-    if (zend_parse_parameters_none() == FAILURE) {
-        return;
-    }
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
-}
-
-PHP_FUNCTION(sodium_crypto_kdf_keygen)
-{
-    unsigned char key[crypto_kdf_KEYBYTES];
-
-    if (zend_parse_parameters_none() == FAILURE) {
-        return;
-    }
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
-}
-
-PHP_FUNCTION(sodium_crypto_secretbox_keygen)
-{
-    unsigned char key[crypto_secretbox_KEYBYTES];
-
-    if (zend_parse_parameters_none() == FAILURE) {
-        return;
-    }
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
-}
-
-PHP_FUNCTION(sodium_crypto_shorthash_keygen)
-{
-    unsigned char key[crypto_shorthash_KEYBYTES];
-
-    if (zend_parse_parameters_none() == FAILURE) {
-        return;
-    }
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
-}
-
-PHP_FUNCTION(sodium_crypto_stream_keygen)
-{
-    unsigned char key[crypto_stream_KEYBYTES];
-
-    if (zend_parse_parameters_none() == FAILURE) {
-        return;
-    }
-    randombytes_buf(key, sizeof key);
-    RETURN_STRINGL((const char *) key, sizeof key);
 }
 
 /*
