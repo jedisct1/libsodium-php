@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2017-07-16</date>
-  <time>14:19:45</time>
+  <date>2017-07-18</date>
+  <time>15:07:15</time>
   <version>
-    <release>2.0.2</release>
-    <api>2.0.2</api>
+    <release>2.0.3</release>
+    <api>2.0.3</api>
   </version>
   <stability>
     <release>stable</release>
@@ -22,9 +22,7 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-Version 2.0.0 couldn't be compiled on old libsodium versions.
-
-This has been fixed.
+Requires at least php 7.0 and libsodium 1.0.9.
   </notes>
   <contents>
     <dir name="/">
