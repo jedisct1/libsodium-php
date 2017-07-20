@@ -857,11 +857,12 @@ PHP_FUNCTION(sodium_crypto_generichash_final)
     if (crypto_generichash_final((void *) &state_tmp,
                                  (unsigned char *) ZSTR_VAL(hash),
                                  (size_t) hash_len) != 0) {
-        sodium_memzero(state, state_len);
+        sodium_memzero(&state_tmp, sizeof state_tmp);
         zend_string_free(hash);
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
+    sodium_memzero(&state_tmp, sizeof state_tmp);
     sodium_memzero(state, state_len);
     convert_to_null(state_zv);
     ZSTR_VAL(hash)[hash_len] = 0;
