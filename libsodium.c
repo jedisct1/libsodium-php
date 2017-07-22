@@ -162,6 +162,10 @@ ZEND_END_ARG_INFO()
 # define HAVE_AESGCM 1
 #endif
 
+#ifndef crypto_aead_chacha20poly1305_ietf_KEYBYTES
+# define crypto_aead_chacha20poly1305_ietf_KEYBYTES crypto_aead_chacha20poly1305_KEYBYTES
+#endif
+
 const zend_function_entry sodium_functions[] = {
     PHP_FE(sodium_crypto_aead_aes256gcm_is_available, AI_None)
 #ifdef HAVE_AESGCM
@@ -201,9 +205,11 @@ const zend_function_entry sodium_functions[] = {
     PHP_FE(sodium_crypto_generichash_update, AI_StateByReferenceAndString)
     PHP_FE(sodium_crypto_generichash_final, AI_StateByReferenceAndMaybeLength)
     PHP_FE(sodium_crypto_kdf_derive_from_key, AI_KDF)
+#ifdef crypto_pwhash_SALTBYTES
     PHP_FE(sodium_crypto_pwhash, AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
     PHP_FE(sodium_crypto_pwhash_str, AI_PasswordAndOpsLimitAndMemLimit)
     PHP_FE(sodium_crypto_pwhash_str_verify, AI_HashAndPassword)
+#endif
     PHP_FE(sodium_crypto_scalarmult, AI_TwoStrings)
     PHP_FE(sodium_crypto_secretbox, AI_StringAndNonceAndKey)
     PHP_FE(sodium_crypto_secretbox_open, AI_StringAndNonceAndKey)
@@ -418,6 +424,7 @@ PHP_MINIT_FUNCTION(sodium)
                            crypto_generichash_KEYBYTES_MIN, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_KEYBYTES_MAX",
                            crypto_generichash_KEYBYTES_MAX, CONST_CS | CONST_PERSISTENT);
+#ifdef CRYPTO_PWHASH_SALTBYTES
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_SALTBYTES",
                            crypto_pwhash_SALTBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_STRING_CONSTANT("SODIUM_CRYPTO_PWHASH_STRPREFIX",
@@ -434,6 +441,7 @@ PHP_MINIT_FUNCTION(sodium)
                            crypto_pwhash_opslimit_sensitive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE",
                            crypto_pwhash_memlimit_sensitive(), CONST_CS | CONST_PERSISTENT);
+#endif
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SCALARMULT_BYTES",
                            crypto_scalarmult_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SCALARMULT_SCALARBYTES",
@@ -1614,6 +1622,7 @@ PHP_FUNCTION(sodium_crypto_stream_xor)
     RETURN_STR(ciphertext);
 }
 
+#ifdef crypto_pwhash_SALTBYTES
 PHP_FUNCTION(sodium_crypto_pwhash)
 {
     zend_string   *hash;
@@ -1733,6 +1742,7 @@ PHP_FUNCTION(sodium_crypto_pwhash_str_verify)
     }
     RETURN_FALSE;
 }
+#endif
 
 PHP_FUNCTION(sodium_crypto_aead_aes256gcm_is_available)
 {
