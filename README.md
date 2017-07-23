@@ -27,7 +27,7 @@ with a couple breaking changes:
 - No more `\Sodium\` namespace. Everything must be in the global
 namespace.
 - The extension should be renamed `sodium`. So, the module becomes
-`sodium.so` or `sodium.dll.
+`sodium.so` or `sodium.dll`.
 
 The standalone extension (this repository; also the extension
 available on PECL) was updated to match these expectations, so that
