@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#define ZSTR_TRUNCATE(zs, len) do { ZSTR_LEN(zs) = (len); } while(0)
+#define PHP_SODIUM_ZSTR_TRUNCATE(zs, len) do { ZSTR_LEN(zs) = (len); } while(0)
 
 static zend_class_entry *sodium_exception_ce;
 
@@ -1420,7 +1420,7 @@ PHP_FUNCTION(sodium_crypto_sign)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    ZSTR_TRUNCATE(msg_signed, (size_t) msg_signed_real_len);
+    PHP_SODIUM_ZSTR_TRUNCATE(msg_signed, (size_t) msg_signed_real_len);
     ZSTR_VAL(msg_signed)[msg_signed_real_len] = 0;
 
     RETURN_STR(msg_signed);
@@ -1464,7 +1464,7 @@ PHP_FUNCTION(sodium_crypto_sign_open)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
+    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
     ZSTR_VAL(msg)[msg_real_len] = 0;
 
     RETURN_STR(msg);
@@ -1698,8 +1698,7 @@ PHP_FUNCTION(sodium_crypto_pwhash_str)
         opslimit <= 0 || memlimit <= 0 || memlimit > SIZE_MAX ||
         passwd_len >= 0xffffffff) {
         zend_throw_exception(sodium_exception_ce,
-                   "invalid parameters",
-                   0);
+                   "invalid parameters", 0);
         return;
     }
     if (passwd_len <= 0) {
@@ -1724,7 +1723,7 @@ PHP_FUNCTION(sodium_crypto_pwhash_str)
     ZSTR_VAL(hash_str)[crypto_pwhash_STRBYTES - 1] = 0;
 
     len = strlen(ZSTR_VAL(hash_str));
-    ZSTR_TRUNCATE(hash_str, len);
+    PHP_SODIUM_ZSTR_TRUNCATE(hash_str, len);
 
     RETURN_STR(hash_str);
 }
@@ -1831,7 +1830,7 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
+    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
     ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     RETURN_STR(ciphertext);
@@ -1897,7 +1896,7 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
+    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
     ZSTR_VAL(msg)[msg_real_len] = 0;
 
     RETURN_STR(msg);
@@ -1959,7 +1958,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
+    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
     ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     RETURN_STR(ciphertext);
@@ -2021,7 +2020,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
+    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
     ZSTR_VAL(msg)[msg_real_len] = 0;
 
     RETURN_STR(msg);
@@ -2086,7 +2085,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
+    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
     ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     RETURN_STR(ciphertext);
@@ -2153,7 +2152,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
+    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
     ZSTR_VAL(msg)[msg_real_len] = 0;
 
     RETURN_STR(msg);
@@ -2215,7 +2214,7 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
+    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
     ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     RETURN_STR(ciphertext);
@@ -2282,7 +2281,7 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
+    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
     ZSTR_VAL(msg)[msg_real_len] = 0;
 
     RETURN_STR(msg);
@@ -2336,7 +2335,7 @@ PHP_FUNCTION(sodium_hex2bin)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    ZSTR_TRUNCATE(bin, (size_t) bin_real_len);
+    PHP_SODIUM_ZSTR_TRUNCATE(bin, (size_t) bin_real_len);
     ZSTR_VAL(bin)[bin_real_len] = 0;
 
     RETURN_STR(bin);
