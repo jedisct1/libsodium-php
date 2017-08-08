@@ -587,9 +587,9 @@ PHP_FUNCTION(sodium_memcmp)
     }
     if (len1 != len2) {
         zend_throw_exception(sodium_exception_ce, "arguments have different sizes", 0);
-    } else {
-        RETURN_LONG(sodium_memcmp(buf1, buf2, len1));
+        return;
     }
+    RETURN_LONG(sodium_memcmp(buf1, buf2, len1));
 }
 
 PHP_FUNCTION(sodium_crypto_shorthash)
@@ -1661,10 +1661,10 @@ PHP_FUNCTION(sodium_crypto_pwhash)
     }
     if (opslimit < crypto_pwhash_OPSLIMIT_INTERACTIVE) {
         zend_error(E_WARNING,
-                   "number of operations for the argon2i function is low");
+                   "number of operations for the password hashing function is low");
     }
     if (memlimit < crypto_pwhash_MEMLIMIT_INTERACTIVE) {
-        zend_error(E_WARNING, "maximum memory for the argon2i function is low");
+        zend_error(E_WARNING, "maximum memory for the password hashing function is low");
     }
     hash = zend_string_alloc((size_t) hash_len, 0);
     if (crypto_pwhash
@@ -1704,11 +1704,11 @@ PHP_FUNCTION(sodium_crypto_pwhash_str)
     }
     if (opslimit < crypto_pwhash_OPSLIMIT_INTERACTIVE) {
         zend_error(E_WARNING,
-                   "number of operations for the argon2i function is low");
+                   "number of operations for the password hashing function is low");
     }
     if (memlimit < crypto_pwhash_MEMLIMIT_INTERACTIVE) {
         zend_error(E_WARNING,
-                   "maximum memory for the argon2i function is low");
+                   "maximum memory for the password hashing function is low");
     }
     hash_str = zend_string_alloc(crypto_pwhash_STRBYTES - 1, 0);
     if (crypto_pwhash_str
@@ -2824,8 +2824,8 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
     char          *ctx;
     char          *key;
     zend_string   *subkey;
-    long           subkey_id;
-    long           subkey_len;
+    zend_long      subkey_id;
+    zend_long      subkey_len;
     size_t         ctx_len;
     size_t         key_len;
 
@@ -2838,18 +2838,23 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
     }
     if (subkey_len < crypto_kdf_BYTES_MIN) {
         zend_throw_exception(sodium_exception_ce, "subkey cannot be smaller than sodium_crypto_kdf_BYTES_MIN", 0);
+        return;
     }
-    if (subkey_len > crypto_kdf_BYTES_MAX) {
+    if (subkey_len > crypto_kdf_BYTES_MAX || subkey_len > SIZE_MAX) {
         zend_throw_exception(sodium_exception_ce, "subkey cannot be larger than sodium_crypto_kdf_BYTES_MAX", 0);
+        return;
     }
     if (subkey_id < 0) {
         zend_throw_exception(sodium_exception_ce, "subkey_id cannot be negative", 0);
+        return;
     }
     if (ctx_len != crypto_kdf_CONTEXTBYTES) {
         zend_throw_exception(sodium_exception_ce, "context should be sodium_crypto_kdf_CONTEXTBYTES bytes", 0);
+        return;
     }
     if (key_len != crypto_kdf_KEYBYTES) {
         zend_throw_exception(sodium_exception_ce, "key should be sodium_crypto_kdf_KEYBYTES bytes", 0);
+        return;
     }
     memcpy(ctx_padded, ctx, crypto_kdf_CONTEXTBYTES);
     memset(ctx_padded + crypto_kdf_CONTEXTBYTES, 0, sizeof ctx_padded - crypto_kdf_CONTEXTBYTES);
@@ -2862,7 +2867,7 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
     salt[6] = (unsigned char) (((uint64_t) subkey_id) >> 48);
     salt[7] = (unsigned char) (((uint64_t) subkey_id) >> 56);
     memset(salt + 8, 0, (sizeof salt) - 8);
-    subkey = zend_string_alloc(subkey_len, 0);
+    subkey = zend_string_alloc((size_t) subkey_len, 0);
     if (crypto_generichash_blake2b_salt_personal((unsigned char *) ZSTR_VAL(subkey),
                                                  (size_t) subkey_len,
                                                  NULL, 0,
@@ -2870,6 +2875,7 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
                                                  crypto_kdf_KEYBYTES,
                                                  salt, ctx_padded) != 0) {
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
+        return;
     }
     ZSTR_VAL(subkey)[subkey_len] = 0;
 
