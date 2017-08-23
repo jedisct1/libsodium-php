@@ -2823,7 +2823,9 @@ PHP_FUNCTION(sodium_crypto_stream_keygen)
 PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
 {
     unsigned char  ctx_padded[crypto_generichash_blake2b_PERSONALBYTES];
+#ifndef crypto_kdf_PRIMITIVE
     unsigned char  salt[crypto_generichash_blake2b_SALTBYTES];
+#endif
     char          *ctx;
     char          *key;
     zend_string   *subkey;
@@ -2861,6 +2863,12 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
     }
     memcpy(ctx_padded, ctx, crypto_kdf_CONTEXTBYTES);
     memset(ctx_padded + crypto_kdf_CONTEXTBYTES, 0, sizeof ctx_padded - crypto_kdf_CONTEXTBYTES);
+    subkey = zend_string_alloc((size_t) subkey_len, 0);
+#ifdef crypto_kdf_PRIMITIVE
+    crypto_kdf_derive_from_key((unsigned char *) ZSTR_VAL(subkey),
+                               (size_t) subkey_len, (uint64_t) subkey_id,
+                               ctx, (const unsigned char *) key);
+#else
     salt[0] = (unsigned char) (((uint64_t) subkey_id)      );
     salt[1] = (unsigned char) (((uint64_t) subkey_id) >>  8);
     salt[2] = (unsigned char) (((uint64_t) subkey_id) >> 16);
@@ -2870,16 +2878,13 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
     salt[6] = (unsigned char) (((uint64_t) subkey_id) >> 48);
     salt[7] = (unsigned char) (((uint64_t) subkey_id) >> 56);
     memset(salt + 8, 0, (sizeof salt) - 8);
-    subkey = zend_string_alloc((size_t) subkey_len, 0);
-    if (crypto_generichash_blake2b_salt_personal((unsigned char *) ZSTR_VAL(subkey),
-                                                 (size_t) subkey_len,
-                                                 NULL, 0,
-                                                 (const unsigned char *) key,
-                                                 crypto_kdf_KEYBYTES,
-                                                 salt, ctx_padded) != 0) {
-        zend_throw_exception(sodium_exception_ce, "internal error", 0);
-        return;
-    }
+    crypto_generichash_blake2b_salt_personal((unsigned char *) ZSTR_VAL(subkey),
+                                             (size_t) subkey_len,
+                                             NULL, 0,
+                                             (const unsigned char *) key,
+                                             crypto_kdf_KEYBYTES,
+                                             salt, ctx_padded);
+#endif
     ZSTR_VAL(subkey)[subkey_len] = 0;
 
     RETURN_STR(subkey);
