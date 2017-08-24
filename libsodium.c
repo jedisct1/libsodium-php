@@ -2842,11 +2842,11 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
         return;
     }
     if (subkey_len < crypto_kdf_BYTES_MIN) {
-        zend_throw_exception(sodium_exception_ce, "subkey cannot be smaller than sodium_crypto_kdf_BYTES_MIN", 0);
+        zend_throw_exception(sodium_exception_ce, "subkey cannot be smaller than SODIUM_CRYPTO_KDF_BYTES_MIN", 0);
         return;
     }
     if (subkey_len > crypto_kdf_BYTES_MAX || subkey_len > SIZE_MAX) {
-        zend_throw_exception(sodium_exception_ce, "subkey cannot be larger than sodium_crypto_kdf_BYTES_MAX", 0);
+        zend_throw_exception(sodium_exception_ce, "subkey cannot be larger than SODIUM_CRYPTO_KDF_BYTES_MAX", 0);
         return;
     }
     if (subkey_id < 0) {
@@ -2854,11 +2854,11 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
         return;
     }
     if (ctx_len != crypto_kdf_CONTEXTBYTES) {
-        zend_throw_exception(sodium_exception_ce, "context should be sodium_crypto_kdf_CONTEXTBYTES bytes", 0);
+        zend_throw_exception(sodium_exception_ce, "context should be SODIUM_CRYPTO_KDF_CONTEXTBYTES bytes", 0);
         return;
     }
     if (key_len != crypto_kdf_KEYBYTES) {
-        zend_throw_exception(sodium_exception_ce, "key should be sodium_crypto_kdf_KEYBYTES bytes", 0);
+        zend_throw_exception(sodium_exception_ce, "key should be SODIUM_CRYPTO_KDF_KEYBYTES bytes", 0);
         return;
     }
     memcpy(ctx_padded, ctx, crypto_kdf_CONTEXTBYTES);
