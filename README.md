@@ -16,7 +16,7 @@ libsodium-php 1.x vs libsodium-php 2.x
 ======================================
 
 This extension was originally named `libsodium`. The module was named
-`libsodium.so` or `libsodium.dll`).
+`libsodium.so` or `libsodium.dll`.
 
 All the related functions and constants were contained within the
 `\Sodium\` namespace.
