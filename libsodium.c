@@ -2440,7 +2440,7 @@ PHP_FUNCTION(sodium_base642bin)
     bin = zend_string_alloc(bin_len, 0);
     if (sodium_base642bin((unsigned char *) ZSTR_VAL(bin), bin_len,
                           b64, b64_len,
-                          ignore, &bin_real_len, NULL, variant) != 0 ||
+                          ignore, &bin_real_len, NULL, (int) variant) != 0 ||
         bin_real_len >= SIZE_MAX || bin_real_len > bin_len) {
         zend_string_free(bin);
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
