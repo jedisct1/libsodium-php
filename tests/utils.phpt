@@ -53,6 +53,22 @@ var_dump(bin2hex($str_padded));
 
 $str_unpadded = sodium_unpad($str_padded, 16);
 var_dump($str_unpadded == $str);
+
+if (defined('SODIUM_BASE64_VARIANT_ORIGINAL')) {
+    for ($i = 0; $i < 100; $i++) {
+        $bin = $i == 0 ? '' : random_bytes($i);
+        $b64 = base64_encode($bin);
+        if (sodium_bin2base64($bin, SODIUM_BASE64_VARIANT_ORIGINAL) !== $b64) {
+            echo "base64([$bin]) != [$b64]\n";
+        }
+        if (sodium_base642bin($b64, SODIUM_BASE64_VARIANT_ORIGINAL) !== $bin) {
+            echo "bin([$b64]) != [$bin]\n";
+        }
+        if (sodium_base642bin(" $b64\n", SODIUM_BASE64_VARIANT_ORIGINAL, " \n") !== $bin) {
+            echo "bin([ $b64\\n]) != [$bin]\n";
+        }
+    }
+}
 ?>
 --EXPECT--
 0
