@@ -37,3 +37,11 @@ libsodium-php 2.x is thus not compatible with libsodium-php 1.x.
 
 The 1.x branch will not receive any public updates any more.
 
+libsodium-php 1.x compatibility API for libsodium-php 2.x
+==========================================================
+
+Fortunately, for projects using the 1.x API, or willing to use it, a
+compatibility layer is available.
+
+[Polyfill Libsodium](https://github.com/mollie/polyfill-libsodium)
+brings the `\Sodium\` namespace back.
