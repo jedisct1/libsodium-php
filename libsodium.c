@@ -2357,6 +2357,7 @@ PHP_FUNCTION(sodium_bin2hex)
 PHP_FUNCTION(sodium_hex2bin)
 {
     zend_string   *bin;
+    const char    *end;
     char          *hex;
     char          *ignore = NULL;
     size_t         bin_real_len;
@@ -2372,8 +2373,13 @@ PHP_FUNCTION(sodium_hex2bin)
     bin_len = hex_len / 2;
     bin = zend_string_alloc(bin_len, 0);
     if (sodium_hex2bin((unsigned char *) ZSTR_VAL(bin), bin_len, hex, hex_len,
-                       ignore, &bin_real_len, NULL) != 0 ||
-        bin_real_len >= SIZE_MAX || bin_real_len > bin_len) {
+                       ignore, &bin_real_len, &end) != 0 ||
+        end != hex + hex_len) {
+        zend_string_free(bin);
+        zend_throw_exception(sodium_exception_ce, "invalid hex string", 0);
+        return;
+    }
+    if (bin_real_len >= SIZE_MAX || bin_real_len > bin_len) {
         zend_string_free(bin);
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
@@ -2417,6 +2423,7 @@ PHP_FUNCTION(sodium_base642bin)
 {
     zend_string   *bin;
     char          *b64;
+    const char    *end;
     char          *ignore = NULL;
     zend_long      variant;
     size_t         bin_real_len;
@@ -2438,8 +2445,13 @@ PHP_FUNCTION(sodium_base642bin)
     bin = zend_string_alloc(bin_len, 0);
     if (sodium_base642bin((unsigned char *) ZSTR_VAL(bin), bin_len,
                           b64, b64_len,
-                          ignore, &bin_real_len, NULL, (int) variant) != 0 ||
-        bin_real_len >= SIZE_MAX || bin_real_len > bin_len) {
+                          ignore, &bin_real_len, &end, (int) variant) != 0 ||
+        end != b64 + b64_len) {
+        zend_string_free(bin);
+        zend_throw_exception(sodium_exception_ce, "invalid base64 string", 0);
+        return;
+    }
+    if (bin_real_len >= SIZE_MAX || bin_real_len > bin_len) {
         zend_string_free(bin);
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
