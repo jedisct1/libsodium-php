@@ -2402,15 +2402,13 @@ PHP_FUNCTION(sodium_bin2base64)
                              "invalid base64 variant identifier", 0);
         return;
     }
-    if (bin_len >= SIZE_MAX / 4U * 3U) {
+    if (bin_len >= SIZE_MAX / 4U * 3U - 3U - 1U) {
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-    b64_len = bin_len * 4U / 3U;
-    b64 = zend_string_alloc((size_t) b64_len, 0);
-    sodium_bin2base64(ZSTR_VAL(b64), b64_len + 1U,
-                      bin, bin_len, (int) variant);
-    ZSTR_VAL(b64)[b64_len] = 0;
+    b64_len = sodium_base64_ENCODED_LEN(bin_len, variant);
+    b64 = zend_string_alloc((size_t) b64_len - 1U, 0);
+    sodium_bin2base64(ZSTR_VAL(b64), b64_len, bin, bin_len, (int) variant);
 
     RETURN_STR(b64);
 }

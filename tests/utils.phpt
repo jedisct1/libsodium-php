@@ -58,14 +58,17 @@ if (defined('SODIUM_BASE64_VARIANT_ORIGINAL')) {
     for ($i = 0; $i < 100; $i++) {
         $bin = $i == 0 ? '' : random_bytes($i);
         $b64 = base64_encode($bin);
-        if (sodium_bin2base64($bin, SODIUM_BASE64_VARIANT_ORIGINAL) !== $b64) {
-            echo "base64([$bin]) != [$b64]\n";
+        $b64_ = sodium_bin2base64($bin, SODIUM_BASE64_VARIANT_ORIGINAL);
+        if ($b64 !== $b64_) {
+            echo "frombin[$b64] != frombin_[$b64_]\n";
         }
-        if (sodium_base642bin($b64, SODIUM_BASE64_VARIANT_ORIGINAL) !== $bin) {
-            echo "bin([$b64]) != [$bin]\n";
+        $bin_ = sodium_base642bin($b64, SODIUM_BASE64_VARIANT_ORIGINAL);
+        if ($bin !== $bin_) {
+            echo "frombase64([$b64]) != frombase64_[$b64]\n";
         }
-        if (sodium_base642bin(" $b64\n", SODIUM_BASE64_VARIANT_ORIGINAL, " \n") !== $bin) {
-            echo "bin([ $b64\\n]) != [$bin]\n";
+        $bin_ = sodium_base642bin(" $b64\n", SODIUM_BASE64_VARIANT_ORIGINAL, " \n");
+        if ($bin !== $bin_) {
+            echo "frombase64([$b64]) != frombase64([ $b64\\n])\n";
         }
     }
 }
