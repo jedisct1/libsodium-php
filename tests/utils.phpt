@@ -68,10 +68,26 @@ if (defined('SODIUM_BASE64_VARIANT_ORIGINAL')) {
         }
         $bin_ = sodium_base642bin(" $b64\n", SODIUM_BASE64_VARIANT_ORIGINAL, " \n");
         if ($bin !== $bin_) {
-            echo "frombase64([$b64]) != frombase64([ $b64\\n])\n";
+            echo "frombase64([$b64]) != frombase64_([ $b64\\n])\n";
         }
     }
+    try {
+        var_dump(sodium_base642bin('O1R', SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING));
+    } catch (Exception $e) {
+        var_dump('base64("O1R") case passed');
+    }
+    try {
+        var_dump(sodium_base642bin('O1', SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING));
+    } catch (Exception $e) {
+        var_dump('base64("O1") case passed');
+    }
+    try {
+        var_dump(sodium_base642bin('O', SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING));
+    } catch (Exception $e) {
+        var_dump('base64("O") case passed');
+    }
 }
+
 ?>
 --EXPECT--
 0
@@ -88,4 +104,6 @@ object(stdClass)#1 (1) {
 }
 string(32) "78797a80000000000000000000000000"
 bool(true)
-
+string(25) "base64("O1R") case passed"
+string(24) "base64("O1") case passed"
+string(23) "base64("O") case passed"
