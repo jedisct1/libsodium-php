@@ -3393,7 +3393,7 @@ PHP_FUNCTION(sodium_crypto_secretstream_xchacha20poly1305_pull)
         zend_string_free(msg);
         RETURN_FALSE;
     }
-    if (msg_real_len <= 0U || msg_real_len >= SIZE_MAX || msg_real_len > msg_len) {
+    if (msg_real_len < 0U || msg_real_len >= SIZE_MAX || msg_real_len > msg_len) {
         zend_string_free(msg);
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
