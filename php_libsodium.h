@@ -71,6 +71,7 @@ PHP_FUNCTION(sodium_crypto_kx_seed_keypair);
 PHP_FUNCTION(sodium_crypto_kx_server_session_keys);
 PHP_FUNCTION(sodium_crypto_pwhash);
 PHP_FUNCTION(sodium_crypto_pwhash_str);
+PHP_FUNCTION(sodium_crypto_pwhash_str_needs_rehash);
 PHP_FUNCTION(sodium_crypto_pwhash_str_verify);
 PHP_FUNCTION(sodium_crypto_scalarmult);
 PHP_FUNCTION(sodium_crypto_scalarmult_base);

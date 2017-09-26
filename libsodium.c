@@ -258,6 +258,9 @@ const zend_function_entry sodium_functions[] = {
     PHP_FE(sodium_crypto_pwhash_str, AI_PasswordAndOpsLimitAndMemLimit)
     PHP_FE(sodium_crypto_pwhash_str_verify, AI_HashAndPassword)
 #endif
+#if SODIUM_LIBRARY_VERSION_MAJOR > 9 || (SODIUM_LIBRARY_VERSION_MAJOR == 9 && SODIUM_LIBRARY_VERSION_MINOR >= 6)
+    PHP_FE(sodium_crypto_pwhash_str_needs_rehash, AI_PasswordAndOpsLimitAndMemLimit)
+#endif
     PHP_FE(sodium_crypto_scalarmult, AI_TwoStrings)
     PHP_FE(sodium_crypto_secretbox, AI_StringAndNonceAndKey)
     PHP_FE(sodium_crypto_secretbox_open, AI_StringAndNonceAndKey)
@@ -1823,6 +1826,25 @@ PHP_FUNCTION(sodium_crypto_pwhash_str)
 
     RETURN_STR(hash_str);
 }
+
+#if SODIUM_LIBRARY_VERSION_MAJOR > 9 || (SODIUM_LIBRARY_VERSION_MAJOR == 9 && SODIUM_LIBRARY_VERSION_MINOR >= 6)
+PHP_FUNCTION(sodium_crypto_pwhash_str_needs_rehash)
+{
+    char      *hash_str;
+    zend_long  memlimit;
+    zend_long  opslimit;
+    size_t     hash_str_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "sll",
+                              &hash_str, &hash_str_len) == FAILURE) {
+        return;
+    }
+    if (crypto_pwhash_str_needs_rehash(hash_str, opslimit, memlimit) == 0) {
+        RETURN_FALSE;
+    }
+    RETURN_TRUE;
+}
+#endif
 
 PHP_FUNCTION(sodium_crypto_pwhash_str_verify)
 {
