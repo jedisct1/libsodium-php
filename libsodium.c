@@ -3230,6 +3230,7 @@ PHP_FUNCTION(sodium_unpad)
     RETURN_STR(unpadded);
 }
 
+#ifdef crypto_secretstream_xchacha20poly1305_ABYTES
 PHP_FUNCTION(sodium_crypto_secretstream_xchacha20poly1305_keygen)
 {
     unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
@@ -3439,6 +3440,7 @@ PHP_FUNCTION(sodium_crypto_secretstream_xchacha20poly1305_rekey)
     }
     crypto_secretstream_xchacha20poly1305_rekey((void *) state);
 }
+#endif
 
 /*
  * Local variables:
