@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2017-07-18</date>
-  <time>15:28:15</time>
+  <date>2017-09-26</date>
+  <time>17:48:11</time>
   <version>
-    <release>2.0.4</release>
-    <api>2.0.4</api>
+    <release>2.0.6</release>
+    <api>2.0.6</api>
   </version>
   <stability>
     <release>stable</release>
@@ -48,6 +48,7 @@ Requires at least php 7.0 and libsodium 1.0.9.
         <file role="test" name="crypto_kx.phpt"/>
         <file role="test" name="crypto_scalarmult.phpt"/>
         <file role="test" name="crypto_secretbox.phpt"/>
+        <file role="test" name="crypto_secretstream.phpt"/>
         <file role="test" name="crypto_shorthash.phpt"/>
         <file role="test" name="crypto_sign.phpt"/>
         <file role="test" name="crypto_stream.phpt"/>
