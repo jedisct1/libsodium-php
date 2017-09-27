@@ -87,6 +87,42 @@ Encrypted messages are slightly larger than unencrypted messages,
 because they include an authenticator, used by the decryption function
 to check that the content was not altered.
 
+## Encrypt a single message using a secret key, and hide its length
+
+Encryption:
+
+```php
+$secret_key = sodium_crypto_secretbox_keygen();
+$message = 'Sensitive information';
+$block_size = 16;
+
+$nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+$padded_message = sodium_pad($padded_message, $block_size);
+$encrypted_message = sodium_crypto_secretbox($padded_message,
+                                             $nonce, $secret_key);
+```
+
+Decryption:
+
+```php
+$decrypted_padded_message = sodium_crypto_secretbox_open($encrypted_message,
+                                                         $nonce, $secret_key);
+$decrypted_message = sodium_unpad($decrypted_padded_message, $block_size);
+```
+
+How it works:
+
+Sometimes, the length of a message may provide a lot of information
+about its nature. If a message is one of "yes", "no" and "maybe",
+encrypting the message doesn't help: knowing the length is enough to
+know what the message is.
+
+Padding is a technique to mitigate this, by making the length a
+multiple of a given block size.
+
+Messages must be padded prior to encryption, and unpadded after
+decryption.
+
 ## Encrypt a file using a secret key
 
 ```php
@@ -147,7 +183,7 @@ if (!$ok) {
 
 How it works:
 
-There's a little bit more code than in the previous example.
+There's a little bit more code than in the previous examples.
 
 In fact, `crypto_secretbox()` would work to encrypt as file, but only
 if that file is pretty small. Since we have to provide the entire
