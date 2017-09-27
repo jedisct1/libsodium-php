@@ -256,3 +256,24 @@ if (!$ok) {
     die('Invalid/corrupted input');
 }
 ```
+
+How it works:
+
+A password cannot be directly used as a secret key. Passwords are
+short, must be typable on a keyboard, and people who don't use a
+password manager should be able to remember them.
+
+A 8 characters password is thus way weaker than a 8 bytes key.
+
+The `sodium_crypto_pwhash()` function perform a computationally
+intensive operation on a password in order to derive a secret key.
+
+By doing do, brute-forcing all possible passwords in order to find the
+secret key used to encrypt the data becomes an expensive operation.
+
+Multiple algorithms can be used to derive a key from a password, and
+for each of them, different parameters can be chosen. It is important
+to store all of these along with encrypted data. Using the same
+algorithm and the same parameters, the same secret key can be
+deterministically recomputed.
+
