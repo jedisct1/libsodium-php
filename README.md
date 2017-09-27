@@ -115,7 +115,11 @@ $tag = SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_MESSAGE;
 while (stream_get_meta_data($fd_in)['unread_bytes'] > 0 &&
        $tag !== SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL) {
     $chunk = fread($fd_in, $chunk_size + SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_ABYTES);
-    list($decrypted_chunk, $tag) = sodium_crypto_secretstream_xchacha20poly1305_pull($stream, $chunk);
+    $res = sodium_crypto_secretstream_xchacha20poly1305_pull($stream, $chunk);
+    if ($ret === FALSE) {
+       break;
+    }
+    list($decrypted_chunk, $tag) = $res;
     fwrite($fd_out, $decrypted_chunk);
 }
 $ok = stream_get_meta_data($fd_in)['unread_bytes'] <= 0;
