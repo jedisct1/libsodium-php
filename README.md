@@ -58,15 +58,13 @@ $secret_key = sodium_crypto_secretbox_keygen();
 $message = 'Sensitive information';
 
 $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-$encrypted_message = sodium_crypto_secretbox($message,
-                                             $nonce, $secret_key);
+$encrypted_message = sodium_crypto_secretbox($message, $nonce, $secret_key);
 ```
 
 Decryption:
 
 ```php
-$decrypted_message = sodium_crypto_secretbox_open($encrypted_message,
-                                                  $nonce, $secret_key);
+$decrypted_message = sodium_crypto_secretbox_open($encrypted_message, $nonce, $secret_key);
 ```
 
 How it works:
@@ -98,15 +96,13 @@ $block_size = 16;
 
 $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
 $padded_message = sodium_pad($padded_message, $block_size);
-$encrypted_message = sodium_crypto_secretbox($padded_message,
-                                             $nonce, $secret_key);
+$encrypted_message = sodium_crypto_secretbox($padded_message, $nonce, $secret_key);
 ```
 
 Decryption:
 
 ```php
-$decrypted_padded_message = sodium_crypto_secretbox_open($encrypted_message,
-                                                         $nonce, $secret_key);
+$decrypted_padded_message = sodium_crypto_secretbox_open($encrypted_message, $nonce, $secret_key);
 $decrypted_message = sodium_unpad($decrypted_padded_message, $block_size);
 ```
 
