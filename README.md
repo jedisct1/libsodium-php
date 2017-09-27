@@ -162,6 +162,18 @@ reordered. In other words, we don't have a single "message", but a
 stream of messages, and during the decryption process, we need a way
 to check that the whole stream matches what we encrypted.
 
+So we create a new stream (`init_push`) and push a sequence of messages
+into it (`push`). Each individual message has a tag attached to it, by
+default `TAG_MESSAGE`. In order for the decryption process to know
+where the end of the stream is, we tag the last message with the
+`TAG_FINAL` tag.
+
+When we consume the stream (`init_pull`, then `pull` for each
+message), we check that they can be properly decrypted, and retrieve
+both the decrypted chunks and the attached tags. If we read the last
+chunk (`TAG_FINAL`) and we are at the end of the file, we know that we
+completely recovered the original stream.
+
 ## Encrypt a file using a key derived from a password:
 
 ```php
