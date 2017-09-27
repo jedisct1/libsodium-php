@@ -22,7 +22,7 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-Requires at least php 7.0 and libsodium 1.0.9.
+** insert changelog here **
   </notes>
   <contents>
     <dir name="/">
