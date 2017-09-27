@@ -116,7 +116,7 @@ while (stream_get_meta_data($fd_in)['unread_bytes'] > 0 &&
        $tag !== SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL) {
     $chunk = fread($fd_in, $chunk_size + SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_ABYTES);
     $res = sodium_crypto_secretstream_xchacha20poly1305_pull($stream, $chunk);
-    if ($ret === FALSE) {
+    if ($res === FALSE) {
        break;
     }
     list($decrypted_chunk, $tag) = $res;
