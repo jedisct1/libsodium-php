@@ -216,6 +216,10 @@ ZEND_END_ARG_INFO()
 # define crypto_aead_chacha20poly1305_IETF_ABYTES crypto_aead_chacha20poly1305_ABYTES
 #endif
 
+#if defined(crypto_secretstream_xchacha20poly1305_ABYTES) && SODIUM_LIBRARY_VERSION_MAJOR < 10
+# undef crypto_secretstream_xchacha20poly1305_ABYTES
+#endif
+
 const zend_function_entry sodium_functions[] = {
     PHP_FE(sodium_crypto_aead_aes256gcm_is_available, AI_None)
 #ifdef HAVE_AESGCM
