@@ -70,12 +70,12 @@ PHP_FUNCTION(sodium_crypto_kx_secretkey);
 PHP_FUNCTION(sodium_crypto_kx_seed_keypair);
 PHP_FUNCTION(sodium_crypto_kx_server_session_keys);
 PHP_FUNCTION(sodium_crypto_pwhash);
-PHP_FUNCTION(sodium_crypto_pwhash_str);
-PHP_FUNCTION(sodium_crypto_pwhash_str_needs_rehash);
-PHP_FUNCTION(sodium_crypto_pwhash_str_verify);
 PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256);
 PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256_str);
 PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256_str_verify);
+PHP_FUNCTION(sodium_crypto_pwhash_str);
+PHP_FUNCTION(sodium_crypto_pwhash_str_needs_rehash);
+PHP_FUNCTION(sodium_crypto_pwhash_str_verify);
 PHP_FUNCTION(sodium_crypto_scalarmult);
 PHP_FUNCTION(sodium_crypto_scalarmult_base);
 PHP_FUNCTION(sodium_crypto_secretbox);
@@ -111,7 +111,7 @@ PHP_FUNCTION(sodium_memzero);
 PHP_FUNCTION(sodium_pad);
 PHP_FUNCTION(sodium_unpad);
 
-#endif  /* PHP_LIBSODIUM_H */
+#endif	/* PHP_LIBSODIUM_H */
 
 /*
  * Local variables:
