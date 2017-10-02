@@ -486,6 +486,9 @@ PHP_MINIT_FUNCTION(sodium)
                            crypto_kx_PUBLICKEYBYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_SECRETKEYBYTES",
                            crypto_kx_SECRETKEYBYTES, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_KEYPAIRBYTES",
+                           crypto_kx_SECRETKEYBYTES + crypto_kx_PUBLICKEYBYTES,
+                           CONST_CS | CONST_PERSISTENT);
 #ifdef crypto_secretstream_xchacha20poly1305_ABYTES
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_ABYTES",
                            crypto_secretstream_xchacha20poly1305_ABYTES,
@@ -512,9 +515,6 @@ PHP_MINIT_FUNCTION(sodium)
                            crypto_secretstream_xchacha20poly1305_TAG_FINAL,
                            CONST_CS | CONST_PERSISTENT);
 #endif
-    REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_KX_KEYPAIRBYTES",
-                           crypto_kx_SECRETKEYBYTES + crypto_kx_PUBLICKEYBYTES,
-                           CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_BYTES",
                            crypto_generichash_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("SODIUM_CRYPTO_GENERICHASH_BYTES_MIN",
