@@ -880,7 +880,7 @@ PHP_FUNCTION(sodium_crypto_generichash_init)
     crypto_generichash_state  state_tmp;
     zend_string              *state;
     unsigned char            *key = NULL;
-    size_t                    state_len = sizeof state_tmp;
+    size_t                    state_len = sizeof (crypto_generichash_state);
     zend_long                 hash_len = crypto_generichash_BYTES;
     size_t                    key_len = 0;
 
@@ -1240,7 +1240,7 @@ PHP_FUNCTION(sodium_crypto_box_open)
     }
     if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
         zend_throw_exception(sodium_exception_ce,
-                   "keypair size should be SODIUM_CRYPTO_BOX_KEYBYTES bytes",
+                   "keypair size should be SODIUM_CRYPTO_BOX_KEYPAIRBYTES bytes",
                    0);
         return;
     }
@@ -1313,7 +1313,7 @@ PHP_FUNCTION(sodium_crypto_box_seal_open)
     }
     if (keypair_len != crypto_box_SECRETKEYBYTES + crypto_box_PUBLICKEYBYTES) {
         zend_throw_exception(sodium_exception_ce,
-                   "keypair size should be SODIUM_CRYPTO_BOX_KEYBYTES bytes",
+                   "keypair size should be SODIUM_CRYPTO_BOX_KEYPAIRBYTES bytes",
                    0);
         return;
     }
@@ -1617,7 +1617,7 @@ PHP_FUNCTION(sodium_crypto_sign_detached)
                              &signature_real_len, msg,
                              (unsigned long long) msg_len, secretkey) != 0) {
         zend_string_free(signature);
-        zend_throw_exception(sodium_exception_ce, "crypto_sign_detached()", 0);
+        zend_throw_exception(sodium_exception_ce, "signature creation failed", 0);
         return;
     }
     if (signature_real_len <= 0U || signature_real_len > crypto_sign_BYTES) {
@@ -1681,7 +1681,7 @@ PHP_FUNCTION(sodium_crypto_stream)
         return;
     }
     if (ciphertext_len <= 0 || ciphertext_len >= SIZE_MAX) {
-        zend_throw_exception(sodium_exception_ce, "invalid length", 0);
+        zend_throw_exception(sodium_exception_ce, "ciphertext length must be greater than 0", 0);
         return;
     }
     if (nonce_len != crypto_stream_NONCEBYTES) {
