@@ -259,7 +259,7 @@ ZEND_GET_MODULE(libsodium)
 
 PHP_MINIT_FUNCTION(libsodium)
 {
-    if (sodium_init() != 0) {
+    if (sodium_init() < 0) {
         zend_error(E_ERROR, "sodium_init()");
     }
 
