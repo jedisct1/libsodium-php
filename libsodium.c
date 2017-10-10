@@ -1399,6 +1399,7 @@ PHP_FUNCTION(crypto_sign_detached)
                    "CRYPTO_SIGN_SECRETKEYBYTES bytes");
     }
     signature = zend_string_alloc((size_t) crypto_sign_BYTES, 0);
+    memset(ZSTR_VAL(signature), 0, (size_t) crypto_sign_BYTES);
     if (crypto_sign_detached((unsigned char *) ZSTR_VAL(signature),
                              &signature_real_len, msg,
                              (unsigned long long) msg_len, secretkey) != 0) {
