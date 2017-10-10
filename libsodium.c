@@ -1242,7 +1242,7 @@ PHP_FUNCTION(crypto_sign_publickey_from_secretkey)
 
     if (crypto_sign_ed25519_sk_to_pk((unsigned char *) ZSTR_VAL(publickey),
                                      (const unsigned char *) secretkey) != 0) {
-        zend_error(E_RECOVERABLE_ERROR, "crypto_sign()");
+        zend_error(E_RECOVERABLE_ERROR, "crypto_sign_publickey_from_secretkey()");
     }
     ZSTR_VAL(publickey)[crypto_sign_PUBLICKEYBYTES] = 0;
 
