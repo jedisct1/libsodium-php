@@ -2169,7 +2169,7 @@ PHP_FUNCTION(crypto_scalarmult)
         return;
     }
     if (n_len != crypto_scalarmult_SCALARBYTES ||
-        p_len != crypto_scalarmult_SCALARBYTES) {
+        p_len != crypto_scalarmult_BYTES) {
         zend_error(E_RECOVERABLE_ERROR, "crypto_scalarmult(): scalar and point must be "
                    "CRYPTO_SCALARMULT_SCALARBYTES bytes");
     }
