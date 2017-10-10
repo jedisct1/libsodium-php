@@ -17,7 +17,7 @@ $testHash = '$argon2i$v=19$m=4096,t=3,p=1$MzE4ODFiZWFlMjAzOWUAAA$FWUV6tsyJ32qThi
 $c = \Sodium\crypto_pwhash_str_verify($testHash, $passwd);
 var_dump($c);
 
-$testHash = '$argon2i$v=19$m=4096,t=2,p=1$c29tZXNhbHQAAAAAAAAAAA$JTBozgKQiCn5yKAm3Hz0vUSX/XgfqhZloNCxDWmeDr0';
+$testHash = '$argon2i$v=19$m=4096,t=0,p=1$c29tZXNhbHQAAAAAAAAAAA$JTBozgKQiCn5yKAm3Hz0vUSX/XgfqhZloNCxDWmeDr0';
 $c = \Sodium\crypto_pwhash_str_verify($testHash, $passwd);
 var_dump($c);
 
