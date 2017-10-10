@@ -776,6 +776,7 @@ PHP_FUNCTION(crypto_generichash_update)
     memcpy(&state_tmp, state, sizeof state_tmp);
     if (crypto_generichash_update((void *) &state_tmp, msg,
                                   (unsigned long long) msg_len) != 0) {
+        sodium_memzero(&state_tmp, sizeof state_tmp);
         zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_update()");
     }
     memcpy(state, &state_tmp, state_len);
@@ -815,6 +816,7 @@ PHP_FUNCTION(crypto_generichash_final)
     if (crypto_generichash_final((void *) &state_tmp,
                                  (unsigned char *) ZSTR_VAL(hash),
                                  (size_t) hash_len) != 0) {
+        sodium_memzero(&state_tmp, sizeof state_tmp);
         zend_string_free(hash);
         zend_error(E_RECOVERABLE_ERROR, "crypto_generichash_final()");
     }
