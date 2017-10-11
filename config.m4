@@ -27,7 +27,7 @@ if test "$PHP_LIBSODIUM" != "no"; then
   PHP_ADD_INCLUDE($LIBSODIUM_DIR/include)
 
   LIBNAME=sodium
-  LIBSYMBOL=crypto_pwhash_scryptsalsa208sha256
+  LIBSYMBOL=sodium_add
 
   PHP_CHECK_LIBRARY($LIBNAME,$LIBSYMBOL,
   [
