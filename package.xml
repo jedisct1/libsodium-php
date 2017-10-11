@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2016-05-04</date>
-  <time>23:54:11</time>
+  <date>2017-09-11</date>
+  <time>14:10:03</time>
   <version>
-    <release>1.0.6</release>
-    <api>1.0.6</api>
+    <release>1.0.7</release>
+    <api>1.0.7</api>
   </version>
   <stability>
     <release>stable</release>
@@ -22,7 +22,7 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- The PWHASH_MEMLIMIT_{MODERATE,SENSITIVE} constants are correctly defined
+This is a maintenance release, compatible with libsodium 1.0.15+
   </notes>
   <contents>
     <dir name="/">
