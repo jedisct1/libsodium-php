@@ -192,9 +192,11 @@ const zend_function_entry libsodium_functions[] = {
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_str, ZEND_FN(crypto_pwhash_str), AI_PasswordAndOpsLimitAndMemLimit)
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_str_verify, ZEND_FN(crypto_pwhash_str_verify), AI_HashAndPassword)
 #endif
+#ifdef crypto_pwhash_scryptsalsa208sha256_SALTBYTES
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256, ZEND_FN(crypto_pwhash_scryptsalsa208sha256), AI_LengthAndPasswordAndSaltAndOpsLimitAndMemLimit)
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256_str, ZEND_FN(crypto_pwhash_scryptsalsa208sha256_str), AI_PasswordAndOpsLimitAndMemLimit)
     ZEND_NS_NAMED_FE("Sodium", crypto_pwhash_scryptsalsa208sha256_str_verify, ZEND_FN(crypto_pwhash_scryptsalsa208sha256_str_verify), AI_HashAndPassword)
+#endif
     ZEND_NS_NAMED_FE("Sodium", crypto_scalarmult, ZEND_FN(crypto_scalarmult), AI_TwoStrings)
     ZEND_NS_NAMED_FE("Sodium", crypto_secretbox, ZEND_FN(crypto_secretbox), AI_StringAndNonceAndKey)
     ZEND_NS_NAMED_FE("Sodium", crypto_secretbox_open, ZEND_FN(crypto_secretbox_open), AI_StringAndNonceAndKey)
@@ -356,6 +358,7 @@ PHP_MINIT_FUNCTION(libsodium)
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_MEMLIMIT_SENSITIVE",
                            crypto_pwhash_memlimit_sensitive(), CONST_CS | CONST_PERSISTENT);
 #endif
+#ifdef crypto_pwhash_scryptsalsa208sha256_SALTBYTES
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES",
                            crypto_pwhash_scryptsalsa208sha256_SALTBYTES, CONST_CS | CONST_PERSISTENT);
 #ifndef crypto_pwhash_scryptsalsa208sha256_STRPREFIX
@@ -371,6 +374,7 @@ PHP_MINIT_FUNCTION(libsodium)
                            crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive(), CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE",
                            crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive(), CONST_CS | CONST_PERSISTENT);
+#endif
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SCALARMULT_BYTES",
                            crypto_scalarmult_BYTES, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("Sodium\\CRYPTO_SCALARMULT_SCALARBYTES",
@@ -1531,6 +1535,7 @@ PHP_FUNCTION(crypto_stream_xor)
     RETURN_STR(ciphertext);
 }
 
+#ifdef crypto_pwhash_scryptsalsa208sha256_SALTBYTES
 PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256)
 {
     zend_string   *hash;
@@ -1644,6 +1649,7 @@ PHP_FUNCTION(crypto_pwhash_scryptsalsa208sha256_str_verify)
     }
     RETURN_FALSE;
 }
+#endif
 
 #ifdef crypto_pwhash_SALTBYTES
 PHP_FUNCTION(crypto_pwhash)

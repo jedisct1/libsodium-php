@@ -2,6 +2,7 @@
 Check for libsodium utils
 --SKIPIF--
 <?php if (!extension_loaded("libsodium")) print "skip"; ?>
+if (!defined('Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES')) print "skip libsodium without scrypt"; ?>
 --FILE--
 <?php
 $passwd = 'test';
