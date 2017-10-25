@@ -12,6 +12,13 @@ Full documentation here:
 a guide to using the libsodium PHP extension for modern, secure, and
 fast cryptography.
 
+Installation
+============
+
+```sh
+$ sudo pecl install -f libsodium-2.0.8
+```
+
 libsodium-php 1.x vs libsodium-php 2.x
 ======================================
 
