@@ -16,9 +16,7 @@ Installation
 ============
 
 ```sh
-$ phpize
-$ ./configure --with-sodium
-$ make install
+$ sudo pecl install -f libsodium-2.0.8
 ```
 
 libsodium-php 1.x vs libsodium-php 2.x
