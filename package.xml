@@ -28,17 +28,12 @@ This is a maintenance release, compatible with libsodium 1.0.15+
     <dir name="/">
       <file role="doc" name="README.md"/>
       <file role="doc" name="LICENSE"/>
-      <file role="src" name="acinclude.m4"/>
-      <file role="src" name="aclocal.m4"/>
       <file role="src" name="config.h"/>
       <file role="src" name="config.m4"/>
       <file role="src" name="config.w32"/>
       <file role="src" name="compat.h"/>
       <file role="src" name="libsodium.c"/>
       <file role="src" name="php_libsodium.h"/>
-      <dir name="build">
-        <file role="src" name="libtool.m4"/>
-      </dir>
       <dir name="tests">
         <file role="test" name="crypto_aead.phpt"/>
         <file role="test" name="crypto_auth.phpt"/>
