@@ -19,6 +19,10 @@ Installation
 $ sudo pecl install -f libsodium
 ```
 
+On some Linux distributions such as Debian, you may have to install
+PECL (`php-pear`), the PHP development package (`php-dev`) and a compiler
+(`build-essential`) prior to running this command.
+
 libsodium-php 1.x vs libsodium-php 2.x
 ======================================
 
