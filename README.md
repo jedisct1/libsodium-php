@@ -15,6 +15,12 @@ fast cryptography.
 Installation
 ============
 
+libsodium (and, if you are using binary packages, on some
+distributions, `libsodium-dev` as well) have to be installed before
+this extension.
+
+Then, use the PHP extension manager:
+
 ```sh
 $ sudo pecl install -f libsodium
 ```
