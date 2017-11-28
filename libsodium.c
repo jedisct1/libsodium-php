@@ -1883,7 +1883,8 @@ PHP_FUNCTION(sodium_crypto_pwhash_str_needs_rehash)
     size_t     hash_str_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS(), "sll",
-                              &hash_str, &hash_str_len) == FAILURE) {
+                              &hash_str, &hash_str_len,
+                              &opslimit, &memlimit) == FAILURE) {
         return;
     }
     if (crypto_pwhash_str_needs_rehash(hash_str, opslimit, memlimit) == 0) {
