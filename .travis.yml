@@ -23,7 +23,7 @@ before_script:
 
 script:
  - phpize
- - ./configure --with-libsodium
+ - ./configure --with-sodium
  - make clean
  - make
  - env NO_INTERACTION=1 make test
