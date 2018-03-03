@@ -264,7 +264,7 @@ do {
     }
     list($decrypted_chunk, $tag) = $res;
     fwrite($fd_out, $decrypted_chunk);
-} while (!feof($fd_in) && $tag !== SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL)
+} while (!feof($fd_in) && $tag !== SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL);
 $ok = feof($fd_in);
 
 fclose($fd_out);
