@@ -15,9 +15,14 @@ $key = sodium_crypto_aead_chacha20poly1305_keygen();
 $ad = random_bytes(random_int(1, 1000));
 
 $ciphertext = sodium_crypto_aead_chacha20poly1305_encrypt($msg, $ad, $nonce, $key);
+$ciphertext_dt = sodium_crypto_aead_chacha20poly1305_encrypt_detached($msg, $ad, $nonce, $key);
 $msg2 = sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, $ad, $nonce, $key);
+$msg3 = sodium_crypto_aead_chacha20poly1305_decrypt_detached($ciphertext_dt[0], $ciphertext_dt[1], $ad, $nonce, $key);
+
 var_dump($ciphertext !== $msg);
+var_dump(is_array($ciphertext_dt));
 var_dump($msg === $msg2);
+var_dump($msg === $msg3);
 var_dump(sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
 try {
     // Switched order
@@ -127,6 +132,8 @@ if (sodium_crypto_aead_aes256gcm_is_available()) {
 ?>
 --EXPECT--
 aead_chacha20poly1305:
+bool(true)
+bool(true)
 bool(true)
 bool(true)
 bool(false)
