@@ -256,6 +256,7 @@ const zend_function_entry sodium_functions[] = {
     PHP_FE(sodium_crypto_aead_chacha20poly1305_ietf_keygen, AI_None)
 #ifdef crypto_aead_xchacha20poly1305_IETF_NPUBBYTES
     PHP_FE(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt, AI_StringAndADAndNonceAndKey)
+    PHP_FE(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached, AI_StringAndMACAndADAndNonceAndKey)
     PHP_FE(sodium_crypto_aead_xchacha20poly1305_ietf_keygen, AI_None)
     PHP_FE(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt, AI_StringAndADAndNonceAndKey)
 #endif
@@ -2592,6 +2593,82 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt)
         ((unsigned char *) ZSTR_VAL(msg), &msg_real_len, NULL,
          ciphertext, (unsigned long long) ciphertext_len,
          ad, (unsigned long long) ad_len, npub, secretkey) != 0) {
+        zend_string_free(msg);
+        RETURN_FALSE;
+    }
+    if (msg_real_len >= SIZE_MAX || msg_real_len > msg_len) {
+        zend_string_free(msg);
+        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
+        return;
+    }
+    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
+    ZSTR_VAL(msg)[msg_real_len] = 0;
+
+    RETURN_STR(msg);
+}
+
+PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached)
+{
+    zend_string        *msg;
+    unsigned char      *ad;
+    unsigned char      *ciphertext;
+    unsigned char      *mac;
+    unsigned char      *npub;
+    unsigned char      *secretkey;
+    unsigned long long  msg_real_len;
+    size_t              ad_len;
+    size_t              ciphertext_len;
+    size_t              mac_len;
+    size_t              msg_len;
+    size_t              npub_len;
+    size_t              secretkey_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "sssss",
+                              &ciphertext, &ciphertext_len,
+                              &mac, &mac_len,
+                              &ad, &ad_len,
+                              &npub, &npub_len,
+                              &secretkey, &secretkey_len) == FAILURE) {
+        return;
+    }
+    if (npub_len != crypto_aead_xchacha20poly1305_IETF_NPUBBYTES) {
+        zend_throw_exception(sodium_exception_ce,
+                   "public nonce size should be "
+                   "SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES bytes",
+                   0);
+        return;
+    }
+    if (secretkey_len != crypto_aead_xchacha20poly1305_IETF_KEYBYTES) {
+        zend_throw_exception(sodium_exception_ce,
+                   "secret key size should be "
+                   "SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES bytes",
+                   0);
+        return;
+    }
+    if (ciphertext_len < crypto_aead_xchacha20poly1305_IETF_ABYTES) {
+        RETURN_FALSE;
+    }
+    if (mac_len != crypto_aead_xchacha20poly1305_IETF_ABYTES) {
+        RETURN_FALSE;
+    }
+    msg_len = ciphertext_len;
+    if (msg_len - crypto_aead_xchacha20poly1305_IETF_ABYTES >= SIZE_MAX) {
+        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
+        return;
+    }
+    if ((unsigned long long) ciphertext_len -
+        crypto_aead_xchacha20poly1305_IETF_ABYTES > 64ULL * (1ULL << 32) - 64ULL) {
+        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
+        return;
+    }
+    msg = zend_string_alloc((size_t) msg_len, 0);
+    if (crypto_aead_xchacha20poly1305_ietf_decrypt_detached
+        ((unsigned char *) ZSTR_VAL(msg),
+         NULL,
+         ciphertext, (unsigned long long) ciphertext_len,
+         mac,
+         ad, (unsigned long long) ad_len,
+         npub, secretkey) != 0) {
         zend_string_free(msg);
         RETURN_FALSE;
     }
