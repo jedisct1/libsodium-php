@@ -2762,12 +2762,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt_detached)
         return;
     }
     if (mac_len < crypto_aead_chacha20poly1305_IETF_ABYTES) {
-        zend_throw_exception(sodium_exception_ce,
-                           "invalid "
-                           "mac length too small",
-                           0);
-                return;
-//        RETURN_FALSE;
+        RETURN_FALSE;
     }
     if ((ciphertext_len + mac_len) < crypto_aead_chacha20poly1305_IETF_ABYTES) {
         RETURN_FALSE;
@@ -2775,11 +2770,11 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt_detached)
 
     msg_len = ciphertext_len;
     if (msg_len + mac_len >= SIZE_MAX) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow 1", 0);
+        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
     if ((unsigned long long) msg_len > 64ULL * (1ULL << 32) - 64ULL) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow 2", 0);
+        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
     msg = zend_string_alloc((size_t) msg_len, 0);
@@ -3060,11 +3055,11 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached)
 
     msg_len = ciphertext_len;
     if (msg_len + mac_len >= SIZE_MAX) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow 1", 0);
+        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
     if ((unsigned long long) msg_len > 64ULL * (1ULL << 32) - 64ULL) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow 2", 0);
+        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
     msg = zend_string_alloc((size_t) msg_len, 0);
