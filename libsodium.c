@@ -2754,13 +2754,9 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached)
         zend_string_free(msg);
         RETURN_FALSE;
     }
-    if (msg_real_len >= SIZE_MAX || msg_real_len > msg_len) {
-        zend_string_free(msg);
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
-    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
-    ZSTR_VAL(msg)[msg_real_len] = 0;
+
+    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_len);
+    ZSTR_VAL(msg)[msg_len] = 0;
 
     RETURN_STR(msg);
 }
