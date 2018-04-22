@@ -21,6 +21,7 @@ $msg3 = sodium_crypto_aead_chacha20poly1305_decrypt_detached($ciphertext_dt[0], 
 
 var_dump($ciphertext !== $msg);
 var_dump(is_array($ciphertext_dt));
+var_dump(implode('', $ciphertext_dt) === $ciphertext);
 var_dump($msg === $msg2);
 var_dump($msg === $msg3);
 var_dump(sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
@@ -48,6 +49,7 @@ if (SODIUM_LIBRARY_MAJOR_VERSION > 7 ||
     $msg3 = sodium_crypto_aead_chacha20poly1305_ietf_decrypt_detached($ciphertext_dt[0], $ciphertext_dt[1], $ad, $nonce, $key);
     var_dump($ciphertext !== $msg);
     var_dump(is_array($ciphertext_dt));
+    var_dump(implode('', $ciphertext_dt) === $ciphertext);
     var_dump($msg === $msg2);
     var_dump($msg === $msg3);
     var_dump(sodium_crypto_aead_chacha20poly1305_ietf_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
@@ -83,6 +85,7 @@ if (SODIUM_LIBRARY_MAJOR_VERSION > 9 ||
     $msg3 = sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached($ciphertext_dt[0], $ciphertext_dt[1], $ad, $nonce, $key);
     var_dump($ciphertext !== $msg);
     var_dump(is_array($ciphertext_dt));
+    var_dump(implode('', $ciphertext_dt) === $ciphertext);
     var_dump($msg === $msg2);
     var_dump($msg === $msg3);
     var_dump(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
@@ -117,6 +120,7 @@ if (sodium_crypto_aead_aes256gcm_is_available()) {
     $msg3 = sodium_crypto_aead_aes256gcm_decrypt_detached($ciphertext_dt[0], $ciphertext_dt[1], $ad, $nonce, $key);
     var_dump($ciphertext !== $msg);
     var_dump(is_array($ciphertext_dt));
+    var_dump(implode('', $ciphertext_dt) === $ciphertext);
     var_dump($msg === $msg2);
     var_dump($msg === $msg3);
     var_dump(sodium_crypto_aead_aes256gcm_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
@@ -140,9 +144,11 @@ bool(true)
 bool(true)
 bool(true)
 bool(true)
+bool(true)
 bool(false)
 bool(true)
 aead_chacha20poly1305_ietf:
+bool(true)
 bool(true)
 bool(true)
 bool(true)
@@ -154,9 +160,11 @@ bool(true)
 bool(true)
 bool(true)
 bool(true)
+bool(true)
 bool(false)
 bool(true)
 aead_aes256gcm:
+bool(true)
 bool(true)
 bool(true)
 bool(true)
