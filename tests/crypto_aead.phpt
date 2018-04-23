@@ -15,9 +15,15 @@ $key = sodium_crypto_aead_chacha20poly1305_keygen();
 $ad = random_bytes(random_int(1, 1000));
 
 $ciphertext = sodium_crypto_aead_chacha20poly1305_encrypt($msg, $ad, $nonce, $key);
+$ciphertext_dt = sodium_crypto_aead_chacha20poly1305_encrypt_detached($msg, $ad, $nonce, $key);
 $msg2 = sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, $ad, $nonce, $key);
+$msg3 = sodium_crypto_aead_chacha20poly1305_decrypt_detached($ciphertext_dt[0], $ciphertext_dt[1], $ad, $nonce, $key);
+
 var_dump($ciphertext !== $msg);
+var_dump(is_array($ciphertext_dt));
+var_dump(implode('', $ciphertext_dt) === $ciphertext);
 var_dump($msg === $msg2);
+var_dump($msg === $msg3);
 var_dump(sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
 try {
     // Switched order
@@ -38,9 +44,14 @@ if (SODIUM_LIBRARY_MAJOR_VERSION > 7 ||
     $ad = random_bytes(random_int(1, 1000));
 
     $ciphertext = sodium_crypto_aead_chacha20poly1305_ietf_encrypt($msg, $ad, $nonce, $key);
+    $ciphertext_dt = sodium_crypto_aead_chacha20poly1305_ietf_encrypt_detached($msg, $ad, $nonce, $key);
     $msg2 = sodium_crypto_aead_chacha20poly1305_ietf_decrypt($ciphertext, $ad, $nonce, $key);
+    $msg3 = sodium_crypto_aead_chacha20poly1305_ietf_decrypt_detached($ciphertext_dt[0], $ciphertext_dt[1], $ad, $nonce, $key);
     var_dump($ciphertext !== $msg);
+    var_dump(is_array($ciphertext_dt));
+    var_dump(implode('', $ciphertext_dt) === $ciphertext);
     var_dump($msg === $msg2);
+    var_dump($msg === $msg3);
     var_dump(sodium_crypto_aead_chacha20poly1305_ietf_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
     try {
         // Switched order
@@ -50,6 +61,8 @@ if (SODIUM_LIBRARY_MAJOR_VERSION > 7 ||
         var_dump(true);
     }
 } else {
+    var_dump(true);
+    var_dump(true);
     var_dump(true);
     var_dump(true);
     var_dump(false);
@@ -67,10 +80,16 @@ if (SODIUM_LIBRARY_MAJOR_VERSION > 9 ||
     $ad = random_bytes(random_int(1, 1000));
 
     $ciphertext = sodium_crypto_aead_xchacha20poly1305_ietf_encrypt($msg, $ad, $nonce, $key);
+    $ciphertext_dt = sodium_crypto_aead_xchacha20poly1305_ietf_encrypt_detached($msg, $ad, $nonce, $key);
     $msg2 = sodium_crypto_aead_xchacha20poly1305_ietf_decrypt($ciphertext, $ad, $nonce, $key);
+    $msg3 = sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached($ciphertext_dt[0], $ciphertext_dt[1], $ad, $nonce, $key);
     var_dump($ciphertext !== $msg);
+    var_dump(is_array($ciphertext_dt));
+    var_dump(implode('', $ciphertext_dt) === $ciphertext);
     var_dump($msg === $msg2);
+    var_dump($msg === $msg3);
     var_dump(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
+
     try {
         // Switched order
         $msg2 = sodium_crypto_aead_xchacha20poly1305_ietf_decrypt($ciphertext, $ad, $key, $nonce);
@@ -78,7 +97,10 @@ if (SODIUM_LIBRARY_MAJOR_VERSION > 9 ||
     } catch (SodiumException $ex) {
         var_dump(true);
     }
+
 } else {
+    var_dump(true);
+    var_dump(true);
     var_dump(true);
     var_dump(true);
     var_dump(false);
@@ -93,9 +115,14 @@ if (sodium_crypto_aead_aes256gcm_is_available()) {
     $ad = random_bytes(random_int(1, 1000));
     $key = sodium_crypto_aead_aes256gcm_keygen();
     $ciphertext = sodium_crypto_aead_aes256gcm_encrypt($msg, $ad, $nonce, $key);
+    $ciphertext_dt = sodium_crypto_aead_aes256gcm_encrypt_detached($msg, $ad, $nonce, $key);
     $msg2 = sodium_crypto_aead_aes256gcm_decrypt($ciphertext, $ad, $nonce, $key);
+    $msg3 = sodium_crypto_aead_aes256gcm_decrypt_detached($ciphertext_dt[0], $ciphertext_dt[1], $ad, $nonce, $key);
     var_dump($ciphertext !== $msg);
+    var_dump(is_array($ciphertext_dt));
+    var_dump(implode('', $ciphertext_dt) === $ciphertext);
     var_dump($msg === $msg2);
+    var_dump($msg === $msg3);
     var_dump(sodium_crypto_aead_aes256gcm_decrypt($ciphertext, 'x' . $ad, $nonce, $key));
     try {
         // Switched order
@@ -115,9 +142,15 @@ if (sodium_crypto_aead_aes256gcm_is_available()) {
 aead_chacha20poly1305:
 bool(true)
 bool(true)
+bool(true)
+bool(true)
+bool(true)
 bool(false)
 bool(true)
 aead_chacha20poly1305_ietf:
+bool(true)
+bool(true)
+bool(true)
 bool(true)
 bool(true)
 bool(false)
@@ -125,9 +158,15 @@ bool(true)
 aead_xchacha20poly1305_ietf:
 bool(true)
 bool(true)
+bool(true)
+bool(true)
+bool(true)
 bool(false)
 bool(true)
 aead_aes256gcm:
+bool(true)
+bool(true)
+bool(true)
 bool(true)
 bool(true)
 bool(false)
