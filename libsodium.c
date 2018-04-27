@@ -2245,19 +2245,12 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt_detached)
         return;
     }
 
-    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_len);
-    ZSTR_VAL(ciphertext)[ciphertext_len] = 0;
-
-    PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_len);
-    ZSTR_VAL(mac)[mac_len] = 0;
+    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
+    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     array_init(return_value);
-    add_next_index_stringl(return_value,
-                           (unsigned char *) ZSTR_VAL(ciphertext),
-                           ciphertext_len);
-    add_next_index_stringl(return_value,
-                           (unsigned char *) ZSTR_VAL(mac),
-                           mac_len);
+    add_next_index_str(return_value, ciphertext);
+    add_next_index_str(return_value, mac);
 }
 
 PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt)
@@ -2334,7 +2327,6 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt_detached)
     unsigned char      *mac;
     unsigned char      *npub;
     unsigned char      *secretkey;
-    unsigned long long  msg_real_len;
     size_t              ad_len;
     size_t              ciphertext_len;
     size_t              mac_len;
@@ -2396,10 +2388,6 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt_detached)
         zend_string_free(msg);
         RETURN_FALSE;
     }
-
-    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_len);
-    ZSTR_VAL(msg)[msg_len] = 0;
-
     RETURN_STR(msg);
 }
 #endif
@@ -2534,19 +2522,12 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt_detached)
         return;
     }
 
-    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_len);
-    ZSTR_VAL(ciphertext)[ciphertext_len] = 0;
-
-    PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_len);
-    ZSTR_VAL(mac)[mac_len] = 0;
+    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
+    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     array_init(return_value);
-    add_next_index_stringl(return_value,
-                           (unsigned char *) ZSTR_VAL(ciphertext),
-                           ciphertext_len);
-    add_next_index_stringl(return_value,
-                           (unsigned char *) ZSTR_VAL(mac),
-                           mac_len);
+    add_next_index_str(return_value, ciphertext);
+    add_next_index_str(return_value, mac);
 }
 
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt)
@@ -2619,7 +2600,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt_detached)
     unsigned char      *mac;
     unsigned char      *npub;
     unsigned char      *secretkey;
-    unsigned long long  msg_real_len;
     size_t              ad_len;
     size_t              ciphertext_len;
     size_t              mac_len;
@@ -2676,10 +2656,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt_detached)
         zend_string_free(msg);
         RETURN_FALSE;
     }
-
-    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_len);
-    ZSTR_VAL(msg)[msg_len] = 0;
-
     RETURN_STR(msg);
 }
 
@@ -2817,19 +2793,12 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt_detached)
         return;
     }
 
-    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_len);
-    ZSTR_VAL(ciphertext)[ciphertext_len] = 0;
-
-    PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_len);
-    ZSTR_VAL(mac)[mac_len] = 0;
+    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
+    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     array_init(return_value);
-    add_next_index_stringl(return_value,
-                           (unsigned char *) ZSTR_VAL(ciphertext),
-                           ciphertext_len);
-    add_next_index_stringl(return_value,
-                           (unsigned char *) ZSTR_VAL(mac),
-                           mac_len);
+    add_next_index_str(return_value, ciphertext);
+    add_next_index_str(return_value, mac);
 }
 
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt)
@@ -2907,7 +2876,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt_detached)
     unsigned char      *mac;
     unsigned char      *npub;
     unsigned char      *secretkey;
-    unsigned long long  msg_real_len;
     size_t              ad_len;
     size_t              ciphertext_len;
     size_t              mac_len;
@@ -2964,10 +2932,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt_detached)
         zend_string_free(msg);
         RETURN_FALSE;
     }
-
-    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_len);
-    ZSTR_VAL(msg)[msg_len] = 0;
-
     RETURN_STR(msg);
 }
 
@@ -3102,19 +3066,12 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt_detached)
         return;
     }
 
-    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_len);
-    ZSTR_VAL(ciphertext)[ciphertext_len] = 0;
-
-    PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_len);
-    ZSTR_VAL(mac)[mac_len] = 0;
+    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
+    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     array_init(return_value);
-    add_next_index_stringl(return_value,
-                           (unsigned char *) ZSTR_VAL(ciphertext),
-                           ciphertext_len);
-    add_next_index_stringl(return_value,
-                           (unsigned char *) ZSTR_VAL(mac),
-                           mac_len);
+    add_next_index_str(return_value, ciphertext);
+    add_next_index_str(return_value, mac);
 }
 
 PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt)
@@ -3192,7 +3149,6 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached)
     unsigned char      *mac;
     unsigned char      *npub;
     unsigned char      *secretkey;
-    unsigned long long  msg_real_len;
     size_t              ad_len;
     size_t              ciphertext_len;
     size_t              mac_len;
@@ -3249,10 +3205,6 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached)
         zend_string_free(msg);
         RETURN_FALSE;
     }
-
-    PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_len);
-    ZSTR_VAL(msg)[msg_len] = 0;
-
     RETURN_STR(msg);
 }
 #endif
