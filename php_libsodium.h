@@ -111,7 +111,7 @@ PHP_FUNCTION(sodium_memzero);
 PHP_FUNCTION(sodium_pad);
 PHP_FUNCTION(sodium_unpad);
 
-#endif	/* PHP_LIBSODIUM_H */
+#endif /* PHP_LIBSODIUM_H */
 
 /*
  * Local variables:
