@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2017-10-26</date>
-  <time>10:16:26</time>
+  <date>2018-04-29</date>
+  <time>18:51:11</time>
   <version>
-    <release>2.0.10</release>
-    <api>2.0.10</api>
+    <release>2.0.11</release>
+    <api>2.0.11</api>
   </version>
   <stability>
     <release>stable</release>
@@ -22,7 +22,8 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-No code change. This release was made to ensure that the stable channel installs version 2.x.
+- Added a workaround for a PHP vulnerability affecting all PHP7 versions up to and including 7.2.5.
+- Bindings for crypto_aead_*_detached() functions have been added.
   </notes>
   <contents>
     <dir name="/">
