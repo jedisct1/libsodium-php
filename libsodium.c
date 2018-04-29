@@ -2173,16 +2173,16 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt)
 
 PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt_detached)
 {
-    zend_string        *mac;
     zend_string        *ciphertext;
+    zend_string        *mac;
     unsigned char      *ad;
     unsigned char      *msg;
     unsigned char      *npub;
     unsigned char      *secretkey;
-    unsigned long long  ciphertext_real_len;
+    unsigned long long  mac_real_len;
     size_t              ad_len;
-    size_t              mac_len;
     size_t              ciphertext_len;
+    size_t              mac_len;
     size_t              msg_len;
     size_t              npub_len;
     size_t              secretkey_len;
@@ -2194,9 +2194,6 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt_detached)
                               &secretkey, &secretkey_len) == FAILURE) {
         return;
     }
-
-    ciphertext_real_len = msg_len + crypto_aead_aes256gcm_ABYTES;
-
     if (npub_len != crypto_aead_aes256gcm_NPUBBYTES) {
         zend_throw_exception(sodium_exception_ce,
                    "public nonce size should be "
@@ -2211,42 +2208,35 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt_detached)
                    0);
         return;
     }
-    if (SIZE_MAX - ciphertext_real_len <= crypto_aead_aes256gcm_ABYTES) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
-    if ((unsigned long long) msg_len > (16ULL * ((1ULL << 32) - 2ULL)) - crypto_aead_aes256gcm_ABYTES) {
+    if ((unsigned long long) msg_len > (16ULL * ((1ULL << 32) - 2ULL))) {
         zend_throw_exception(sodium_exception_ce, "message too long for a single key", 0);
         return;
     }
-
     ciphertext_len = msg_len;
+    ciphertext = zend_string_checked_alloc((size_t) ciphertext_len, 0);
+
     mac_len = crypto_aead_aes256gcm_ABYTES;
+    mac = zend_string_checked_alloc((size_t) mac_len, 0);
 
-    ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
-    mac = zend_string_alloc((size_t) mac_len, 0);
-
-    if (crypto_aead_aes256gcm_encrypt_detached(
-        (unsigned char *) ZSTR_VAL(ciphertext),
-        (unsigned char *) ZSTR_VAL(mac),
-        (unsigned long long *) &mac_len,
-        msg, (unsigned long long) msg_len,
-        ad, (unsigned long long) ad_len, NULL, npub, secretkey) != 0) {
-        zend_string_free(ciphertext);
+    if (crypto_aead_aes256gcm_encrypt_detached((unsigned char *) ZSTR_VAL(ciphertext),
+                                               (unsigned char *) ZSTR_VAL(mac),
+                                               &mac_real_len,
+                                               msg, (unsigned long long) msg_len,
+                                               ad, (unsigned long long) ad_len,
+                                               NULL, npub, secretkey) != 0) {
         zend_string_free(mac);
+        zend_string_free(ciphertext);
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-
-    if (ciphertext_real_len <= 0U || ciphertext_real_len >= SIZE_MAX) {
-        zend_string_free(ciphertext);
+    if (mac_real_len <= 0U || mac_real_len >= SIZE_MAX || mac_real_len > mac_len) {
         zend_string_free(mac);
+        zend_string_free(ciphertext);
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-
-    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
-    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
+    PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_real_len);
+    ZSTR_VAL(mac)[mac_real_len] = 0;
 
     array_init(return_value);
     add_next_index_str(return_value, ciphertext);
@@ -2356,28 +2346,15 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt_detached)
                    0);
         return;
     }
-
-    if (mac_len < crypto_aead_aes256gcm_ABYTES) {
+    if (mac_len != crypto_aead_aes256gcm_ABYTES) {
         RETURN_FALSE;
-    }
-    if ((ciphertext_len + mac_len) < crypto_aead_aes256gcm_ABYTES) {
-        RETURN_FALSE;
-    }
-
-    msg_len = ciphertext_len;
-    if (msg_len + mac_len >= SIZE_MAX) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
-    if ((unsigned long long) msg_len > 64ULL * (1ULL << 32) - 64ULL) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
     }
     if (ciphertext_len > 16ULL * ((1ULL << 32) - 2ULL)) {
         zend_throw_exception(sodium_exception_ce, "message too long for a single key", 0);
         return;
     }
-    msg = zend_string_alloc((size_t) msg_len, 0);
+    msg_len = ciphertext_len;
+    msg = zend_string_checked_alloc((size_t) msg_len, 0);
     if (crypto_aead_aes256gcm_decrypt_detached
         ((unsigned char *) ZSTR_VAL(msg),
          NULL,
@@ -2455,16 +2432,16 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt)
 
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt_detached)
 {
-    zend_string        *mac;
     zend_string        *ciphertext;
+    zend_string        *mac;
     unsigned char      *ad;
     unsigned char      *msg;
     unsigned char      *npub;
     unsigned char      *secretkey;
-    unsigned long long  ciphertext_real_len;
+    unsigned long long  mac_real_len;
     size_t              ad_len;
-    size_t              mac_len;
     size_t              ciphertext_len;
+    size_t              mac_len;
     size_t              msg_len;
     size_t              npub_len;
     size_t              secretkey_len;
@@ -2476,54 +2453,43 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt_detached)
                               &secretkey, &secretkey_len) == FAILURE) {
         return;
     }
-
-    ciphertext_real_len = msg_len + crypto_aead_chacha20poly1305_ABYTES;
-
     if (npub_len != crypto_aead_chacha20poly1305_NPUBBYTES) {
         zend_throw_exception(sodium_exception_ce,
                    "public nonce size should be "
-                   "SODIUM_CRYPTO_AEAD_chacha20POLY1305_IETF_NPUBBYTES bytes",
+                   "SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES bytes",
                    0);
         return;
     }
     if (secretkey_len != crypto_aead_chacha20poly1305_KEYBYTES) {
         zend_throw_exception(sodium_exception_ce,
                    "secret key size should be "
-                   "SODIUM_CRYPTO_AEAD_chacha20POLY1305_IETF_KEYBYTES bytes",
+                   "SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES bytes",
                    0);
         return;
     }
-    if (SIZE_MAX - ciphertext_real_len <= crypto_aead_chacha20poly1305_ABYTES) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
     ciphertext_len = msg_len;
+    ciphertext = zend_string_checked_alloc((size_t) ciphertext_len, 0);
     mac_len = crypto_aead_chacha20poly1305_ABYTES;
-
-    ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
-    mac = zend_string_alloc((size_t) mac_len, 0);
-
-    if (crypto_aead_chacha20poly1305_encrypt_detached(
-        (unsigned char *) ZSTR_VAL(ciphertext),
-        (unsigned char *) ZSTR_VAL(mac),
-        (unsigned long long *) &mac_len,
-        msg, (unsigned long long) msg_len,
-        ad, (unsigned long long) ad_len, NULL, npub, secretkey) != 0) {
-        zend_string_free(ciphertext);
+    mac = zend_string_checked_alloc((size_t) mac_len, 0);
+    if (crypto_aead_chacha20poly1305_encrypt_detached((unsigned char *) ZSTR_VAL(ciphertext),
+                                                      (unsigned char *) ZSTR_VAL(mac),
+                                                      &mac_real_len, msg,
+                                                      (unsigned long long) msg_len,
+                                                      ad, (unsigned long long) ad_len,
+                                                      NULL, npub, secretkey) != 0) {
         zend_string_free(mac);
+        zend_string_free(ciphertext);
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-
-    if (ciphertext_real_len <= 0U || ciphertext_real_len >= SIZE_MAX) {
-        zend_string_free(ciphertext);
+    if (mac_real_len <= 0U || mac_real_len >= SIZE_MAX || mac_real_len > mac_len) {
         zend_string_free(mac);
+        zend_string_free(ciphertext);
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-
-    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
-    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
+    PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_real_len);
+    ZSTR_VAL(mac)[mac_real_len] = 0;
 
     array_init(return_value);
     add_next_index_str(return_value, ciphertext);
@@ -2629,23 +2595,11 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt_detached)
                    0);
         return;
     }
-    if (mac_len < crypto_aead_chacha20poly1305_ABYTES) {
+    if (mac_len != crypto_aead_chacha20poly1305_ABYTES) {
         RETURN_FALSE;
     }
-    if ((ciphertext_len + mac_len) < crypto_aead_chacha20poly1305_ABYTES) {
-        RETURN_FALSE;
-    }
-
     msg_len = ciphertext_len;
-    if (msg_len + mac_len >= SIZE_MAX) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
-    if ((unsigned long long) msg_len > 64ULL * (1ULL << 32) - 64ULL) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
-    msg = zend_string_alloc((size_t) msg_len, 0);
+    msg = zend_string_checked_alloc((size_t) msg_len, 0);
     if (crypto_aead_chacha20poly1305_decrypt_detached
         ((unsigned char *) ZSTR_VAL(msg),
          NULL,
@@ -2726,16 +2680,16 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt)
 
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt_detached)
 {
-    zend_string        *mac;
     zend_string        *ciphertext;
+    zend_string        *mac;
     unsigned char      *ad;
     unsigned char      *msg;
     unsigned char      *npub;
     unsigned char      *secretkey;
-    unsigned long long  ciphertext_real_len;
+    unsigned long long  mac_real_len;
     size_t              ad_len;
-    size_t              mac_len;
     size_t              ciphertext_len;
+    size_t              mac_len;
     size_t              msg_len;
     size_t              npub_len;
     size_t              secretkey_len;
@@ -2747,54 +2701,43 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt_detached)
                               &secretkey, &secretkey_len) == FAILURE) {
         return;
     }
-
-    ciphertext_real_len = msg_len + crypto_aead_chacha20poly1305_IETF_ABYTES;
-
     if (npub_len != crypto_aead_chacha20poly1305_IETF_NPUBBYTES) {
         zend_throw_exception(sodium_exception_ce,
                    "public nonce size should be "
-                   "SODIUM_CRYPTO_AEAD_chacha20POLY1305_IETF_NPUBBYTES bytes",
+                   "SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES bytes",
                    0);
         return;
     }
     if (secretkey_len != crypto_aead_chacha20poly1305_IETF_KEYBYTES) {
         zend_throw_exception(sodium_exception_ce,
                    "secret key size should be "
-                   "SODIUM_CRYPTO_AEAD_chacha20POLY1305_IETF_KEYBYTES bytes",
+                   "SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES bytes",
                    0);
         return;
     }
-    if (SIZE_MAX - ciphertext_real_len <= crypto_aead_chacha20poly1305_IETF_ABYTES) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
     ciphertext_len = msg_len;
+    ciphertext = zend_string_checked_alloc((size_t) ciphertext_len, 0);
     mac_len = crypto_aead_chacha20poly1305_IETF_ABYTES;
-
-    ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
-    mac = zend_string_alloc((size_t) mac_len, 0);
-
-    if (crypto_aead_chacha20poly1305_ietf_encrypt_detached(
-        (unsigned char *) ZSTR_VAL(ciphertext),
-        (unsigned char *) ZSTR_VAL(mac),
-        (unsigned long long *) &mac_len,
-        msg, (unsigned long long) msg_len,
-        ad, (unsigned long long) ad_len, NULL, npub, secretkey) != 0) {
-        zend_string_free(ciphertext);
+    mac = zend_string_checked_alloc((size_t) mac_len, 0);
+    if (crypto_aead_chacha20poly1305_ietf_encrypt_detached((unsigned char *) ZSTR_VAL(ciphertext),
+                                                           (unsigned char *) ZSTR_VAL(mac),
+                                                           &mac_real_len, msg,
+                                                           (unsigned long long) msg_len,
+                                                           ad, (unsigned long long) ad_len,
+                                                           NULL, npub, secretkey) != 0) {
         zend_string_free(mac);
+        zend_string_free(ciphertext);
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-
-    if (ciphertext_real_len <= 0U || ciphertext_real_len >= SIZE_MAX) {
-        zend_string_free(ciphertext);
+    if (mac_real_len <= 0U || mac_real_len >= SIZE_MAX || mac_real_len > mac_len) {
         zend_string_free(mac);
+        zend_string_free(ciphertext);
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-
-    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
-    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
+    PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_real_len);
+    ZSTR_VAL(mac)[mac_real_len] = 0;
 
     array_init(return_value);
     add_next_index_str(return_value, ciphertext);
@@ -2905,23 +2848,11 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt_detached)
                    0);
         return;
     }
-    if (mac_len < crypto_aead_chacha20poly1305_IETF_ABYTES) {
+    if (mac_len != crypto_aead_chacha20poly1305_IETF_ABYTES) {
         RETURN_FALSE;
     }
-    if ((ciphertext_len + mac_len) < crypto_aead_chacha20poly1305_IETF_ABYTES) {
-        RETURN_FALSE;
-    }
-
     msg_len = ciphertext_len;
-    if (msg_len + mac_len >= SIZE_MAX) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
-    if ((unsigned long long) msg_len > 64ULL * (1ULL << 32) - 64ULL) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
-    msg = zend_string_alloc((size_t) msg_len, 0);
+    msg = zend_string_checked_alloc((size_t) msg_len, 0);
     if (crypto_aead_chacha20poly1305_ietf_decrypt_detached
         ((unsigned char *) ZSTR_VAL(msg),
          NULL,
@@ -2999,16 +2930,16 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt)
 
 PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt_detached)
 {
-    zend_string        *mac;
     zend_string        *ciphertext;
+    zend_string        *mac;
     unsigned char      *ad;
     unsigned char      *msg;
     unsigned char      *npub;
     unsigned char      *secretkey;
-    unsigned long long  ciphertext_real_len;
+    unsigned long long  mac_real_len;
     size_t              ad_len;
-    size_t              mac_len;
     size_t              ciphertext_len;
+    size_t              mac_len;
     size_t              msg_len;
     size_t              npub_len;
     size_t              secretkey_len;
@@ -3020,9 +2951,6 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt_detached)
                               &secretkey, &secretkey_len) == FAILURE) {
         return;
     }
-
-    ciphertext_real_len = msg_len + crypto_aead_xchacha20poly1305_IETF_ABYTES;
-
     if (npub_len != crypto_aead_xchacha20poly1305_IETF_NPUBBYTES) {
         zend_throw_exception(sodium_exception_ce,
                    "public nonce size should be "
@@ -3037,37 +2965,29 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt_detached)
                    0);
         return;
     }
-    if (SIZE_MAX - ciphertext_real_len <= crypto_aead_xchacha20poly1305_IETF_ABYTES) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
     ciphertext_len = msg_len;
+    ciphertext = zend_string_checked_alloc((size_t) ciphertext_len, 0);
     mac_len = crypto_aead_xchacha20poly1305_IETF_ABYTES;
-
-    ciphertext = zend_string_alloc((size_t) ciphertext_len, 0);
-    mac = zend_string_alloc((size_t) mac_len, 0);
-
-    if (crypto_aead_xchacha20poly1305_ietf_encrypt_detached(
-        (unsigned char *) ZSTR_VAL(ciphertext),
-        (unsigned char *) ZSTR_VAL(mac),
-        (unsigned long long *) &mac_len,
-        msg, (unsigned long long) msg_len,
-        ad, (unsigned long long) ad_len, NULL, npub, secretkey) != 0) {
-        zend_string_free(ciphertext);
+    mac = zend_string_checked_alloc((size_t) mac_len, 0);
+    if (crypto_aead_xchacha20poly1305_ietf_encrypt_detached((unsigned char *) ZSTR_VAL(ciphertext),
+                                                            (unsigned char *) ZSTR_VAL(mac),
+                                                            &mac_real_len, msg,
+                                                            (unsigned long long) msg_len,
+                                                            ad, (unsigned long long) ad_len,
+                                                            NULL, npub, secretkey) != 0) {
         zend_string_free(mac);
+        zend_string_free(ciphertext);
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-
-    if (ciphertext_real_len <= 0U || ciphertext_real_len >= SIZE_MAX) {
-        zend_string_free(ciphertext);
+    if (mac_real_len <= 0U || mac_real_len >= SIZE_MAX || mac_real_len > mac_len) {
         zend_string_free(mac);
+        zend_string_free(ciphertext);
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
-
-    PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
-    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
+    PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_real_len);
+    ZSTR_VAL(mac)[mac_real_len] = 0;
 
     array_init(return_value);
     add_next_index_str(return_value, ciphertext);
@@ -3178,23 +3098,11 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached)
                    0);
         return;
     }
-    if (mac_len < crypto_aead_xchacha20poly1305_IETF_ABYTES) {
+    if (mac_len != crypto_aead_xchacha20poly1305_IETF_ABYTES) {
         RETURN_FALSE;
     }
-    if ((ciphertext_len + mac_len) < crypto_aead_xchacha20poly1305_IETF_ABYTES) {
-        RETURN_FALSE;
-    }
-
     msg_len = ciphertext_len;
-    if (msg_len + mac_len >= SIZE_MAX) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
-    if ((unsigned long long) msg_len > 64ULL * (1ULL << 32) - 64ULL) {
-        zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
-        return;
-    }
-    msg = zend_string_alloc((size_t) msg_len, 0);
+    msg = zend_string_checked_alloc((size_t) msg_len, 0);
     if (crypto_aead_xchacha20poly1305_ietf_decrypt_detached
         ((unsigned char *) ZSTR_VAL(msg),
          NULL,
