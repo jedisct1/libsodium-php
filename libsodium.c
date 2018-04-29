@@ -221,6 +221,9 @@ ZEND_END_ARG_INFO()
      defined(_M_AMD64) || defined(_M_IX86))
 # define HAVE_AESGCM 1
 #endif
+#if SODIUM_LIBRARY_VERSION_MAJOR > 9 || (SODIUM_LIBRARY_VERSION_MAJOR == 9 && SODIUM_LIBRARY_VERSION_MINOR >= 2)
+# define HAVE_AEAD_DETACHED 1
+#endif
 
 #ifndef crypto_aead_chacha20poly1305_IETF_KEYBYTES
 # define crypto_aead_chacha20poly1305_IETF_KEYBYTES crypto_aead_chacha20poly1305_KEYBYTES
@@ -253,27 +256,33 @@ const zend_function_entry sodium_functions[] = {
     PHP_FE(sodium_crypto_aead_aes256gcm_is_available, AI_None)
 #ifdef HAVE_AESGCM
     PHP_FE(sodium_crypto_aead_aes256gcm_decrypt, AI_StringAndADAndNonceAndKey)
-    PHP_FE(sodium_crypto_aead_aes256gcm_decrypt_detached, AI_StringAndMACAndADAndNonceAndKey)
     PHP_FE(sodium_crypto_aead_aes256gcm_encrypt, AI_StringAndADAndNonceAndKey)
-    PHP_FE(sodium_crypto_aead_aes256gcm_encrypt_detached, AI_StringAndADAndNonceAndKey)
     PHP_FE(sodium_crypto_aead_aes256gcm_keygen, AI_None)
+# ifdef HAVE_AEAD_DETACHED
+    PHP_FE(sodium_crypto_aead_aes256gcm_decrypt_detached, AI_StringAndMACAndADAndNonceAndKey)
+    PHP_FE(sodium_crypto_aead_aes256gcm_encrypt_detached, AI_StringAndADAndNonceAndKey)
+# endif
 #endif
     PHP_FE(sodium_crypto_aead_chacha20poly1305_decrypt, AI_StringAndADAndNonceAndKey)
-    PHP_FE(sodium_crypto_aead_chacha20poly1305_decrypt_detached, AI_StringAndMACAndADAndNonceAndKey)
     PHP_FE(sodium_crypto_aead_chacha20poly1305_encrypt, AI_StringAndADAndNonceAndKey)
-    PHP_FE(sodium_crypto_aead_chacha20poly1305_encrypt_detached, AI_StringAndADAndNonceAndKey)
     PHP_FE(sodium_crypto_aead_chacha20poly1305_keygen, AI_None)
     PHP_FE(sodium_crypto_aead_chacha20poly1305_ietf_decrypt, AI_StringAndADAndNonceAndKey)
-    PHP_FE(sodium_crypto_aead_chacha20poly1305_ietf_decrypt_detached, AI_StringAndMACAndADAndNonceAndKey)
     PHP_FE(sodium_crypto_aead_chacha20poly1305_ietf_encrypt, AI_StringAndADAndNonceAndKey)
-    PHP_FE(sodium_crypto_aead_chacha20poly1305_ietf_encrypt_detached, AI_StringAndADAndNonceAndKey)
     PHP_FE(sodium_crypto_aead_chacha20poly1305_ietf_keygen, AI_None)
+#ifdef HAVE_AEAD_DETACHED
+    PHP_FE(sodium_crypto_aead_chacha20poly1305_decrypt_detached, AI_StringAndMACAndADAndNonceAndKey)
+    PHP_FE(sodium_crypto_aead_chacha20poly1305_encrypt_detached, AI_StringAndADAndNonceAndKey)
+    PHP_FE(sodium_crypto_aead_chacha20poly1305_ietf_decrypt_detached, AI_StringAndMACAndADAndNonceAndKey)
+    PHP_FE(sodium_crypto_aead_chacha20poly1305_ietf_encrypt_detached, AI_StringAndADAndNonceAndKey)
+#endif
 #ifdef crypto_aead_xchacha20poly1305_IETF_NPUBBYTES
     PHP_FE(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt, AI_StringAndADAndNonceAndKey)
-    PHP_FE(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached, AI_StringAndMACAndADAndNonceAndKey)
     PHP_FE(sodium_crypto_aead_xchacha20poly1305_ietf_keygen, AI_None)
     PHP_FE(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt, AI_StringAndADAndNonceAndKey)
+# ifdef HAVE_AEAD_DETACHED
+    PHP_FE(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached, AI_StringAndMACAndADAndNonceAndKey)
     PHP_FE(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt_detached, AI_StringAndADAndNonceAndKey)
+# endif
 #endif
     PHP_FE(sodium_crypto_auth, AI_StringAndKey)
     PHP_FE(sodium_crypto_auth_keygen, AI_None)
@@ -2171,6 +2180,7 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt)
     RETURN_STR(ciphertext);
 }
 
+# ifdef HAVE_AEAD_DETACHED
 PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt_detached)
 {
     zend_string        *ciphertext;
@@ -2242,6 +2252,7 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt_detached)
     add_next_index_str(return_value, ciphertext);
     add_next_index_str(return_value, mac);
 }
+# endif
 
 PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt)
 {
@@ -2309,6 +2320,7 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt)
     RETURN_STR(msg);
 }
 
+# ifdef HAVE_AEAD_DETACHED
 PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt_detached)
 {
     zend_string        *msg;
@@ -2367,6 +2379,7 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt_detached)
     }
     RETURN_STR(msg);
 }
+# endif
 #endif
 
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt)
@@ -2430,6 +2443,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt)
     RETURN_STR(ciphertext);
 }
 
+#ifdef HAVE_AEAD_DETACHED
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt_detached)
 {
     zend_string        *ciphertext;
@@ -2495,6 +2509,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt_detached)
     add_next_index_str(return_value, ciphertext);
     add_next_index_str(return_value, mac);
 }
+#endif
 
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt)
 {
@@ -2558,6 +2573,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt)
     RETURN_STR(msg);
 }
 
+#ifdef HAVE_AEAD_DETACHED
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt_detached)
 {
     zend_string        *msg;
@@ -2612,6 +2628,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt_detached)
     }
     RETURN_STR(msg);
 }
+#endif
 
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt)
 {
@@ -2678,6 +2695,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt)
     RETURN_STR(ciphertext);
 }
 
+#ifdef HAVE_AEAD_DETACHED
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt_detached)
 {
     zend_string        *ciphertext;
@@ -2743,6 +2761,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt_detached)
     add_next_index_str(return_value, ciphertext);
     add_next_index_str(return_value, mac);
 }
+#endif
 
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt)
 {
@@ -2811,6 +2830,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt)
     RETURN_STR(msg);
 }
 
+#ifdef HAVE_AEAD_DETACHED
 PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt_detached)
 {
     zend_string        *msg;
@@ -2865,6 +2885,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt_detached)
     }
     RETURN_STR(msg);
 }
+#endif
 
 #ifdef crypto_aead_xchacha20poly1305_IETF_NPUBBYTES
 PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt)
@@ -2928,6 +2949,7 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt)
     RETURN_STR(ciphertext);
 }
 
+# ifdef HAVE_AEAD_DETACHED
 PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt_detached)
 {
     zend_string        *ciphertext;
@@ -2993,6 +3015,7 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt_detached)
     add_next_index_str(return_value, ciphertext);
     add_next_index_str(return_value, mac);
 }
+# endif
 
 PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt)
 {
@@ -3061,6 +3084,7 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt)
     RETURN_STR(msg);
 }
 
+# ifdef HAVE_AEAD_DETACHED
 PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached)
 {
     zend_string        *msg;
@@ -3115,6 +3139,7 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt_detached)
     }
     RETURN_STR(msg);
 }
+# endif
 #endif
 
 PHP_FUNCTION(sodium_bin2hex)
