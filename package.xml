@@ -22,7 +22,7 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- Added a workaround for a PHP vulnerability affecting all PHP7 versions up to and including 7.2.7.
+- Added a workaround for a PHP vulnerability affecting all PHP7 versions up to and including 7.2.9.
 - Bindings for crypto_aead_*_detached() functions have been added.
   </notes>
   <contents>
