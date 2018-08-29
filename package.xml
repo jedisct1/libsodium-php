@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2018-04-29</date>
+  <date>2018-08-29</date>
   <time>18:51:11</time>
   <version>
-    <release>2.0.11</release>
-    <api>2.0.11</api>
+    <release>2.0.12</release>
+    <api>2.0.12</api>
   </version>
   <stability>
     <release>stable</release>
@@ -22,8 +22,8 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- Added a workaround for a PHP vulnerability affecting all PHP7 versions up to and including 7.2.9.
-- Bindings for crypto_aead_*_detached() functions have been added.
+- Bug fix: sodium_pad() din't support block sizes over 255 bytes
+- Bug fix: file descriptors were not properly closed when using PHP as an Apache module, and Apache was reloaded
   </notes>
   <contents>
     <dir name="/">
