@@ -19,14 +19,14 @@ if test "$PHP_SODIUM" != "no"; then
   dnl pkg-config output
   elif test -x "$PKG_CONFIG" && $PKG_CONFIG --exists libsodium; then
     LIBSODIUM_VERSION=`$PKG_CONFIG libsodium --modversion`
-    if $PKG_CONFIG libsodium --atleast-version=1.0.8; then
+    if $PKG_CONFIG libsodium --atleast-version=1.0.9; then
       LIBSODIUM_CFLAGS=`$PKG_CONFIG libsodium --cflags`
       LIBSODIUM_LIBS=`$PKG_CONFIG libsodium --libs`
       AC_MSG_RESULT(version $LIBSODIUM_VERSION found using pkg-config)
       PHP_EVAL_LIBLINE($LIBSODIUM_LIBS, SODIUM_SHARED_LIBADD)
       PHP_EVAL_INCLINE($LIBSODIUM_CFLAGS)
     else
-      AC_MSG_ERROR([Libsodium $LIBSODIUM_VERSION is too old, version >= 1.0.8 required])
+      AC_MSG_ERROR([Libsodium $LIBSODIUM_VERSION is too old, version >= 1.0.9 required])
     fi
 
   dnl search default path list
