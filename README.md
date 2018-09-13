@@ -87,7 +87,7 @@ $message = 'Sensitive information';
 $block_size = 16;
 
 $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-$padded_message = sodium_pad($padded_message, $block_size);
+$padded_message = sodium_pad($message, $block_size);
 $encrypted_message = sodium_crypto_secretbox($padded_message, $nonce, $secret_key);
 ```
 
