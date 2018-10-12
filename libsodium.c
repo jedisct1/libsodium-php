@@ -3858,15 +3858,17 @@ PHP_FUNCTION(sodium_pad)
     }
     xpadded_len = unpadded_len + xpadlen;
     padded = zend_string_checked_alloc(xpadded_len + 1U, 0);
-    st = 1U;
-    i = 0U;
-    k = unpadded_len;
-    for (j = 0U; j <= xpadded_len; j++) {
-        ZSTR_VAL(padded)[j] = unpadded[i];
-        k -= st;
-        st = (size_t) (~(((( (((uint64_t) k) >> 48) | (((uint64_t) k) >> 32) |
-                             (k >> 16) | k) & 0xffff) - 1U) >> 16)) & 1U;
-        i += st;
+    if (unpadded_len > 0) {
+        st = 1U;
+        i = 0U;
+        k = unpadded_len;
+        for (j = 0U; j <= xpadded_len; j++) {
+            ZSTR_VAL(padded)[j] = unpadded[i];
+            k -= st;
+            st = (size_t) (~(((( (((uint64_t) k) >> 48) | (((uint64_t) k) >> 32) |
+                                 (k >> 16) | k) & 0xffff) - 1U) >> 16)) & 1U;
+            i += st;
+        }
     }
 #if SODIUM_LIBRARY_VERSION_MAJOR > 9 || (SODIUM_LIBRARY_VERSION_MAJOR == 9 && SODIUM_LIBRARY_VERSION_MINOR >= 6)
     if (sodium_pad(NULL, (unsigned char *) ZSTR_VAL(padded), unpadded_len,
