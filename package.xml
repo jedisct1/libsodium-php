@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2018-11-13</date>
+  <date>2018-11-18</date>
   <time>18:51:11</time>
   <version>
-    <release>2.0.14</release>
-    <api>2.0.14</api>
+    <release>2.0.15</release>
+    <api>2.0.15</api>
   </version>
   <stability>
     <release>stable</release>
@@ -22,7 +22,8 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- Some Base64-encoded values couldn't be decoded when using unpadded variants. This has been fixed.
+- The version displayed in `phpinfo()` wasn't updated in the previous
+release. This has been fixed. Nothing else has changed.
   </notes>
   <contents>
     <dir name="/">
