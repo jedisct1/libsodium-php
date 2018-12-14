@@ -6,7 +6,6 @@ matrix:
       env: SKIP_INSTALL=0
     - php: "7.1"
       env: SKIP_INSTALL=0
-           CHECK_MBSTRING=1
     - php: "7.2"
       env: SKIP_INSTALL=1
     - php: "nightly"
