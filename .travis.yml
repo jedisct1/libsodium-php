@@ -8,6 +8,8 @@ matrix:
       env: SKIP_INSTALL=0
     - php: "7.2"
       env: SKIP_INSTALL=1
+    - php: "7.3"
+      env: SKIP_INSTALL=1
     - php: "nightly"
       env: SKIP_INSTALL=1
     - php: "master"
