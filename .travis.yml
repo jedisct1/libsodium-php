@@ -31,10 +31,10 @@ before_script:
  - sudo /sbin/ldconfig
  - cd ..
  - rm -fr libsodium
- - if [[ $HIDE_STARTUP_ERRORS -eq 1 ]]; then ./hide-startup-errors.sh; fi
 
 script:
  - phpize
+ - if [[ $HIDE_STARTUP_ERRORS -eq 1 ]]; then ed -i "s/PHP_TEST_SETTINGS = \(\.*\)/PHP_TEST_SETTINGS = -d 'display_startup_errors=0' \1/" Makefile.global; fi
  - ./configure --with-sodium
  - make clean
  - make
