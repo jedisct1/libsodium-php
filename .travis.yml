@@ -3,11 +3,17 @@ matrix:
   fast_finish: true
   include:
     - php: "7.0"
+      env: HIDE_STARTUP_ERRORS=0
     - php: "7.1"
+      env: HIDE_STARTUP_ERRORS=0
     - php: "7.2"
+      env: HIDE_STARTUP_ERRORS=1
     - php: "7.3"
+      env: HIDE_STARTUP_ERRORS=1
     - php: "nightly"
+      env: HIDE_STARTUP_ERRORS=1
     - php: "master"
+      env: HIDE_STARTUP_ERRORS=1
   allow_failures:
     - php: "nightly"
     - php: "master"
@@ -25,6 +31,7 @@ before_script:
  - sudo /sbin/ldconfig
  - cd ..
  - rm -fr libsodium
+ - if [[ $HIDE_STARTUP_ERRORS -eq 1 ]]; then ./hide-startup-errors.sh; fi
 
 script:
  - phpize
