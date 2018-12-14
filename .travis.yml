@@ -3,17 +3,11 @@ matrix:
   fast_finish: true
   include:
     - php: "7.0"
-      env: SKIP_INSTALL=0
     - php: "7.1"
-      env: SKIP_INSTALL=0
     - php: "7.2"
-      env: SKIP_INSTALL=1
     - php: "7.3"
-      env: SKIP_INSTALL=1
     - php: "nightly"
-      env: SKIP_INSTALL=1
     - php: "master"
-      env: SKIP_INSTALL=1
   allow_failures:
     - php: "nightly"
     - php: "master"
@@ -33,8 +27,8 @@ before_script:
  - rm -fr libsodium
 
 script:
- - if [[ $SKIP_INSTALL -eq 0 ]]; then phpize; endif
- - if [[ $SKIP_INSTALL -eq 0 ]]; then ./configure --with-sodium; endif
- - if [[ $SKIP_INSTALL -eq 0 ]]; then make clean; endif
- - if [[ $SKIP_INSTALL -eq 0 ]]; then make; endif
+ - phpize
+ - ./configure --with-sodium
+ - make clean
+ - make
  - env NO_INTERACTION=1 make test
