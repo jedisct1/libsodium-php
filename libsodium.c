@@ -28,9 +28,8 @@ static zend_class_entry *sodium_exception_ce;
 ZEND_BEGIN_ARG_INFO_EX(AI_None, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(AI_FirstArgByReferenceSecondLength, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(AI_ByReference, 0, 0, 1)
     ZEND_ARG_INFO(1, reference)
-    ZEND_ARG_INFO(0, length)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(AI_String, 0, 0, 1)
@@ -359,7 +358,7 @@ const zend_function_entry sodium_functions[] = {
     PHP_FE(sodium_compare, AI_TwoStrings)
     PHP_FE(sodium_increment, AI_StringRef)
     PHP_FE(sodium_memcmp, AI_TwoStrings)
-    PHP_FE(sodium_memzero, AI_FirstArgByReferenceSecondLength)
+    PHP_FE(sodium_memzero, AI_ByReference)
     PHP_FE(sodium_pad, AI_StringAndLength)
     PHP_FE(sodium_unpad, AI_StringAndLength)
 
