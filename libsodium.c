@@ -413,7 +413,8 @@ static zend_object *sodium_exception_create_object(zend_class_entry *ce) {
         ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(trace), frame) {
             if (Z_TYPE_P(frame) == IS_ARRAY) {
                 zval *args = zend_hash_str_find(Z_ARRVAL_P(frame), "args", (sizeof "args") - 1);
-                if (args && Z_TYPE_P(frame) == IS_ARRAY) {
+                if (args != NULL && Z_TYPE_P(args) == IS_ARRAY &&
+                    Z_REFCOUNTED_P(args) && Z_REFCOUNT_P(args) == 1) {
                     zend_hash_clean(Z_ARRVAL_P(args));
                 }
             }
