@@ -94,6 +94,16 @@ if (defined('SODIUM_BASE64_VARIANT_ORIGINAL')) {
     var_dump('abcd');
 }
 
+function foo()
+{
+    throw new SodiumException('test');
+}
+try {
+    foo();
+} catch (SodiumException $ex) {
+    var_dump($ex->getMessage());
+}
+
 ?>
 --EXPECT--
 0
@@ -114,3 +124,4 @@ string(25) "base64("O1R") case passed"
 string(24) "base64("O1") case passed"
 string(23) "base64("O") case passed"
 string(4) "abcd"
+string(4) "test"
