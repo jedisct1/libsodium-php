@@ -15,6 +15,10 @@
 
 #define PHP_SODIUM_ZSTR_TRUNCATE(zs, len) do { ZSTR_LEN(zs) = (len); } while(0)
 
+#ifndef IS_TYPE_COPYABLE
+# define IS_TYPE_COPYABLE IS_TYPE_IMMUTABLE
+#endif
+
 static zend_always_inline zend_string *zend_string_checked_alloc(size_t len, int persistent)
 {
    if (ZEND_MM_ALIGNED_SIZE(_ZSTR_STRUCT_SIZE(len)) < len) {
