@@ -22,7 +22,7 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- Restore compatibility with PHP < 7.3
+- Restore compatibility with PHP before 7.3
   </notes>
   <contents>
     <dir name="/">
