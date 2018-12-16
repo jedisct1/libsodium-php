@@ -5,7 +5,7 @@
 extern zend_module_entry sodium_module_entry;
 #define phpext_sodium_ptr &sodium_module_entry
 
-#define PHP_SODIUM_VERSION "2.0.18"
+#define PHP_SODIUM_VERSION "2.0.19"
 
 #ifdef PHP_WIN32
 # define PHP_SODIUM_API __declspec(dllexport)

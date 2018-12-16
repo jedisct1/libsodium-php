@@ -11,10 +11,10 @@
     <active>yes</active>
   </lead>
   <date>2018-12-16</date>
-  <time>18:51:11</time>
+  <time>18:51:12</time>
   <version>
-    <release>2.0.18</release>
-    <api>2.0.18</api>
+    <release>2.0.19</release>
+    <api>2.0.19</api>
   </version>
   <stability>
     <release>stable</release>
@@ -22,7 +22,7 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- Restore compatibility with PHP before 7.3
+- Restore compatibility with 7.3
   </notes>
   <contents>
     <dir name="/">
