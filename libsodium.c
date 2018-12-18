@@ -15,14 +15,6 @@
 
 #define PHP_SODIUM_ZSTR_TRUNCATE(zs, len) do { ZSTR_LEN(zs) = (len); } while(0)
 
-#ifndef IS_TYPE_COPYABLE
-# ifdef IS_TYPE_IMMUTABLE
-#  define IS_TYPE_COPYABLE IS_TYPE_IMMUTABLE
-# else
-#  define IS_TYPE_COPYABLE IS_ARRAY
-# endif
-#endif
-
 static zend_always_inline zend_string *zend_string_checked_alloc(size_t len, int persistent)
 {
    if (ZEND_MM_ALIGNED_SIZE(_ZSTR_STRUCT_SIZE(len)) < len) {
@@ -420,9 +412,14 @@ static zend_object *sodium_exception_create_object(zend_class_entry *ce) {
         ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(trace), frame) {
             if (Z_TYPE_P(frame) == IS_ARRAY) {
                 zval *args = zend_hash_str_find(Z_ARRVAL_P(frame), "args", (sizeof "args") - 1);
+#ifdef ZVAL_EMPTY_ARRAY
                 zval_ptr_dtor(args);
-                Z_ARR_P(args) = (zend_array*)&zend_empty_array;
-                Z_TYPE_INFO_P(args) = IS_ARRAY | (IS_TYPE_COPYABLE << Z_TYPE_FLAGS_SHIFT);
+                ZVAL_EMPTY_ARRAY(args);
+#else
+                if (args && Z_TYPE_P(args) == IS_ARRAY) {
+                    zend_hash_clean(Z_ARRVAL_P(args));
+                }
+#endif
             }
         } ZEND_HASH_FOREACH_END();
     }
