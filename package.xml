@@ -10,11 +10,11 @@
     <email>jedisct1@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2018-12-18</date>
+  <date>2019-02-21</date>
   <time>18:51:12</time>
   <version>
-    <release>2.0.20</release>
-    <api>2.0.20</api>
+    <release>2.0.21</release>
+    <api>2.0.21</api>
   </version>
   <stability>
     <release>stable</release>
@@ -22,7 +22,7 @@
   </stability>
   <license uri="http://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause License</license>
   <notes>
-- Restore compatibility with PHP
+- Detached signature strings were not properly terminated. This has been fixed.
   </notes>
   <contents>
     <dir name="/">
