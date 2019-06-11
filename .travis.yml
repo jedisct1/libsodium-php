@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 
 language: php
 matrix:
@@ -7,7 +7,6 @@ matrix:
     - php: "7.0"
     - php: "7.1"
     - php: "7.2"
-    - php: "7.3"
 
 os:
   - linux
