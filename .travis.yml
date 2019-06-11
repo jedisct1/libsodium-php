@@ -1,27 +1,31 @@
+dist: xenial
+
 language: php
 matrix:
   fast_finish: true
   include:
     - php: "7.0"
     - php: "7.1"
+    - php: "7.2"
+    - php: "7.3"
 
 os:
- - linux
+  - linux
 
 before_script:
- - git clone git://github.com/jedisct1/libsodium.git
- - cd libsodium
- - ./autogen.sh
- - ./configure --disable-dependency-tracking
- - make
- - sudo make install
- - sudo /sbin/ldconfig
- - cd ..
- - rm -fr libsodium
+  - git clone https://github.com/jedisct1/libsodium.git
+  - cd libsodium
+  - git checkout stable
+  - ./configure --disable-dependency-tracking
+  - make
+  - sudo make install
+  - sudo /sbin/ldconfig
+  - cd ..
+  - rm -fr libsodium
 
 script:
- - phpize
- - ./configure --with-sodium
- - make clean
- - make
- - env NO_INTERACTION=1 make test
+  - phpize
+  - ./configure --with-sodium
+  - make clean
+  - make
+  - env NO_INTERACTION=1 make test
