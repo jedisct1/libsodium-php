@@ -42,9 +42,11 @@ var_dump($act);
 var_dump($exp === $act);
 try {
     $hash = sodium_crypto_generichash('test', '', 128);
+    var_dump(false);
 } catch (SodiumException $ex) {
     var_dump(true);
 }
+var_dump(strlen(bin2hex($state)));
 ?>
 --EXPECT--
 string(64) "96a7ed8861db0abc006f473f9e64687875f3d9df8e723adae9f53a02b2aec378"
@@ -59,3 +61,4 @@ string(128) "9ef702f51114c9dc2cc7521746e8beebe0a3ca9bb29ec729e16682ca982e7f69ff7
 string(128) "9ef702f51114c9dc2cc7521746e8beebe0a3ca9bb29ec729e16682ca982e7f69ff70235a46659a9a6c28f92fbd990288301b9a6b5517f1f2ba6518074af19a5a"
 bool(true)
 bool(true)
+int(361)
