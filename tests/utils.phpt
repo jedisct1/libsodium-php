@@ -19,12 +19,12 @@ var_dump(!sodium_memcmp($b, 'String'));
 $v = "\xFF\xFF\x80\x01\x02\x03\x04\x05\x06\x07";
 $v .= "\x08";
 sodium_increment($v);
-var_dump(bin2hex($v));
+var_dump(sodium_bin2hex($v));
 
 $w = "\x01\x02\x03\x04\x05\x06\x07\x08\xFA\xFB";
 $w .= "\xFC";
 sodium_add($v, $w);
-var_dump(bin2hex($v));
+var_dump(sodium_bin2hex($v));
 
 if (SODIUM_LIBRARY_MAJOR_VERSION > 7 ||
     (SODIUM_LIBRARY_MAJOR_VERSION == 7 &&
@@ -49,7 +49,7 @@ var_dump($obj);
 
 $str = 'xyz';
 $str_padded = sodium_pad($str, 16);
-var_dump(bin2hex($str_padded));
+var_dump(sodium_bin2hex($str_padded));
 
 $str_unpadded = sodium_unpad($str_padded, 16);
 var_dump($str_unpadded == $str);
