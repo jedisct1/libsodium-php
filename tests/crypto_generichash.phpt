@@ -13,6 +13,7 @@ var_dump(sodium_bin2hex($q));
 $q = sodium_crypto_generichash('msg', '0123456789abcdef0123456789abcdef', 64);
 var_dump(sodium_bin2hex($q));
 $state = sodium_crypto_generichash_init();
+$state_copy = $state;
 $q = sodium_crypto_generichash_final($state);
 var_dump(sodium_bin2hex($q));
 $state = sodium_crypto_generichash_init();
@@ -45,6 +46,7 @@ try {
 } catch (SodiumException $ex) {
     var_dump(true);
 }
+var_dump($state_copy === sodium_crypto_generichash_init());
 ?>
 --EXPECT--
 string(64) "96a7ed8861db0abc006f473f9e64687875f3d9df8e723adae9f53a02b2aec378"
@@ -57,5 +59,6 @@ string(64) "ba03e32a94ece425a77b350f029e0a3d37e6383158aa7cefa2b1b9470a7fcb7a"
 string(128) "8ccd640462e7380010c5722d7f3c2354781d1360430197ff233509c27353fd2597c8d689bfe769467056a0655b3faba6af4e4ade248558f7c53538c4d5b94806"
 string(128) "9ef702f51114c9dc2cc7521746e8beebe0a3ca9bb29ec729e16682ca982e7f69ff70235a46659a9a6c28f92fbd990288301b9a6b5517f1f2ba6518074af19a5a"
 string(128) "9ef702f51114c9dc2cc7521746e8beebe0a3ca9bb29ec729e16682ca982e7f69ff70235a46659a9a6c28f92fbd990288301b9a6b5517f1f2ba6518074af19a5a"
+bool(true)
 bool(true)
 bool(true)
