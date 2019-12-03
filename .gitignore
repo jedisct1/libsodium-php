@@ -27,6 +27,7 @@ autom4te.cache
 build
 config.*
 configure
+configure.ac
 configure.in
 install-sh
 libtool
