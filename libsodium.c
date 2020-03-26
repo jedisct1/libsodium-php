@@ -2166,10 +2166,12 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
+#if SIZEOF_SIZE_T != 4
     if ((unsigned long long) msg_len > (16ULL * ((1ULL << 32) - 2ULL)) - crypto_aead_aes256gcm_ABYTES) {
         zend_throw_exception(sodium_exception_ce, "message too long for a single key", 0);
         return;
     }
+#endif
     ciphertext_len = msg_len + crypto_aead_aes256gcm_ABYTES;
     ciphertext = zend_string_checked_alloc((size_t) ciphertext_len, 0);
     if (crypto_aead_aes256gcm_encrypt
@@ -2304,10 +2306,12 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt)
     if (ciphertext_len < crypto_aead_aes256gcm_ABYTES) {
         RETURN_FALSE;
     }
+#if SIZEOF_SIZE_T != 4
     if (ciphertext_len - crypto_aead_aes256gcm_ABYTES > 16ULL * ((1ULL << 32) - 2ULL)) {
         zend_throw_exception(sodium_exception_ce, "message too long for a single key", 0);
         return;
     }
+#endif
     msg_len = ciphertext_len;
     if (msg_len >= SIZE_MAX) {
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
@@ -2681,10 +2685,12 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt)
         zend_throw_exception(sodium_exception_ce, "arithmetic overflow", 0);
         return;
     }
+#if SIZEOF_SIZE_T != 4
     if ((unsigned long long) msg_len > 64ULL * (1ULL << 32) - 64ULL) {
         zend_throw_exception(sodium_exception_ce, "message too long for a single key", 0);
         return;
     }
+#endif
     ciphertext_len = msg_len + crypto_aead_chacha20poly1305_IETF_ABYTES;
     ciphertext = zend_string_checked_alloc((size_t) ciphertext_len, 0);
     if (crypto_aead_chacha20poly1305_ietf_encrypt
