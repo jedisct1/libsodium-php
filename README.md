@@ -156,6 +156,7 @@ $stream = sodium_crypto_secretstream_xchacha20poly1305_init_pull($header, $secre
 do {
     $chunk = fread($fdIn, $chunkSize + SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_ABYTES);
     [$decryptedChunk, $tag] = sodium_crypto_secretstream_xchacha20poly1305_pull($stream, $chunk);
+
     fwrite($fdOut, $decryptedChunk);
 } while (!feof($fdIn) && $tag !== SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL);
 $ok = feof($fdIn);
