@@ -46,17 +46,17 @@ Examples
 Encryption:
 
 ```php
-$secret_key = sodium_crypto_secretbox_keygen();
+$secretKey = sodium_crypto_secretbox_keygen();
 $message = 'Sensitive information';
 
 $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-$encrypted_message = sodium_crypto_secretbox($message, $nonce, $secret_key);
+$encryptedMessage = sodium_crypto_secretbox($message, $nonce, $secretKey);
 ```
 
 Decryption:
 
 ```php
-$decrypted_message = sodium_crypto_secretbox_open($encrypted_message, $nonce, $secret_key);
+$decryptedMessage = sodium_crypto_secretbox_open($encryptedMessage, $nonce, $secretKey);
 ```
 
 How it works:
@@ -69,7 +69,7 @@ as it is used both to encrypt and decrypt data.
 
 `$nonce` is a unique value. Like the secret, its length is fixed. But
 it doesn't have to be secret, and can be sent along with the encrypted
-message. The nonce doesn't have to be unpredicable either. It just has
+message. The nonce doesn't have to be unpredictable either. It just has
 to be unique for a given key. With the `secretbox()` API, using
 `random_bytes()` is a totally fine way to generate nonces.
 
@@ -82,20 +82,20 @@ to check that the content was not altered.
 Encryption:
 
 ```php
-$secret_key = sodium_crypto_secretbox_keygen();
+$secretKey = sodium_crypto_secretbox_keygen();
 $message = 'Sensitive information';
-$block_size = 16;
+$blockSize = 16;
 
 $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-$padded_message = sodium_pad($message, $block_size);
-$encrypted_message = sodium_crypto_secretbox($padded_message, $nonce, $secret_key);
+$paddedMessage = sodium_pad($message, $blockSize);
+$encryptedMessage = sodium_crypto_secretbox($paddedMessage, $nonce, $secretKey);
 ```
 
 Decryption:
 
 ```php
-$decrypted_padded_message = sodium_crypto_secretbox_open($encrypted_message, $nonce, $secret_key);
-$decrypted_message = sodium_unpad($decrypted_padded_message, $block_size);
+$decryptedPaddedMessage = sodium_crypto_secretbox_open($encryptedMessage, $nonce, $secretKey);
+$decryptedMessage = sodium_unpad($decryptedPaddedMessage, $blockSize);
 ```
 
 How it works:
@@ -114,52 +114,54 @@ decryption.
 ## Encrypt a file using a secret key
 
 ```php
-$secret_key = sodium_crypto_secretstream_xchacha20poly1305_keygen();
-$input_file = '/tmp/example.original';
-$encrypted_file = '/tmp/example.enc';
-$chunk_size = 4096;
+$secretKey = sodium_crypto_secretstream_xchacha20poly1305_keygen();
+$inputFile = '/tmp/example.original';
+$encryptedFile = '/tmp/example.enc';
+$chunkSize = 4096;
 
-$fd_in = fopen($input_file, 'rb');
-$fd_out = fopen($encrypted_file, 'wb');
+$fdIn = fopen($inputFile, 'rb');
+$fdOut = fopen($encryptedFile, 'wb');
 
-list($stream, $header) = sodium_crypto_secretstream_xchacha20poly1305_init_push($secret_key);
+[$stream, $header] = sodium_crypto_secretstream_xchacha20poly1305_init_push($secretKey);
 
-fwrite($fd_out, $header);
+fwrite($fdOut, $header);
 
 $tag = SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_MESSAGE;
 do {
-    $chunk = fread($fd_in, $chunk_size);
-    if (feof($fd_in)) {
+    $chunk = fread($fdIn, $chunkSize);
+
+    if (feof($fdIn)) {
         $tag = SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL;
     }
-    $encrypted_chunk = sodium_crypto_secretstream_xchacha20poly1305_push($stream, $chunk, '', $tag);
-    fwrite($fd_out, $encrypted_chunk);
+
+    $encryptedChunk = sodium_crypto_secretstream_xchacha20poly1305_push($stream, $chunk, '', $tag);
+    fwrite($fdOut, $encryptedChunk);
 } while ($tag !== SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL);
 
-fclose($fd_out);
-fclose($fd_in);
+fclose($fdOut);
+fclose($fdIn);
 ```
 
 Decrypt the file:
 
 ```php
-$decrypted_file = '/tmp/example.dec';
+$decryptedFile = '/tmp/example.dec';
 
-$fd_in = fopen($encrypted_file, 'rb');
-$fd_out = fopen($decrypted_file, 'wb');
+$fdIn = fopen($encryptedFile, 'rb');
+$fdOut = fopen($decryptedFile, 'wb');
 
-$header = fread($fd_in, SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_HEADERBYTES);
+$header = fread($fdIn, SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_HEADERBYTES);
 
-$stream = sodium_crypto_secretstream_xchacha20poly1305_init_pull($header, $secret_key);
+$stream = sodium_crypto_secretstream_xchacha20poly1305_init_pull($header, $secretKey);
 do {
-    $chunk = fread($fd_in, $chunk_size + SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_ABYTES);
-    list($decrypted_chunk, $tag) = sodium_crypto_secretstream_xchacha20poly1305_pull($stream, $chunk);
-    fwrite($fd_out, $decrypted_chunk);
-} while (!feof($fd_in) && $tag !== SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL);
-$ok = feof($fd_in);
+    $chunk = fread($fdIn, $chunkSize + SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_ABYTES);
+    [$decryptedChunk, $tag] = sodium_crypto_secretstream_xchacha20poly1305_pull($stream, $chunk);
+    fwrite($fdOut, $decryptedChunk);
+} while (!feof($fdIn) && $tag !== SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL);
+$ok = feof($fdIn);
 
-fclose($fd_out);
-fclose($fd_in);
+fclose($fdOut);
+fclose($fdIn);
 
 if (!$ok) {
     die('Invalid/corrupted input');
@@ -199,76 +201,91 @@ completely recovered the original stream.
 
 ```php
 $password = 'password';
-$input_file = '/tmp/example.original';
-$encrypted_file = '/tmp/example.enc';
-$chunk_size = 4096;
+$inputFile = '/tmp/example.original';
+$encryptedFile = '/tmp/example.enc';
+$chunkSize = 4096;
 
 $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT;
-$opslimit = SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE;
-$memlimit = SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE;
+$opsLimit = SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE;
+$memLimit = SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE;
 $salt = random_bytes(SODIUM_CRYPTO_PWHASH_SALTBYTES);
 
-$secret_key = sodium_crypto_pwhash(SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
-                                   $password, $salt, $opslimit, $memlimit, $alg);
+$secretKey = sodium_crypto_pwhash(
+    SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
+    $password,
+    $salt,
+    $opsLimit,
+    $memLimit,
+    $alg
+);
 
-$fd_in = fopen($input_file, 'rb');
-$fd_out = fopen($encrypted_file, 'wb');
+$fdIn = fopen($inputFile, 'rb');
+$fdOut = fopen($encryptedFile, 'wb');
 
-fwrite($fd_out, pack('C', $alg));
-fwrite($fd_out, pack('P', $opslimit));
-fwrite($fd_out, pack('P', $memlimit));
-fwrite($fd_out, $salt);
+fwrite($fdOut, pack('C', $alg));
+fwrite($fdOut, pack('P', $opsLimit));
+fwrite($fdOut, pack('P', $memLimit));
+fwrite($fdOut, $salt);
 
-list($stream, $header) = sodium_crypto_secretstream_xchacha20poly1305_init_push($secret_key);
+[$stream, $header] = sodium_crypto_secretstream_xchacha20poly1305_init_push($secretKey);
 
-fwrite($fd_out, $header);
+fwrite($fdOut, $header);
 
 $tag = SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_MESSAGE;
 do {
-    $chunk = fread($fd_in, $chunk_size);
-    if (feof($fd_in)) {
+    $chunk = fread($fdIn, $chunkSize);
+    if (feof($fdIn)) {
         $tag = SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL;
     }
-    $encrypted_chunk = sodium_crypto_secretstream_xchacha20poly1305_push($stream, $chunk, '', $tag);
-    fwrite($fd_out, $encrypted_chunk);
+
+    $encryptedChunk = sodium_crypto_secretstream_xchacha20poly1305_push($stream, $chunk, '', $tag);
+    fwrite($fdOut, $encryptedChunk);
 } while ($tag !== SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL);
 
-fclose($fd_out);
-fclose($fd_in);
+fclose($fdOut);
+fclose($fdIn);
 ```
 
 Read the stored parameters and decrypt the file:
 
 ```php
-$decrypted_file = '/tmp/example.dec';
+$decryptedFile = '/tmp/example.dec';
 
-$fd_in = fopen($encrypted_file, 'rb');
-$fd_out = fopen($decrypted_file, 'wb');
+$fdIn = fopen($encryptedFile, 'rb');
+$fdOut = fopen($decryptedFile, 'wb');
 
-$alg = unpack('C', fread($fd_in, 1))[1];
-$opslimit = unpack('P', fread($fd_in, 8))[1];
-$memlimit = unpack('P', fread($fd_in, 8))[1];
-$salt = fread($fd_in, SODIUM_CRYPTO_PWHASH_SALTBYTES);
+$alg = unpack('C', fread($fdIn, 1))[1];
+$opsLimit = unpack('P', fread($fdIn, 8))[1];
+$memLimit = unpack('P', fread($fdIn, 8))[1];
+$salt = fread($fdIn, SODIUM_CRYPTO_PWHASH_SALTBYTES);
 
-$header = fread($fd_in, SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_HEADERBYTES);
+$header = fread($fdIn, SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_HEADERBYTES);
 
-$secret_key = sodium_crypto_pwhash(SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
-                                   $password, $salt, $opslimit, $memlimit, $alg);
+$secretKey = sodium_crypto_pwhash(
+    SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
+    $password,
+    $salt,
+    $opsLimit,
+    $memLimit,
+    $alg
+);
 
-$stream = sodium_crypto_secretstream_xchacha20poly1305_init_pull($header, $secret_key);
+$stream = sodium_crypto_secretstream_xchacha20poly1305_init_pull($header, $secretKey);
 do {
-    $chunk = fread($fd_in, $chunk_size + SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_ABYTES);
+    $chunk = fread($fdIn, $chunkSize + SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_ABYTES);
     $res = sodium_crypto_secretstream_xchacha20poly1305_pull($stream, $chunk);
-    if ($res === FALSE) {
-       break;
-    }
-    list($decrypted_chunk, $tag) = $res;
-    fwrite($fd_out, $decrypted_chunk);
-} while (!feof($fd_in) && $tag !== SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL);
-$ok = feof($fd_in);
 
-fclose($fd_out);
-fclose($fd_in);
+    if ($res === false) {
+        break;
+    }
+    
+    [$decrypted_chunk, $tag] = $res;
+    fwrite($fdOut, $decrypted_chunk);
+} while (!feof($fdIn) && $tag !== SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_FINAL);
+$ok = feof($fdIn);
+
+fclose($fdOut);
+fclose($fdIn);
 
 if (!$ok) {
     die('Invalid/corrupted input');
@@ -294,4 +311,3 @@ for each of them, different parameters can be chosen. It is important
 to store all of these along with encrypted data. Using the same
 algorithm and the same parameters, the same secret key can be
 deterministically recomputed.
-
