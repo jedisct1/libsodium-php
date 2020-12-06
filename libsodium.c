@@ -19,8 +19,8 @@
 #if PHP_VERSION_ID < 70200
 # undef ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX
 # define ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(name, return_reference, required_num_args, type, allow_null) \
-	static const zend_internal_arg_info name[] = { \
-	   	{ (const char*)(zend_uintptr_t)(required_num_args), NULL, type, return_reference, allow_null, 0 },
+    static const zend_internal_arg_info name[] = { \
+        { (const char *)(zend_uintptr_t) required_num_args, NULL, type, return_reference, allow_null, 0 },
 #endif
 #ifndef ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX
 # define ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(name, return_reference, num_args, type) \
