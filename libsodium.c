@@ -17,10 +17,10 @@
 
 static zend_always_inline zend_string *zend_string_checked_alloc(size_t len, int persistent)
 {
-   if (ZEND_MM_ALIGNED_SIZE(_ZSTR_STRUCT_SIZE(len)) < len) {
-       zend_error_noreturn(E_ERROR, "Memory allocation too large (%zu bytes)", len);
-   }
-   return zend_string_alloc(len, persistent);
+    if (ZEND_MM_ALIGNED_SIZE(_ZSTR_STRUCT_SIZE(len)) < len) {
+        zend_error_noreturn(E_ERROR, "Memory allocation too large (%zu bytes)", len);
+    }
+    return zend_string_alloc(len, persistent);
 }
 
 static zend_class_entry *sodium_exception_ce;
@@ -402,10 +402,15 @@ ZEND_GET_MODULE(sodium)
 
 static zend_object *sodium_exception_create_object(zend_class_entry *ce) {
     zend_object *obj = zend_ce_exception->create_object(ce);
-    zval obj_zv, rv, *trace;
+#if ZEND_MODULE_API_NO >= 20201009
+    zend_object obj_zv;
+#else
+    zval obj_zv;
+    ZVAL_OBJ(&obj_zv, obj);
+#endif
+    zval rv, *trace;
 
     /* Remove argument information from backtrace to prevent information leaks */
-    ZVAL_OBJ(&obj_zv, obj);
     trace = zend_read_property(zend_ce_exception, &obj_zv, "trace", (sizeof "trace") - 1, 0, &rv);
     if (trace && Z_TYPE_P(trace) == IS_ARRAY) {
         zval *frame = NULL;
