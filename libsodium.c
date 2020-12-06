@@ -402,16 +402,17 @@ ZEND_GET_MODULE(sodium)
 
 static zend_object *sodium_exception_create_object(zend_class_entry *ce) {
     zend_object *obj = zend_ce_exception->create_object(ce);
-#if ZEND_MODULE_API_NO >= 20200930
-    zend_object obj_zv;
-#else
-    zval obj_zv;
-    ZVAL_OBJ(&obj_zv, obj);
-#endif
     zval rv, *trace;
 
+#if ZEND_MODULE_API_NO >= 20200930
+    zend_object *obj_zv = obj;
+#else
+    zval obj_zv[1];
+    ZVAL_OBJ(obj_zv, obj);
+#endif
+    trace = zend_read_property(zend_get_exception_base(obj_zv), obj_zv, "trace", (sizeof "trace") - 1, 0, &rv);
+
     /* Remove argument information from backtrace to prevent information leaks */
-    trace = zend_read_property(zend_ce_exception, &obj_zv, "trace", (sizeof "trace") - 1, 0, &rv);
     if (trace && Z_TYPE_P(trace) == IS_ARRAY) {
         zval *frame = NULL;
         ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(trace), frame) {
