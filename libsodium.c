@@ -402,7 +402,7 @@ ZEND_GET_MODULE(sodium)
 
 static zend_object *sodium_exception_create_object(zend_class_entry *ce) {
     zend_object *obj = zend_ce_exception->create_object(ce);
-#if ZEND_MODULE_API_NO >= 20201009
+#if ZEND_MODULE_API_NO >= 20200930
     zend_object obj_zv;
 #else
     zval obj_zv;
