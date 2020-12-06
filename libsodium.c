@@ -6,8 +6,26 @@
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
-#include "php_libsodium.h"
 #include "zend_exceptions.h"
+
+#ifndef ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX
+# define ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(name, return_reference, num_args, type, allow_null) \
+    ZEND_BEGIN_ARG_INFO_EX(name, 0, return_reference, num_args)
+#endif
+#ifndef ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX
+# define ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(name, return_reference, num_args, type) \
+    ZEND_BEGIN_ARG_INFO_EX(name, 0, return_reference, num_args)
+#endif
+#ifndef ZEND_ARG_INFO_WITH_DEFAULT_VALUE
+# define ZEND_ARG_INFO_WITH_DEFAULT_VALUE(pass_by_ref, name, default_value) \
+    ZEND_ARG_INFO(pass_by_ref, name)
+#endif
+#ifndef ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE
+# define ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(pass_by_ref, name, type_hint, allow_null, default_value) \
+	ZEND_ARG_TYPE_INFO(pass_by_ref, name, type_hint, allow_null)
+#endif
+
+#include "php_libsodium.h"
 
 #include <sodium.h>
 #include <stdint.h>
