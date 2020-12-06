@@ -11,10 +11,16 @@
 #include "php_ini.h"
 #include "ext/standard/info.h"
 #include "zend_exceptions.h"
+#include "zend_API.h"
 
-#ifndef ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX
-# define ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(name, return_reference, num_args, type, allow_null) \
-    ZEND_BEGIN_ARG_INFO_EX(name, 0, return_reference, num_args)
+#if PHP_VERSION_ID < 70100
+# define IS_VOID 0
+#endif
+#if PHP_VERSION_ID < 70200
+# undef ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX
+# define ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(name, return_reference, required_num_args, type, allow_null) \
+	static const zend_internal_arg_info name[] = { \
+	   	{ (const char*)(zend_uintptr_t)(required_num_args), NULL, type, return_reference, allow_null, 0 },
 #endif
 #ifndef ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX
 # define ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(name, return_reference, num_args, type) \
