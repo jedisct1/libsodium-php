@@ -33,10 +33,15 @@
 
 static zend_always_inline zend_string *zend_string_checked_alloc(size_t len, int persistent)
 {
+    zend_string *zs;
+
     if (ZEND_MM_ALIGNED_SIZE(_ZSTR_STRUCT_SIZE(len)) < len) {
         zend_error_noreturn(E_ERROR, "Memory allocation too large (%zu bytes)", len);
     }
-    return zend_string_alloc(len, persistent);
+    zs = zend_string_alloc(len, persistent);
+    ZSTR_VAL(zs)[len] = 0;
+
+    return zs;
 }
 
 static zend_class_entry *sodium_exception_ce;
@@ -639,7 +644,6 @@ PHP_FUNCTION(sodium_crypto_shorthash)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(hash)[crypto_shorthash_BYTES] = 0;
 
     RETURN_STR(hash);
 }
@@ -684,7 +688,6 @@ PHP_FUNCTION(sodium_crypto_secretbox)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(ciphertext)[msg_len + crypto_secretbox_MACBYTES] = 0;
 
     RETURN_STR(ciphertext);
 }
@@ -728,7 +731,6 @@ PHP_FUNCTION(sodium_crypto_secretbox_open)
         zend_string_free(msg);
         RETURN_FALSE;
     } else {
-        ZSTR_VAL(msg)[ciphertext_len - crypto_secretbox_MACBYTES] = 0;
         RETURN_STR(msg);
     }
 }
@@ -767,7 +769,6 @@ PHP_FUNCTION(sodium_crypto_generichash)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(hash)[hash_len] = 0;
 
     RETURN_STR(hash);
 }
@@ -806,7 +807,6 @@ PHP_FUNCTION(sodium_crypto_generichash_init)
     state = zend_string_checked_alloc(state_len, 0);
     memcpy(ZSTR_VAL(state), &state_tmp, state_len);
     sodium_memzero(&state_tmp, sizeof state_tmp);
-    ZSTR_VAL(state)[state_len] = 0;
 
     RETURN_STR(state);
 }
@@ -892,7 +892,6 @@ PHP_FUNCTION(sodium_crypto_generichash_final)
     sodium_memzero(&state_tmp, sizeof state_tmp);
     sodium_memzero(state, state_len);
     convert_to_null(state_zv);
-    ZSTR_VAL(hash)[hash_len] = 0;
 
     RETURN_STR(hash);
 }
@@ -914,7 +913,6 @@ PHP_FUNCTION(sodium_crypto_box_keypair)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(keypair)[keypair_len] = 0;
 
     RETURN_STR(keypair);
 }
@@ -946,7 +944,6 @@ PHP_FUNCTION(sodium_crypto_box_seed_keypair)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(keypair)[keypair_len] = 0;
 
     RETURN_STR(keypair);
 }
@@ -982,7 +979,6 @@ PHP_FUNCTION(sodium_crypto_box_keypair_from_secretkey_and_publickey)
     memcpy(ZSTR_VAL(keypair), secretkey, crypto_box_SECRETKEYBYTES);
     memcpy(ZSTR_VAL(keypair) + crypto_box_SECRETKEYBYTES, publickey,
            crypto_box_PUBLICKEYBYTES);
-    ZSTR_VAL(keypair)[keypair_len] = 0;
 
     RETURN_STR(keypair);
 }
@@ -1006,7 +1002,6 @@ PHP_FUNCTION(sodium_crypto_box_secretkey)
     }
     secretkey = zend_string_checked_alloc(crypto_box_SECRETKEYBYTES, 0);
     memcpy(ZSTR_VAL(secretkey), keypair, crypto_box_SECRETKEYBYTES);
-    ZSTR_VAL(secretkey)[crypto_box_SECRETKEYBYTES] = 0;
 
     RETURN_STR(secretkey);
 }
@@ -1031,7 +1026,6 @@ PHP_FUNCTION(sodium_crypto_box_publickey)
     publickey = zend_string_checked_alloc(crypto_box_PUBLICKEYBYTES, 0);
     memcpy(ZSTR_VAL(publickey), keypair + crypto_box_SECRETKEYBYTES,
            crypto_box_PUBLICKEYBYTES);
-    ZSTR_VAL(publickey)[crypto_box_PUBLICKEYBYTES] = 0;
 
     RETURN_STR(publickey);
 }
@@ -1058,7 +1052,6 @@ PHP_FUNCTION(sodium_crypto_box_publickey_from_secretkey)
     (void) sizeof(int[crypto_scalarmult_SCALARBYTES ==
                       crypto_box_SECRETKEYBYTES ? 1 : -1]);
     crypto_scalarmult_base((unsigned char *) ZSTR_VAL(publickey), secretkey);
-    ZSTR_VAL(publickey)[crypto_box_PUBLICKEYBYTES] = 0;
 
     RETURN_STR(publickey);
 }
@@ -1107,7 +1100,6 @@ PHP_FUNCTION(sodium_crypto_box)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(ciphertext)[msg_len + crypto_box_MACBYTES] = 0;
 
     RETURN_STR(ciphertext);
 }
@@ -1154,7 +1146,6 @@ PHP_FUNCTION(sodium_crypto_box_open)
         zend_string_free(msg);
         RETURN_FALSE;
     } else {
-        ZSTR_VAL(msg)[ciphertext_len - crypto_box_MACBYTES] = 0;
         RETURN_STR(msg);
     }
 }
@@ -1189,7 +1180,6 @@ PHP_FUNCTION(sodium_crypto_box_seal)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(ciphertext)[msg_len + crypto_box_SEALBYTES] = 0;
 
     RETURN_STR(ciphertext);
 }
@@ -1227,7 +1217,6 @@ PHP_FUNCTION(sodium_crypto_box_seal_open)
         zend_string_free(msg);
         RETURN_FALSE;
     } else {
-        ZSTR_VAL(msg)[ciphertext_len - crypto_box_SEALBYTES] = 0;
         RETURN_STR(msg);
     }
 }
@@ -1249,7 +1238,6 @@ PHP_FUNCTION(sodium_crypto_sign_keypair)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(keypair)[keypair_len] = 0;
 
     RETURN_STR(keypair);
 }
@@ -1281,7 +1269,6 @@ PHP_FUNCTION(sodium_crypto_sign_seed_keypair)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(keypair)[keypair_len] = 0;
 
     RETURN_STR(keypair);
 }
@@ -1317,7 +1304,6 @@ PHP_FUNCTION(sodium_crypto_sign_keypair_from_secretkey_and_publickey)
     memcpy(ZSTR_VAL(keypair), secretkey, crypto_sign_SECRETKEYBYTES);
     memcpy(ZSTR_VAL(keypair) + crypto_sign_SECRETKEYBYTES, publickey,
            crypto_sign_PUBLICKEYBYTES);
-    ZSTR_VAL(keypair)[keypair_len] = 0;
 
     RETURN_STR(keypair);
 }
@@ -1346,7 +1332,6 @@ PHP_FUNCTION(sodium_crypto_sign_publickey_from_secretkey)
                    "internal error", 0);
         return;
     }
-    ZSTR_VAL(publickey)[crypto_sign_PUBLICKEYBYTES] = 0;
 
     RETURN_STR(publickey);
 }
@@ -1370,7 +1355,6 @@ PHP_FUNCTION(sodium_crypto_sign_secretkey)
     }
     secretkey = zend_string_checked_alloc(crypto_sign_SECRETKEYBYTES, 0);
     memcpy(ZSTR_VAL(secretkey), keypair, crypto_sign_SECRETKEYBYTES);
-    ZSTR_VAL(secretkey)[crypto_sign_SECRETKEYBYTES] = 0;
 
     RETURN_STR(secretkey);
 }
@@ -1395,7 +1379,6 @@ PHP_FUNCTION(sodium_crypto_sign_publickey)
     publickey = zend_string_checked_alloc(crypto_sign_PUBLICKEYBYTES, 0);
     memcpy(ZSTR_VAL(publickey), keypair + crypto_sign_SECRETKEYBYTES,
            crypto_sign_PUBLICKEYBYTES);
-    ZSTR_VAL(publickey)[crypto_sign_PUBLICKEYBYTES] = 0;
 
     RETURN_STR(publickey);
 }
@@ -1595,7 +1578,6 @@ PHP_FUNCTION(sodium_crypto_stream)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(ciphertext)[ciphertext_len] = 0;
 
     RETURN_STR(ciphertext);
 }
@@ -1633,7 +1615,6 @@ PHP_FUNCTION(sodium_crypto_stream_xor)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(ciphertext)[ciphertext_len] = 0;
 
     RETURN_STR(ciphertext);
 }
@@ -1708,7 +1689,6 @@ PHP_FUNCTION(sodium_crypto_pwhash)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(hash)[hash_len] = 0;
 
     RETURN_STR(hash);
 }
@@ -1750,7 +1730,6 @@ PHP_FUNCTION(sodium_crypto_pwhash_str)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(hash_str)[crypto_pwhash_STRBYTES - 1] = 0;
 
     len = strlen(ZSTR_VAL(hash_str));
     PHP_SODIUM_ZSTR_TRUNCATE(hash_str, len);
@@ -1868,7 +1847,6 @@ PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(hash)[hash_len] = 0;
 
     RETURN_STR(hash);
 }
@@ -1917,7 +1895,6 @@ PHP_FUNCTION(sodium_crypto_pwhash_scryptsalsa208sha256_str)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(hash_str)[crypto_pwhash_scryptsalsa208sha256_STRBYTES - 1] = 0;
 
     RETURN_STR(hash_str);
 }
@@ -2999,7 +2976,6 @@ PHP_FUNCTION(sodium_bin2hex)
     hex_len = bin_len * 2U;
     hex = zend_string_checked_alloc((size_t) hex_len, 0);
     sodium_bin2hex(ZSTR_VAL(hex), hex_len + 1U, bin, bin_len);
-    ZSTR_VAL(hex)[hex_len] = 0;
 
     RETURN_STR(hex);
 }
@@ -3136,7 +3112,6 @@ PHP_FUNCTION(sodium_crypto_scalarmult)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(q)[crypto_scalarmult_BYTES] = 0;
 
     RETURN_STR(q);
 }
@@ -3168,7 +3143,7 @@ PHP_FUNCTION(sodium_crypto_kx_seed_keypair)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(keypair)[crypto_kx_SECRETKEYBYTES + crypto_kx_PUBLICKEYBYTES] = 0;
+
     RETURN_STR(keypair);
 }
 
@@ -3211,7 +3186,6 @@ PHP_FUNCTION(sodium_crypto_kx_secretkey)
     }
     secretkey = zend_string_checked_alloc(crypto_kx_SECRETKEYBYTES, 0);
     memcpy(ZSTR_VAL(secretkey), keypair, crypto_kx_SECRETKEYBYTES);
-    ZSTR_VAL(secretkey)[crypto_kx_SECRETKEYBYTES] = 0;
 
     RETURN_STR(secretkey);
 }
@@ -3236,7 +3210,6 @@ PHP_FUNCTION(sodium_crypto_kx_publickey)
     publickey = zend_string_checked_alloc(crypto_kx_PUBLICKEYBYTES, 0);
     memcpy(ZSTR_VAL(publickey), keypair + crypto_kx_SECRETKEYBYTES,
            crypto_kx_PUBLICKEYBYTES);
-    ZSTR_VAL(publickey)[crypto_kx_PUBLICKEYBYTES] = 0;
 
     RETURN_STR(publickey);
 }
@@ -3363,7 +3336,6 @@ PHP_FUNCTION(sodium_crypto_auth)
         zend_throw_exception(sodium_exception_ce, "internal error", 0);
         return;
     }
-    ZSTR_VAL(mac)[crypto_auth_BYTES] = 0;
 
     RETURN_STR(mac);
 }
@@ -3422,7 +3394,6 @@ PHP_FUNCTION(sodium_crypto_sign_ed25519_sk_to_curve25519)
         zend_throw_exception(sodium_exception_ce, "crypto_sign_ed25519_sk_to_curve25519()", 0);
         return;
     }
-    ZSTR_VAL(ecdhkey)[crypto_box_SECRETKEYBYTES] = 0;
 
     RETURN_STR(ecdhkey);
 }
@@ -3450,7 +3421,6 @@ PHP_FUNCTION(sodium_crypto_sign_ed25519_pk_to_curve25519)
         zend_throw_exception(sodium_exception_ce, "crypto_sign_ed25519_pk_to_curve25519()", 0);
         return;
     }
-    ZSTR_VAL(ecdhkey)[crypto_box_PUBLICKEYBYTES] = 0;
 
     RETURN_STR(ecdhkey);
 }
@@ -3654,7 +3624,6 @@ PHP_FUNCTION(sodium_crypto_kdf_derive_from_key)
                                              crypto_kdf_KEYBYTES,
                                              salt, ctx_padded);
 #endif
-    ZSTR_VAL(subkey)[subkey_len] = 0;
 
     RETURN_STR(subkey);
 }
@@ -3728,7 +3697,6 @@ PHP_FUNCTION(sodium_pad)
         }
     }
 #endif
-    ZSTR_VAL(padded)[xpadded_len + 1U] = 0;
 
     RETURN_STR(padded);
 }
