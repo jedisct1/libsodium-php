@@ -200,13 +200,13 @@ function sodium_crypto_secretstream_xchacha20poly1305_init_push
   (string $key) : array {}
 
 function sodium_crypto_secretstream_xchacha20poly1305_push
-  (string &$state, string $message, string $additional_data  = "", int $tag  = SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_MESSAGE) : string {}
+  (string &$state, string $message, string $additional_data = "", int $tag  = SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_MESSAGE) : string {}
 
 function sodium_crypto_secretstream_xchacha20poly1305_init_pull
   (string $header, string $key) : string {}
 
 function sodium_crypto_secretstream_xchacha20poly1305_pull
-  (string &$state, string $ciphertext, string $additional_data  = "") : array | FALSE {}
+  (string &$state, string $ciphertext, string $additional_data = "") : array | FALSE {}
 
 function sodium_crypto_secretstream_xchacha20poly1305_rekey
   (string &$state) : void {}
@@ -299,7 +299,7 @@ function sodium_bin2base64
   (string $string, int $id) : string {}
 
 function sodium_base642bin
-  (string $string, int $id, string $ignore  = "") : string {}
+  (string $string, int $id, string $ignore = "") : string {}
 #endif
 
 /* ----- aliases ----- */
