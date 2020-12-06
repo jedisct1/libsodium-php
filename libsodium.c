@@ -165,17 +165,17 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(AI_StateByReferenceAndStringAndMaybeStringAndLong, 0, 0, 2)
     ZEND_ARG_INFO(1, state)
-    ZEND_ARG_INFO(0, string)
+    ZEND_ARG_INFO(0, string1)
     /* optional */
-    ZEND_ARG_INFO(0, string)
+    ZEND_ARG_INFO(0, string2)
     ZEND_ARG_INFO(0, long)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(AI_StateByReferenceAndStringAndMaybeString, 0, 0, 2)
     ZEND_ARG_INFO(1, state)
-    ZEND_ARG_INFO(0, string)
+    ZEND_ARG_INFO(0, string1)
     /* optional */
-    ZEND_ARG_INFO(0, string)
+    ZEND_ARG_INFO(0, string2)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(AI_StateByReferenceAndMaybeLength, 0, 0, 1)
