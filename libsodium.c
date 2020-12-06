@@ -26,10 +26,10 @@
 #endif
 #ifndef ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE
 # define ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(pass_by_ref, name, type_hint, allow_null, default_value) \
-	ZEND_ARG_TYPE_INFO(pass_by_ref, name, type_hint, allow_null)
+        ZEND_ARG_TYPE_INFO(pass_by_ref, name, type_hint, allow_null)
 #endif
 
-#define PHP_SODIUM_ZSTR_TRUNCATE(zs, len) do { ZSTR_LEN(zs) = (len); } while(0)
+#define PHP_SODIUM_ZSTR_TRUNCATE(zs, len) do { ZSTR_LEN(zs) = (len); ZSTR_VAL(zs)[len] = 0; } while(0)
 
 static zend_always_inline zend_string *zend_string_checked_alloc(size_t len, int persistent)
 {
@@ -1440,7 +1440,6 @@ PHP_FUNCTION(sodium_crypto_sign)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(msg_signed, (size_t) msg_signed_real_len);
-    ZSTR_VAL(msg_signed)[msg_signed_real_len] = 0;
 
     RETURN_STR(msg_signed);
 }
@@ -1484,7 +1483,6 @@ PHP_FUNCTION(sodium_crypto_sign_open)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
-    ZSTR_VAL(msg)[msg_real_len] = 0;
 
     RETURN_STR(msg);
 }
@@ -1524,7 +1522,6 @@ PHP_FUNCTION(sodium_crypto_sign_detached)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(signature, (size_t) signature_real_len);
-    ZSTR_VAL(signature)[signature_real_len] = 0;
 
     RETURN_STR(signature);
 }
@@ -2028,7 +2025,6 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
-    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     RETURN_STR(ciphertext);
 }
@@ -2099,7 +2095,6 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_encrypt_detached)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_real_len);
-    ZSTR_VAL(mac)[mac_real_len] = 0;
 
     array_init(return_value);
     add_next_index_str(return_value, ciphertext);
@@ -2168,7 +2163,6 @@ PHP_FUNCTION(sodium_crypto_aead_aes256gcm_decrypt)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
-    ZSTR_VAL(msg)[msg_real_len] = 0;
 
     RETURN_STR(msg);
 }
@@ -2291,7 +2285,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
-    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     RETURN_STR(ciphertext);
 }
@@ -2356,7 +2349,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_encrypt_detached)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_real_len);
-    ZSTR_VAL(mac)[mac_real_len] = 0;
 
     array_init(return_value);
     add_next_index_str(return_value, ciphertext);
@@ -2421,7 +2413,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
-    ZSTR_VAL(msg)[msg_real_len] = 0;
 
     RETURN_STR(msg);
 }
@@ -2479,6 +2470,7 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_decrypt_detached)
         zend_string_free(msg);
         RETURN_FALSE;
     }
+
     RETURN_STR(msg);
 }
 #endif
@@ -2543,7 +2535,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
-    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     RETURN_STR(ciphertext);
 }
@@ -2608,7 +2599,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_encrypt_detached)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_real_len);
-    ZSTR_VAL(mac)[mac_real_len] = 0;
 
     array_init(return_value);
     add_next_index_str(return_value, ciphertext);
@@ -2678,7 +2668,6 @@ PHP_FUNCTION(sodium_crypto_aead_chacha20poly1305_ietf_decrypt)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
-    ZSTR_VAL(msg)[msg_real_len] = 0;
 
     RETURN_STR(msg);
 }
@@ -2797,7 +2786,6 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(ciphertext, (size_t) ciphertext_real_len);
-    ZSTR_VAL(ciphertext)[ciphertext_real_len] = 0;
 
     RETURN_STR(ciphertext);
 }
@@ -2862,7 +2850,6 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt_detached)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(mac, (size_t) mac_real_len);
-    ZSTR_VAL(mac)[mac_real_len] = 0;
 
     array_init(return_value);
     add_next_index_str(return_value, ciphertext);
@@ -2932,7 +2919,6 @@ PHP_FUNCTION(sodium_crypto_aead_xchacha20poly1305_ietf_decrypt)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
-    ZSTR_VAL(msg)[msg_real_len] = 0;
 
     RETURN_STR(msg);
 }
@@ -3049,7 +3035,6 @@ PHP_FUNCTION(sodium_hex2bin)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(bin, (size_t) bin_real_len);
-    ZSTR_VAL(bin)[bin_real_len] = 0;
 
     RETURN_STR(bin);
 }
@@ -3121,7 +3106,6 @@ PHP_FUNCTION(sodium_base642bin)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(bin, (size_t) bin_real_len);
-    ZSTR_VAL(bin)[bin_real_len] = 0;
 
     RETURN_STR(bin);
 }
@@ -3808,7 +3792,7 @@ PHP_FUNCTION(sodium_unpad)
     }
     unpadded = zend_string_init(padded, padded_len, 0);
     PHP_SODIUM_ZSTR_TRUNCATE(unpadded, unpadded_len);
-    ZSTR_VAL(unpadded)[unpadded_len] = 0;
+
     RETURN_STR(unpadded);
 }
 
@@ -3907,7 +3891,6 @@ PHP_FUNCTION(sodium_crypto_secretstream_xchacha20poly1305_push)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(c, (size_t) c_real_len);
-    ZSTR_VAL(c)[c_real_len] = 0;
 
     RETURN_STR(c);
 }
@@ -3993,7 +3976,6 @@ PHP_FUNCTION(sodium_crypto_secretstream_xchacha20poly1305_pull)
         return;
     }
     PHP_SODIUM_ZSTR_TRUNCATE(msg, (size_t) msg_real_len);
-    ZSTR_VAL(msg)[msg_real_len] = 0;
     array_init(return_value);
     add_next_index_str(return_value, msg);
     add_next_index_long(return_value, (long) tag);
