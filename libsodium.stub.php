@@ -263,6 +263,15 @@ function sodium_crypto_stream_keygen
 function sodium_crypto_stream_xor
   (string $message, string $nonce, string $key) : string {}
 
+function sodium_crypto_stream_xchacha20
+  (int $length, string $nonce, string $key) : string {}
+
+function sodium_crypto_stream_xchacha20_keygen
+  () : string {}
+
+function sodium_crypto_stream_xchacha20_xor
+  (string $message, string $nonce, string $key) : string {}
+
 /* ----- helpers ----- */
 
 function sodium_add
