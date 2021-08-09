@@ -1,0 +1,29 @@
+name: Build and Test
+on: [push, pull_request]
+jobs:
+  moderate-modern:
+    name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: ['ubuntu-latest']
+        php-versions: ['7.3', '7.4', '8.0', '8.1']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, intl
+          ini-values: error_reporting=-1, display_errors=On
+          coverage: none
+      - name: phpize
+        run: phpize
+      - name: configure
+        run: configure --enable-sodium
+      - name: make
+        run: make
+      - name: test
+        run: env NO_INTERACTION=1 make test
