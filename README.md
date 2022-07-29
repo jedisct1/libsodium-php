@@ -178,7 +178,7 @@ content as a string, it has to fit in memory.
 If the file is large, we can split it into small chunks, and encrypt
 chunks individually.
 
-By doing do, we can encrypt arbitrary large files. But we need to make
+By doing so, we can encrypt arbitrary large files. But we need to make
 sure that chunks cannot be deleted, truncated, duplicated and
 reordered. In other words, we don't have a single "message", but a
 stream of messages, and during the decryption process, we need a way
@@ -302,7 +302,7 @@ A 8 characters password is thus way weaker than a 8 bytes key.
 The `sodium_crypto_pwhash()` function perform a computationally
 intensive operation on a password in order to derive a secret key.
 
-By doing do, brute-forcing all possible passwords in order to find the
+By doing so, brute-forcing all possible passwords in order to find the
 secret key used to encrypt the data becomes an expensive operation.
 
 Multiple algorithms can be used to derive a key from a password, and
